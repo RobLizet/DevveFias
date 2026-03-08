@@ -807,6 +807,131 @@
     .price-main { font-size: 22px; }
     .live-badge span { display: none; }
   }
+
+  /* ===== SOCIAAL PAGE ===== */
+  .tg-channel-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    transition: border-color 0.2s;
+  }
+  .devve-card:hover { border-color: var(--devve); }
+  .fias-card:hover { border-color: var(--fias); }
+
+  .tg-ch-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .tg-ch-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .devve-icon { background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.3); }
+  .fias-icon  { background: rgba(255,107,53,0.12); border: 1px solid rgba(255,107,53,0.3); }
+
+  .tg-ch-name { font-family: 'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; color:var(--devve); }
+  .tg-ch-handle { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); margin-top:2px; }
+  .tg-ch-desc { font-size:12px; color:#7a9ab8; line-height:1.6; margin-bottom:14px; }
+
+  .tg-open-pill {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-family: 'Barlow Condensed',sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .devve-pill { color:var(--devve); border-color:rgba(0,212,255,0.4); background:rgba(0,212,255,0.08); }
+  .devve-pill:hover { background:rgba(0,212,255,0.2); }
+  .fias-pill  { color:var(--fias); border-color:rgba(255,107,53,0.4); background:rgba(255,107,53,0.08); }
+  .fias-pill:hover  { background:rgba(255,107,53,0.2); }
+
+  .tg-embed-wrap { }
+  .tg-fallback { display:flex; flex-direction:column; }
+
+  .tg-big-btn {
+    display: block;
+    text-align: center;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-family: 'Barlow Condensed',sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .devve-btn { background:rgba(0,212,255,0.12); border:1px solid rgba(0,212,255,0.35); color:var(--devve); }
+  .devve-btn:hover { background:rgba(0,212,255,0.22); }
+  .fias-btn  { background:rgba(255,107,53,0.12); border:1px solid rgba(255,107,53,0.35); color:var(--fias); }
+  .fias-btn:hover  { background:rgba(255,107,53,0.22); }
+  .outline-btn { background:var(--bg3); border:1px solid var(--border); color:var(--muted); }
+  .outline-btn:hover { border-color:rgba(200,223,240,0.3); color:var(--text); }
+
+  /* Social cards */
+  .social-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .social-card:hover { border-color: rgba(200,223,240,0.3); transform: translateY(-1px); }
+
+  .social-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    border: 1px solid;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .social-name { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14px; color:var(--text); }
+  .social-handle { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); margin-top:2px; }
+
+  /* News cards */
+  .news-card {
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .news-card:hover { transform: translateY(-2px); }
+  .devve-news:hover { border-color: var(--devve); }
+  .fias-news:hover  { border-color: var(--fias); }
+  .news-card:not(.devve-news):not(.fias-news):hover { border-color: rgba(200,223,240,0.3); }
+
+  .news-source {
+    font-family: 'Barlow Condensed',sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .devve-news .news-source { color: var(--devve); }
+  .fias-news  .news-source { color: var(--fias); }
+  .news-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
 </style>
 </head>
 <body>
@@ -834,8 +959,8 @@
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="showPage('overview')">📊 Overzicht</button>
       <button class="nav-tab" onclick="showPage('charts')">📈 Charts</button>
+      <button class="nav-tab" onclick="showPage('sociaal')">📱 Sociaal</button>
       <button class="nav-tab" onclick="showPage('info')">ℹ️ Info</button>
-      <button class="nav-tab" onclick="showPage('telegram')">✈️ Telegram</button>
       <button class="nav-tab" onclick="showPage('portfolio')">💼 Portfolio</button>
     </div>
 
@@ -1110,37 +1235,167 @@
     </div>
   </div>
 
-  <!-- ============ PAGE: TELEGRAM ============ -->
-  <div class="page" id="page-telegram">
-    <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
-      Hier kun je je DevvE Telegram-kanalen volgen. Voer de kanaalnaam in of kies een preset.
-      Publieke kanalen worden direct geladen.
-    </p>
+  <!-- ============ PAGE: SOCIAAL ============ -->
+  <div class="page" id="page-sociaal">
 
-    <div class="tg-grid" id="tgGrid">
-      <!-- Kanalen worden hier geladen -->
-    </div>
+    <!-- TELEGRAM KANALEN -->
+    <div class="section-title mixed" style="margin-bottom:14px;">✈️ Telegram Kanalen</div>
 
-    <!-- Kanaal toevoegen -->
-    <div class="chart-card">
-      <div class="section-title mixed">➕ Kanaal toevoegen</div>
-      <div class="tg-channel-input-wrap">
-        <input type="text" class="tg-channel-input" id="tgChannelInput"
-          placeholder="bijv. DevvEcommunity" />
-        <button class="tg-load-btn" onclick="addTgChannel()">Laden</button>
-      </div>
-      <div style="margin-top:10px;">
-        <div style="font-size:11px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.8px;">
-          Bekende DevvE kanalen:
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:22px;">
+
+      <!-- DevveOfficial -->
+      <div class="tg-channel-card devve-card">
+        <div class="tg-ch-header">
+          <div class="tg-ch-icon devve-icon">📢</div>
+          <div>
+            <div class="tg-ch-name">DevvE Official</div>
+            <div class="tg-ch-handle">@DevveOfficial</div>
+          </div>
+          <a href="https://t.me/DevveOfficial" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
         </div>
-        <div class="tg-presets">
-          <button class="tg-preset-btn" onclick="addPreset('DevveOfficial')">@DevveOfficial</button>
-          <button class="tg-preset-btn" onclick="addPreset('D_Rangers')">@D_Rangers</button>
-          <button class="tg-preset-btn" onclick="addPreset('FiasAI')">@FiasAI</button>
-          <button class="tg-preset-btn" onclick="addPreset('FiasAI_unofficial')">@FiasAI_unofficial</button>
+        <div class="tg-ch-desc">Officieel DevvE kanaal — aankondigingen, updates en nieuws rechtstreeks van het team.</div>
+        <div class="tg-embed-wrap">
+          <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="DevveOfficial/1" data-width="100%"></script>
+          <div class="tg-fallback">
+            <a href="https://t.me/DevveOfficial" target="_blank" class="tg-big-btn devve-btn">📲 Open @DevveOfficial in Telegram</a>
+            <a href="https://t.me/s/DevveOfficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+          </div>
         </div>
       </div>
+
+      <!-- D_Rangers -->
+      <div class="tg-channel-card devve-card">
+        <div class="tg-ch-header">
+          <div class="tg-ch-icon devve-icon">🛡️</div>
+          <div>
+            <div class="tg-ch-name">D Rangers</div>
+            <div class="tg-ch-handle">@D_Rangers</div>
+          </div>
+          <a href="https://t.me/D_Rangers" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
+        </div>
+        <div class="tg-ch-desc">DevvE community rangers — discussie, signalen en community updates.</div>
+        <div class="tg-embed-wrap">
+          <div class="tg-fallback">
+            <a href="https://t.me/D_Rangers" target="_blank" class="tg-big-btn devve-btn">📲 Open @D_Rangers in Telegram</a>
+            <a href="https://t.me/s/D_Rangers" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- FiasAI -->
+      <div class="tg-channel-card fias-card">
+        <div class="tg-ch-header">
+          <div class="tg-ch-icon fias-icon">🤖</div>
+          <div>
+            <div class="tg-ch-name" style="color:var(--fias)">FIAS AI</div>
+            <div class="tg-ch-handle">@FiasAI</div>
+          </div>
+          <a href="https://t.me/FiasAI" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
+        </div>
+        <div class="tg-ch-desc">Officieel FIAS kanaal — projectupdates, AI nieuws en token informatie.</div>
+        <div class="tg-embed-wrap">
+          <div class="tg-fallback">
+            <a href="https://t.me/FiasAI" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI in Telegram</a>
+            <a href="https://t.me/s/FiasAI" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- FiasAI_unofficial -->
+      <div class="tg-channel-card fias-card">
+        <div class="tg-ch-header">
+          <div class="tg-ch-icon fias-icon">💬</div>
+          <div>
+            <div class="tg-ch-name" style="color:var(--fias)">FIAS Community</div>
+            <div class="tg-ch-handle">@FiasAI_unofficial</div>
+          </div>
+          <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
+        </div>
+        <div class="tg-ch-desc">Unofficiële FIAS community — discussie, vragen en community-gedreven content.</div>
+        <div class="tg-embed-wrap">
+          <div class="tg-fallback">
+            <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI_unofficial in Telegram</a>
+            <a href="https://t.me/s/FiasAI_unofficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+          </div>
+        </div>
+      </div>
+
     </div>
+
+    <!-- SOCIALE MEDIA -->
+    <div class="section-title devve" style="margin-bottom:14px;">🌐 Sociale Media</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:22px;">
+
+      <a href="https://twitter.com/devvio_inc" target="_blank" class="social-card">
+        <div class="social-icon" style="background:rgba(29,161,242,0.15);border-color:rgba(29,161,242,0.3);color:#1da1f2;">𝕏</div>
+        <div class="social-info">
+          <div class="social-name">DevvE op X/Twitter</div>
+          <div class="social-handle">@devvio_inc</div>
+        </div>
+      </a>
+
+      <a href="https://twitter.com/FiasAI_" target="_blank" class="social-card">
+        <div class="social-icon" style="background:rgba(255,107,53,0.15);border-color:rgba(255,107,53,0.3);color:var(--fias);">𝕏</div>
+        <div class="social-info">
+          <div class="social-name">FIAS op X/Twitter</div>
+          <div class="social-handle">@FiasAI_</div>
+        </div>
+      </a>
+
+      <a href="https://www.reddit.com/r/devvio" target="_blank" class="social-card">
+        <div class="social-icon" style="background:rgba(255,69,0,0.15);border-color:rgba(255,69,0,0.3);color:#ff4500;">r/</div>
+        <div class="social-info">
+          <div class="social-name">DevvE Reddit</div>
+          <div class="social-handle">r/devvio</div>
+        </div>
+      </a>
+
+      <a href="https://devvio.com" target="_blank" class="social-card">
+        <div class="social-icon" style="background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.3);color:var(--devve);">🌐</div>
+        <div class="social-info">
+          <div class="social-name">Devvio Website</div>
+          <div class="social-handle">devvio.com</div>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- NIEUWS -->
+    <div class="section-title mixed" style="margin-bottom:14px;">📰 Crypto Nieuws</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:20px;">
+
+      <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="news-card devve-news">
+        <div class="news-source">CoinTelegraph</div>
+        <div class="news-desc">DevvE & Devvio nieuws en artikelen</div>
+      </a>
+
+      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="news-card fias-news">
+        <div class="news-source">DexScreener</div>
+        <div class="news-desc">Live FIAS DEX data & swaps</div>
+      </a>
+
+      <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="news-card fias-news">
+        <div class="news-source">CoinMarketCap</div>
+        <div class="news-desc">FIAS token marktdata</div>
+      </a>
+
+      <a href="https://www.coingecko.com/en/coins/devve" target="_blank" class="news-card devve-news">
+        <div class="news-source">CoinGecko</div>
+        <div class="news-desc">DevvE marktinformatie</div>
+      </a>
+
+      <a href="https://cryptonews.com" target="_blank" class="news-card">
+        <div class="news-source">CryptoNews</div>
+        <div class="news-desc">Algemeen crypto nieuws</div>
+      </a>
+
+      <a href="https://coindesk.com" target="_blank" class="news-card">
+        <div class="news-source">CoinDesk</div>
+        <div class="news-desc">Blockchain & crypto media</div>
+      </a>
+
+    </div>
+
   </div>
 
   <!-- ============ PAGE: PORTFOLIO ============ -->
@@ -1231,7 +1486,6 @@ function showPage(name) {
   event.currentTarget.classList.add('active');
 
   if (name === 'charts') loadChart(currentChartCoin, currentPeriod);
-  if (name === 'telegram' && tgChannels.length === 0) initTelegram();
 }
 
 // ===== FORMAT HELPERS =====
