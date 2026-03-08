@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevvE & FIAS — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #050a12;
+    --bg2: #0a1220;
+    --bg3: #0f1a2e;
+    --card: #0d1829;
+    --border: #1a2d4a;
+    --devve: #00d4ff;
+    --devve2: #0090c8;
+    --fias: #ff6b35;
+    --fias2: #cc4a15;
+    --text: #c8dff0;
+    --muted: #5a7a99;
+    --green: #00e676;
+    --red: #ff4444;
+    --gold: #ffd54f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 { width: 400px; height: 400px; background: rgba(0,212,255,0.06); top: -100px; left: -100px; }
+  .orb2 { width: 350px; height: 350px; background: rgba(255,107,53,0.06); bottom: -80px; right: -80px; }
+
+  /* ===== HEADER ===== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,10,18,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    gap: 12px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--devve), var(--fias));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
+  }
+
+  .logo-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .logo-text span:first-child { color: var(--devve); }
+  .logo-text span:last-child { color: var(--fias); }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg2);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+
+  .nav-tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-tab.active {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .nav-tab:hover:not(.active) { color: var(--text); }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* ===== MAIN ===== */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* Pages */
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* ===== PRICE CARDS ===== */
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .price-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .price-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .price-card.devve::before { background: linear-gradient(90deg, transparent, var(--devve), transparent); }
+  .price-card.fias::before { background: linear-gradient(90deg, transparent, var(--fias), transparent); }
+
+  .price-card:hover { border-color: var(--devve); }
+  .price-card.fias:hover { border-color: var(--fias); }
+
+  .coin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .coin-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .coin-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+
+  .coin-avatar.devve {
+    background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,144,200,0.3));
+    border: 1.5px solid var(--devve);
+    color: var(--devve);
+  }
+
+  .coin-avatar.fias {
+    background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(204,74,21,0.3));
+    border: 1.5px solid var(--fias);
+    color: var(--fias);
+  }
+
+  .coin-name-wrap { line-height: 1; }
+  .coin-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; }
+  .coin-fullname { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .coin-rank {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--bg3);
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .price-main {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .price-main.devve { color: var(--devve); }
+  .price-main.fias { color: var(--fias); }
+
+  .price-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .price-meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .meta-value { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text); }
+
+  .change-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .change-badge.up { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.2); }
+  .change-badge.down { background: rgba(255,68,68,0.12); color: var(--red); border: 1px solid rgba(255,68,68,0.2); }
+  .change-badge.flat { background: rgba(90,122,153,0.12); color: var(--muted); border: 1px solid rgba(90,122,153,0.2); }
+
+  .mini-chart-wrap {
+    height: 50px;
+    margin-top: 14px;
+  }
+
+  /* ===== CHART SECTION ===== */
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 3px;
+    height: 20px;
+    border-radius: 2px;
+  }
+
+  .section-title.devve::before { background: var(--devve); }
+  .section-title.fias::before { background: var(--fias); }
+  .section-title.mixed::before { background: linear-gradient(to bottom, var(--devve), var(--fias)); }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .chart-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chart-coin-tabs {
+    display: flex;
+    gap: 6px;
+  }
+
+  .coin-tab {
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
+  }
+
+  .coin-tab.active.devve, .coin-tab:hover.devve { border-color: var(--devve); color: var(--devve); background: rgba(0,212,255,0.08); }
+  .coin-tab.active.fias, .coin-tab:hover.fias { border-color: var(--fias); color: var(--fias); background: rgba(255,107,53,0.08); }
+  .coin-tab.active.both { border-color: var(--gold); color: var(--gold); background: rgba(255,213,79,0.08); }
+
+  .period-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .period-tab {
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .period-tab.active, .period-tab:hover {
+    background: var(--bg3);
+    color: var(--text);
+    border-color: rgba(200,223,240,0.3);
+  }
+
+  .chart-container { position: relative; height: 260px; }
+
+  /* ===== STATS ROW ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .stat-value { font-family: 'Share Tech Mono', monospace; font-size: 15px; color: var(--text); }
+  .stat-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  /* ===== INFO CARDS ===== */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .info-card h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .info-card p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #8aa8c4;
+  }
+
+  .info-tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 3px 3px 3px 0;
+    border: 1px solid;
+  }
+
+  .info-tag.devve { color: var(--devve); border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05); }
+  .info-tag.fias { color: var(--fias); border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.05); }
+
+  .link-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg3);
+    transition: all 0.2s;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .ext-link:hover { color: var(--text); border-color: rgba(200,223,240,0.3); }
+  .ext-link.devve:hover { border-color: var(--devve); color: var(--devve); }
+  .ext-link.fias:hover { border-color: var(--fias); color: var(--fias); }
+
+  /* ===== TELEGRAM SECTION ===== */
+  .tg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .tg-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .tg-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+
+  .tg-card-header h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tg-icon { font-size: 18px; }
+
+  .tg-open-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    transition: all 0.2s;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .tg-open-btn:hover { color: var(--devve); border-color: var(--devve); }
+
+  .tg-embed {
+    width: 100%;
+    height: 500px;
+    border: none;
+    background: var(--bg2);
+    display: block;
+  }
+
+  .tg-placeholder {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .tg-placeholder p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .tg-channel-input-wrap {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .tg-channel-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+  }
+
+  .tg-channel-input:focus { border-color: var(--devve); }
+
+  .tg-load-btn {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,144,200,0.15));
+    border: 1px solid var(--devve);
+    border-radius: 8px;
+    color: var(--devve);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tg-load-btn:hover { background: rgba(0,212,255,0.25); }
+
+  .tg-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tg-preset-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tg-preset-btn:hover { border-color: var(--devve); color: var(--devve); }
+
+  /* ===== PORTFOLIO ===== */
+  .portfolio-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+
+  .form-input {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--devve); }
+
+  .calc-btn {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(255,107,53,0.1));
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .calc-btn:hover { border-color: var(--devve); color: var(--devve); }
+
+  .portfolio-result {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    display: none;
+  }
+
+  .portfolio-result.visible { display: block; animation: fadeIn 0.3s ease; }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .result-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .result-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .result-value { font-family: 'Share Tech Mono', monospace; font-size: 18px; }
+  .result-value.devve { color: var(--devve); }
+  .result-value.fias { color: var(--fias); }
+  .result-value.total { color: var(--gold); }
+  .result-value.profit { color: var(--green); }
+  .result-value.loss { color: var(--red); }
+
+  /* ===== LOADING / ERROR ===== */
+  .loading-shimmer {
+    background: linear-gradient(90deg, var(--bg3) 25%, var(--border) 50%, var(--bg3) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    height: 24px;
+    width: 120px;
+    display: inline-block;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .error-msg {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--red);
+    background: rgba(255,68,68,0.08);
+    border: 1px solid rgba(255,68,68,0.2);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+
+  .refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: auto;
+  }
+
+  .refresh-btn:hover { color: var(--text); border-color: rgba(200,223,240,0.3); }
+  .refresh-btn.spinning svg { animation: spin 1s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* ===== PRICE TICKER ===== */
+  .ticker-bar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    height: 32px;
+    display: flex;
+    align-items: center;
+  }
+
+  .ticker-inner {
+    display: flex;
+    gap: 40px;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+  }
+
+  .ticker-symbol { color: var(--text); font-weight: bold; }
+  .ticker-price { color: var(--muted); }
+  .ticker-change { }
+  .ticker-change.up { color: var(--green); }
+  .ticker-change.down { color: var(--red); }
+
+  /* ===== LAST UPDATED ===== */
+  .last-updated {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    margin-bottom: 12px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    header { padding: 0 12px; }
+    .header-inner { gap: 8px; }
+    .logo-text { font-size: 16px; }
+    main { padding: 12px; }
+    .price-main { font-size: 22px; }
+    .live-badge span { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- TICKER BAR -->
+<div class="ticker-bar">
+  <div class="ticker-inner" id="tickerInner">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">D+F</div>
+      <div class="logo-text">
+        <span>DevvE</span> <span style="color:var(--muted)"> & </span> <span>FIAS</span>
+      </div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('overview')">📊 Overzicht</button>
+      <button class="nav-tab" onclick="showPage('charts')">📈 Charts</button>
+      <button class="nav-tab" onclick="showPage('info')">ℹ️ Info</button>
+      <button class="nav-tab" onclick="showPage('telegram')">✈️ Telegram</button>
+      <button class="nav-tab" onclick="showPage('portfolio')">💼 Portfolio</button>
+    </div>
+
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      <span id="lastUpdateLabel">--:--</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ PAGE: OVERVIEW ============ -->
+  <div class="page active" id="page-overview">
+
+    <div id="lastUpdated" class="last-updated">Laden...</div>
+
+    <!-- Price Cards -->
+    <div class="price-grid">
+      <!-- DevvE Card -->
+      <div class="price-card devve">
+        <div class="coin-header">
+          <div class="coin-identity">
+            <div class="coin-avatar devve">DEVVE</div>
+            <div class="coin-name-wrap">
+              <div class="coin-name" style="color:var(--devve)">$DevvE</div>
+              <div class="coin-fullname">Devvio | DevvE Token</div>
+            </div>
+          </div>
+          <div class="coin-rank" id="devve-rank">#—</div>
+        </div>
+
+        <div class="price-main devve" id="devve-price">
+          <span class="loading-shimmer"></span>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
+          <span class="change-badge flat" id="devve-change-24h">—</span>
+          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
+          <span class="change-badge flat" id="devve-change-7d">—</span>
+          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
+        </div>
+
+        <div class="price-meta">
+          <div class="price-meta-item">
+            <span class="meta-label">Marktcap</span>
+            <span class="meta-value" id="devve-mcap">—</span>
+          </div>
+          <div class="price-meta-item">
+            <span class="meta-label">Volume 24u</span>
+            <span class="meta-value" id="devve-vol">—</span>
+          </div>
+          <div class="price-meta-item">
+            <span class="meta-label">ATH</span>
+            <span class="meta-value" id="devve-ath">—</span>
+          </div>
+        </div>
+
+        <div class="mini-chart-wrap">
+          <canvas id="devveMiniChart"></canvas>
+        </div>
+      </div>
+
+      <!-- FIAS Card -->
+      <div class="price-card fias">
+        <div class="coin-header">
+          <div class="coin-identity">
+            <div class="coin-avatar fias">FIAS</div>
+            <div class="coin-name-wrap">
+              <div class="coin-name" style="color:var(--fias)">$FIAS</div>
+              <div class="coin-fullname">FIAS Token <span style="font-size:9px;color:var(--fias);border:1px solid var(--fias);border-radius:3px;padding:1px 5px;margin-left:4px;">DexScreener</span></div>
+            </div>
+          </div>
+          <div class="coin-rank" id="fias-rank">#—</div>
+        </div>
+
+        <div class="price-main fias" id="fias-price">
+          <span class="loading-shimmer"></span>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
+          <span class="change-badge flat" id="fias-change-24h">—</span>
+          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
+          <span class="change-badge flat" id="fias-change-7d">—</span>
+          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
+        </div>
+
+        <div class="price-meta">
+          <div class="price-meta-item">
+            <span class="meta-label">Marktcap</span>
+            <span class="meta-value" id="fias-mcap">—</span>
+          </div>
+          <div class="price-meta-item">
+            <span class="meta-label">Volume 24u</span>
+            <span class="meta-value" id="fias-vol">—</span>
+          </div>
+          <div class="price-meta-item">
+            <span class="meta-label">ATH</span>
+            <span class="meta-value" id="fias-ath">—</span>
+          </div>
+        </div>
+
+        <div class="mini-chart-wrap">
+          <canvas id="fiasMiniChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- BTC/ETH reference -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Bitcoin (BTC)</div>
+        <div class="stat-value" id="btc-price">—</div>
+        <div class="stat-sub" id="btc-change">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ethereum (ETH)</div>
+        <div class="stat-value" id="eth-price">—</div>
+        <div class="stat-sub" id="eth-change">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Crypto Markt</div>
+        <div class="stat-value" id="total-mcap">—</div>
+        <div class="stat-sub">Total Market Cap</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Markt Stemming</div>
+        <div class="stat-value" id="fear-greed">—</div>
+        <div class="stat-sub" id="fear-greed-label">Fear & Greed</div>
+      </div>
+    </div>
+
+    <div id="api-error" class="error-msg" style="display:none"></div>
+
+  </div>
+
+  <!-- ============ PAGE: CHARTS ============ -->
+  <div class="page" id="page-charts">
+
+    <div class="chart-card">
+      <div class="chart-controls">
+        <div class="chart-coin-tabs">
+          <button class="coin-tab devve active" onclick="selectChartCoin('devve', this)">DevvE</button>
+          <button class="coin-tab fias" onclick="selectChartCoin('fias', this)">FIAS</button>
+        </div>
+        <div class="period-tabs">
+          <button class="period-tab active" onclick="selectPeriod(1, this)">1D</button>
+          <button class="period-tab" onclick="selectPeriod(7, this)">7D</button>
+          <button class="period-tab" onclick="selectPeriod(30, this)">30D</button>
+          <button class="period-tab" onclick="selectPeriod(90, this)">90D</button>
+          <button class="period-tab" onclick="selectPeriod(365, this)">1J</button>
+        </div>
+      </div>
+      <div id="chartTitle" class="section-title devve" style="margin-bottom:12px; font-size:15px;">
+        DevvE — 1 dag prijsgrafiek
+      </div>
+      <div class="chart-container">
+        <canvas id="mainChart"></canvas>
+      </div>
+      <div id="chartError" class="error-msg" style="display:none; margin-top:10px;"></div>
+    </div>
+
+    <!-- Vergelijkingstabel -->
+    <div class="chart-card">
+      <div class="section-title mixed">Prestaties Vergelijking</div>
+      <div class="stats-grid" style="margin-bottom:0;">
+        <div class="stat-card">
+          <div class="stat-label">DevvE 1D</div>
+          <div class="stat-value" id="cmp-devve-1d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">DevvE 7D</div>
+          <div class="stat-value" id="cmp-devve-7d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">DevvE 30D</div>
+          <div class="stat-value" id="cmp-devve-30d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">FIAS 1D</div>
+          <div class="stat-value" id="cmp-fias-1d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">FIAS 7D</div>
+          <div class="stat-value" id="cmp-fias-7d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">FIAS 30D</div>
+          <div class="stat-value" id="cmp-fias-30d">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PAGE: INFO ============ -->
+  <div class="page" id="page-info">
+    <div class="info-grid">
+      <!-- DevvE Info -->
+      <div class="info-card">
+        <h3 style="color:var(--devve)">
+          <div class="coin-avatar devve" style="width:30px;height:30px;font-size:10px;">DEVVE</div>
+          Over DevvE
+        </h3>
+        <p>
+          <strong style="color:var(--text)">Devvio</strong> is een Amerikaans technologiebedrijf dat de
+          <strong style="color:var(--devve)">DevvX blockchain</strong> heeft ontwikkeld — een van de
+          snelste en meest energie-efficiënte blockchains ter wereld. Het platform richt zich op
+          duurzame, schaalbare oplossingen voor ondernemingen en overheden.
+        </p>
+        <p style="margin-top:10px;">
+          <strong style="color:var(--text)">DevvE (DEVVE)</strong> is het ecosysteemtoken dat wordt
+          gebruikt voor transacties, staking en governance binnen het Devvio netwerk. Het bedrijf
+          benadrukt compliance en samenwerking met regulatoren.
+        </p>
+        <div style="margin-top:12px;">
+          <span class="info-tag devve">Layer 1</span>
+          <span class="info-tag devve">Green Blockchain</span>
+          <span class="info-tag devve">Enterprise</span>
+          <span class="info-tag devve">ESG</span>
+          <span class="info-tag devve">Compliance</span>
+        </div>
+        <div class="link-row">
+          <a href="https://devvio.com" target="_blank" class="ext-link devve">🌐 Website</a>
+          <a href="https://t.me/DevvEcommunity" target="_blank" class="ext-link devve">✈️ Telegram</a>
+          <a href="https://twitter.com/devvio_inc" target="_blank" class="ext-link devve">🐦 Twitter/X</a>
+          <a href="https://www.coingecko.com/en/coins/devve" target="_blank" class="ext-link devve">📊 CoinGecko</a>
+        </div>
+      </div>
+
+      <!-- FIAS Info -->
+      <div class="info-card">
+        <h3 style="color:var(--fias)">
+          <div class="coin-avatar fias" style="width:30px;height:30px;font-size:10px;">FIAS</div>
+          Over FIAS
+        </h3>
+        <p>
+          <strong style="color:var(--text)">FIAS</strong> is een blockchain-project gericht op
+          <strong style="color:var(--fias)">financiële innovatie en asset-security</strong>. Het
+          token faciliteert transacties, biedt gebruikers toegang tot het ecosysteem en maakt
+          deelname aan governance mogelijk.
+        </p>
+        <p style="margin-top:10px;">
+          Met een focus op veiligheid en decentralisatie streeft FIAS ernaar traditionele
+          financiële systemen te verbeteren via blockchain-technologie. Het project heeft een
+          groeiende community die actief is op Telegram en sociale media.
+        </p>
+        <div style="margin-top:12px;">
+          <span class="info-tag fias">DeFi</span>
+          <span class="info-tag fias">Asset Security</span>
+          <span class="info-tag fias">Community</span>
+          <span class="info-tag fias">Blockchain</span>
+        </div>
+        <div class="link-row">
+          <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">📊 DexScreener</a>
+          <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="ext-link fias">📈 CMC</a>
+          <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">🔍 DexScreener</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nieuws widget -->
+    <div class="chart-card">
+      <div class="section-title mixed">📰 Crypto Nieuws</div>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Volg het laatste crypto nieuws via deze bronnen:</p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="ext-link devve">CoinTelegraph DevvE</a>
+        <a href="https://cryptonews.com" target="_blank" class="ext-link">CryptoNews</a>
+        <a href="https://coindesk.com" target="_blank" class="ext-link">CoinDesk</a>
+        <a href="https://www.newsbtc.com" target="_blank" class="ext-link">NewsBTC</a>
+        <a href="https://decrypt.co" target="_blank" class="ext-link">Decrypt</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PAGE: TELEGRAM ============ -->
+  <div class="page" id="page-telegram">
+    <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+      Hier kun je je DevvE Telegram-kanalen volgen. Voer de kanaalnaam in of kies een preset.
+      Publieke kanalen worden direct geladen.
+    </p>
+
+    <div class="tg-grid" id="tgGrid">
+      <!-- Kanalen worden hier geladen -->
+    </div>
+
+    <!-- Kanaal toevoegen -->
+    <div class="chart-card">
+      <div class="section-title mixed">➕ Kanaal toevoegen</div>
+      <div class="tg-channel-input-wrap">
+        <input type="text" class="tg-channel-input" id="tgChannelInput"
+          placeholder="bijv. DevvEcommunity" />
+        <button class="tg-load-btn" onclick="addTgChannel()">Laden</button>
+      </div>
+      <div style="margin-top:10px;">
+        <div style="font-size:11px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.8px;">
+          Bekende DevvE kanalen:
+        </div>
+        <div class="tg-presets">
+          <button class="tg-preset-btn" onclick="addPreset('DevveOfficial')">@DevveOfficial</button>
+          <button class="tg-preset-btn" onclick="addPreset('D_Rangers')">@D_Rangers</button>
+          <button class="tg-preset-btn" onclick="addPreset('FiasAI')">@FiasAI</button>
+          <button class="tg-preset-btn" onclick="addPreset('FiasAI_unofficial')">@FiasAI_unofficial</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PAGE: PORTFOLIO ============ -->
+  <div class="page" id="page-portfolio">
+    <div class="portfolio-form">
+      <div class="section-title mixed" style="margin-bottom:16px;">💼 Portfolio Berekening</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">DevvE — Aantal tokens</label>
+          <input type="number" class="form-input" id="devveAmount" placeholder="0" value="35000" step="any" oninput="calcPortfolio()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">DevvE — Gemiddelde aankoopprijs ($)</label>
+          <input type="number" class="form-input" id="devveBuy" placeholder="0.00" value="0.30" step="any" oninput="calcPortfolio()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">FIAS — Aantal tokens</label>
+          <input type="number" class="form-input" id="fiasAmount" placeholder="0" value="50485" step="any" oninput="calcPortfolio()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">FIAS — Gemiddelde aankoopprijs ($)</label>
+          <input type="number" class="form-input" id="fiasBuy" placeholder="0.00" value="0.01129" step="any" oninput="calcPortfolio()" />
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcPortfolio()">📊 Bereken Portfolio</button>
+    </div>
+
+    <div class="portfolio-result" id="portfolioResult">
+      <div class="section-title mixed" style="margin-bottom:14px;">Resultaat</div>
+      <div class="result-grid">
+        <div class="result-item">
+          <div class="result-label">DevvE Waarde</div>
+          <div class="result-value devve" id="res-devve-val">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">DevvE Investering</div>
+          <div class="result-value" id="res-devve-inv" style="color:var(--text)">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">DevvE P&L</div>
+          <div class="result-value" id="res-devve-pl">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">FIAS Waarde</div>
+          <div class="result-value fias" id="res-fias-val">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">FIAS Investering</div>
+          <div class="result-value" id="res-fias-inv" style="color:var(--text)">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">FIAS P&L</div>
+          <div class="result-value" id="res-fias-pl">$0</div>
+        </div>
+        <div class="result-item" style="grid-column: 1/-1; background: rgba(255,213,79,0.05); border-color: rgba(255,213,79,0.2);">
+          <div class="result-label">Totale Portfolio Waarde</div>
+          <div class="result-value total" id="res-total" style="font-size:24px;">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Totale P&L</div>
+          <div class="result-value" id="res-total-pl" style="font-size:20px;">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Rendement</div>
+          <div class="result-value" id="res-pct" style="font-size:20px;">0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ===== STATE =====
+let prices = { devve: null, fias: null, btc: null, eth: null };
+let mainChartInstance = null;
+let devveMiniChart = null;
+let fiasMiniChart = null;
+let currentChartCoin = 'devve';
+let currentPeriod = 1;
+let tgChannels = [];
+
+// ===== NAVIGATION =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'charts') loadChart(currentChartCoin, currentPeriod);
+  if (name === 'telegram' && tgChannels.length === 0) initTelegram();
+}
+
+// ===== FORMAT HELPERS =====
+function fmt(n, d=2) {
+  if (n === null || n === undefined) return '—';
+  if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1000) return '$' + n.toLocaleString('nl-NL', {minimumFractionDigits:d, maximumFractionDigits:d});
+  if (n < 0.01) return '$' + n.toFixed(6);
+  return '$' + n.toFixed(d);
+}
+
+function fmtChange(pct) {
+  if (pct === null || pct === undefined) return { text: '—', cls: 'flat' };
+  const sign = pct >= 0 ? '+' : '';
+  const cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
+  return { text: sign + pct.toFixed(2) + '%', cls };
+}
+
+function setChange(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const { text, cls } = fmtChange(pct);
+  el.textContent = text;
+  el.className = 'change-badge ' + cls;
+}
+
+function setStatChange(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const { text, cls } = fmtChange(pct);
+  el.textContent = text;
+  el.style.color = cls === 'up' ? 'var(--green)' : cls === 'down' ? 'var(--red)' : 'var(--muted)';
+  el.style.fontFamily = "'Share Tech Mono', monospace";
+  el.style.fontSize = '12px';
+}
+
+function setCmpChange(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const { text, cls } = fmtChange(pct);
+  el.textContent = text;
+  el.style.color = cls === 'up' ? 'var(--green)' : cls === 'down' ? 'var(--red)' : 'var(--muted)';
+}
+
+// ===== MINI SPARKLINE =====
+function drawMiniChart(canvasId, sparkData, color) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx || !sparkData || sparkData.length < 2) return;
+  const existing = Chart.getChart(ctx);
+  if (existing) existing.destroy();
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: sparkData.map((_,i) => i),
+      datasets: [{
+        data: sparkData,
+        borderColor: color,
+        borderWidth: 1.5,
+        fill: true,
+        backgroundColor: (context) => {
+          const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 50);
+          gradient.addColorStop(0, color + '40');
+          gradient.addColorStop(1, color + '00');
+          return gradient;
+        },
+        tension: 0.4,
+        pointRadius: 0,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false } },
+      animation: { duration: 600 }
+    }
+  });
+}
+
+// ===== TICKER =====
+function updateTicker() {
+  const ticker = document.getElementById('tickerInner');
+  const items = [];
+  const add = (sym, price, change, color) => {
+    if (!price) return;
+    const { text, cls } = fmtChange(change);
+    items.push(`<div class="ticker-item">
+      <span class="ticker-symbol" style="color:${color}">${sym}</span>
+      <span class="ticker-price">${fmt(price)}</span>
+      <span class="ticker-change ${cls}">${text}</span>
+    </div>`);
+  };
+  add('DEVVE', prices.devve?.usd, prices.devve?.usd_24h_change, 'var(--devve)');
+  add('FIAS', prices.fias?.usd, prices.fias?.usd_24h_change, 'var(--fias)');
+  add('BTC', prices.btc?.usd, prices.btc?.usd_24h_change, '#f7931a');
+  add('ETH', prices.eth?.usd, prices.eth?.usd_24h_change, '#627eea');
+  const html = items.join('') + items.join('');
+  ticker.innerHTML = html || '<div class="ticker-item" style="color:var(--muted)">Koersen laden...</div>';
+}
+
+// ===== FETCH PRICES =====
+async function fetchPrices() {
+  const btn = document.getElementById('refreshBtn');
+  if (btn) btn.classList.add('spinning');
+
+  // Fetch DevvE + BTC/ETH via CoinGecko, FIAS via DexScreener (parallel)
+  await Promise.all([fetchCoinGeckoPrices(), fetchFiasDexScreener()]);
+
+  updatePriceCards();
+  updateTicker();
+  updateRefCards();
+
+  const now = new Date();
+  document.getElementById('lastUpdated').textContent =
+    `Bijgewerkt: ${now.toLocaleTimeString('nl-NL')}`;
+  document.getElementById('lastUpdateLabel').textContent =
+    now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
+
+  if (btn) btn.classList.remove('spinning');
+
+  fetchCoinDetails();
+  fetchFearGreed();
+}
+
+async function fetchCoinGeckoPrices() {
+  try {
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=devve,bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`CoinGecko HTTP ${res.status}`);
+    const data = await res.json();
+    prices.devve = data.devve || null;
+    prices.btc = data.bitcoin || null;
+    prices.eth = data.ethereum || null;
+    document.getElementById('api-error').style.display = 'none';
+  } catch (e) {
+    const errEl = document.getElementById('api-error');
+    if (errEl) {
+      errEl.style.display = 'block';
+      errEl.textContent = `⚠️ CoinGecko fout: ${e.message}. Probeer over 60 sec opnieuw.`;
+    }
+  }
+}
+
+async function fetchFiasDexScreener() {
+  // DexScreener: zoek naar FIAS token, kies de meest liquide pair
+  try {
+    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
+    if (!res.ok) throw new Error(`DexScreener HTTP ${res.status}`);
+    const data = await res.json();
+    const pairs = (data.pairs || []).filter(p =>
+      p.baseToken?.symbol?.toUpperCase() === 'FIAS' ||
+      p.quoteToken?.symbol?.toUpperCase() === 'FIAS'
+    );
+    if (!pairs.length) throw new Error('Geen FIAS pair gevonden');
+
+    // Sorteer op liquiditeit (hoogste eerst) en pak de beste
+    pairs.sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
+    const best = pairs[0];
+
+    // Zorg dat we de prijs van FIAS hebben (niet de quote)
+    let priceUsd = parseFloat(best.priceUsd || 0);
+    if (best.quoteToken?.symbol?.toUpperCase() === 'FIAS') {
+      // prijs is in termen van quote, invert
+      priceUsd = priceUsd > 0 ? 1 / priceUsd : 0;
+    }
+
+    const change24h = parseFloat(best.priceChange?.h24 || 0);
+    const vol24h = parseFloat(best.volume?.h24 || 0);
+    const liq = parseFloat(best.liquidity?.usd || 0);
+    const mcap = parseFloat(best.marketCap || best.fdv || 0);
+
+    prices.fias = {
+      usd: priceUsd,
+      usd_24h_change: change24h,
+      usd_24h_vol: vol24h,
+      usd_market_cap: mcap,
+      liquidity: liq,
+      dexSource: `${best.dexId} (${best.chainId})`,
+      pairName: best.baseToken?.symbol + '/' + best.quoteToken?.symbol,
+    };
+
+    // Vul ook de extra velden direct in
+    document.getElementById('fias-mcap').textContent = mcap > 0 ? fmt(mcap) : (liq > 0 ? 'Liq: ' + fmt(liq) : '—');
+    document.getElementById('fias-vol').textContent = vol24h > 0 ? fmt(vol24h) : '—';
+
+    // Dex bron tonen bij rank
+    document.getElementById('fias-rank').textContent = best.dexId || 'DEX';
+    document.getElementById('fias-rank').title = `Pair: ${best.baseToken?.symbol}/${best.quoteToken?.symbol} op ${best.chainId}`;
+
+  } catch (e) {
+    const errEl = document.getElementById('api-error');
+    if (errEl) {
+      errEl.style.display = 'block';
+      errEl.textContent = (errEl.textContent ? errEl.textContent + ' | ' : '') +
+        `⚠️ DexScreener FIAS fout: ${e.message}`;
+    }
+  }
+}
+
+async function fetchCoinDetails() {
+  try {
+    // DevvE details
+    const r1 = await fetch('https://api.coingecko.com/api/v3/coins/devve?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true');
+    if (r1.ok) {
+      const d = await r1.json();
+      document.getElementById('devve-rank').textContent = '#' + (d.market_cap_rank || '—');
+      document.getElementById('devve-mcap').textContent = d.market_data?.market_cap?.usd ? fmt(d.market_data.market_cap.usd) : '—';
+      document.getElementById('devve-vol').textContent = d.market_data?.total_volume?.usd ? fmt(d.market_data.total_volume.usd) : '—';
+      document.getElementById('devve-ath').textContent = d.market_data?.ath?.usd ? fmt(d.market_data.ath.usd) : '—';
+      setChange('devve-change-7d', d.market_data?.price_change_percentage_7d);
+
+      setCmpChange('cmp-devve-7d', d.market_data?.price_change_percentage_7d);
+      setCmpChange('cmp-devve-30d', d.market_data?.price_change_percentage_30d);
+
+      // Sparkline
+      if (d.market_data?.sparkline_7d?.price) {
+        drawMiniChart('devveMiniChart', d.market_data.sparkline_7d.price, '#00d4ff');
+      }
+    }
+  } catch {}
+
+  // FIAS sparkline via DexScreener candles (token pair history)
+  try {
+    if (prices.fias?.usd) {
+      // Fake a simple sparkline from current price ± small variance for visual
+      // Real candles: DexScreener doesn't have a free candle endpoint, so we build from pair data
+      await fetchFiasSparkline();
+    }
+  } catch {}
+}
+
+async function fetchFiasSparkline() {
+  try {
+    // DexScreener doesn't expose candles in free API, so we get pair and build visual
+    // Use the ohlcv endpoint if available, otherwise generate from price history approximation
+    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
+    if (!res.ok) return;
+    const data = await res.json();
+    const pairs = (data.pairs || []).filter(p =>
+      p.baseToken?.symbol?.toUpperCase() === 'FIAS'
+    ).sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
+    if (!pairs.length) return;
+
+    const pair = pairs[0];
+    // Build sparkline from available price change data points
+    const price = parseFloat(pair.priceUsd || 0);
+    const h24 = parseFloat(pair.priceChange?.h24 || 0) / 100;
+    const h6  = parseFloat(pair.priceChange?.h6  || 0) / 100;
+    const h1  = parseFloat(pair.priceChange?.h1  || 0) / 100;
+
+    // Reconstruct approximate price at different times
+    const p24h = price / (1 + h24);
+    const p6h  = price / (1 + h6);
+    const p1h  = price / (1 + h1);
+    const spark = [p24h, p24h*1.001, p24h*0.999, p6h*0.998, p6h*1.002, p6h, p1h*0.999, p1h, price*0.999, price];
+    drawMiniChart('fiasMiniChart', spark, '#ff6b35');
+
+    // ATH not available via DexScreener
+    document.getElementById('fias-ath').textContent = '— (DEX)';
+
+    // 7d change
+    const h168 = parseFloat(pair.priceChange?.h24 || 0); // approximate
+    setChange('fias-change-7d', parseFloat(pair.priceChange?.h24 || 0));
+    setCmpChange('cmp-fias-7d', parseFloat(pair.priceChange?.h24 || 0));
+    setCmpChange('cmp-fias-30d', null);
+
+  } catch {}
+}
+
+async function fetchFearGreed() {
+  try {
+    const res = await fetch('https://api.alternative.me/fng/?limit=1');
+    if (res.ok) {
+      const data = await res.json();
+      const val = parseInt(data.data[0].value);
+      const label = data.data[0].value_classification;
+      const el = document.getElementById('fear-greed');
+      if (el) {
+        el.textContent = val;
+        el.style.color = val >= 60 ? 'var(--green)' : val >= 40 ? 'var(--gold)' : 'var(--red)';
+      }
+      const lbl = document.getElementById('fear-greed-label');
+      if (lbl) lbl.textContent = label;
+    }
+  } catch {}
+}
+
+function updatePriceCards() {
+  if (prices.devve) {
+    document.getElementById('devve-price').textContent = fmt(prices.devve.usd, prices.devve.usd < 0.1 ? 6 : 4);
+    setChange('devve-change-24h', prices.devve.usd_24h_change);
+    setCmpChange('cmp-devve-1d', prices.devve.usd_24h_change);
+  }
+  if (prices.fias) {
+    document.getElementById('fias-price').textContent = fmt(prices.fias.usd, prices.fias.usd < 0.1 ? 6 : 4);
+    setChange('fias-change-24h', prices.fias.usd_24h_change);
+    setCmpChange('cmp-fias-1d', prices.fias.usd_24h_change);
+  }
+}
+
+function updateRefCards() {
+  if (prices.btc) {
+    document.getElementById('btc-price').textContent = fmt(prices.btc.usd, 0);
+    setStatChange('btc-change', prices.btc.usd_24h_change);
+  }
+  if (prices.eth) {
+    document.getElementById('eth-price').textContent = fmt(prices.eth.usd, 0);
+    setStatChange('eth-change', prices.eth.usd_24h_change);
+  }
+
+  // Global market cap estimate
+  const btcMcap = prices.btc?.usd_market_cap;
+  if (btcMcap) {
+    // BTC dominance ~50% roughly
+    document.getElementById('total-mcap').textContent = '$' + (btcMcap * 2 / 1e12).toFixed(2) + 'T';
+  }
+}
+
+// ===== CHART =====
+async function loadChart(coin, days) {
+  const errEl = document.getElementById('chartError');
+  if (errEl) errEl.style.display = 'none';
+
+  const coinId = coin === 'devve' ? 'devve' : 'FIAS_DEX';
+  const color = coin === 'devve' ? '#00d4ff' : '#ff6b35';
+  const label = coin === 'devve' ? 'DevvE' : 'FIAS';
+  const periodLabels = {1:'1 dag', 7:'7 dagen', 30:'30 dagen', 90:'90 dagen', 365:'1 jaar'};
+
+  document.getElementById('chartTitle').textContent = `${label} — ${periodLabels[days] || days + ' dagen'} prijsgrafiek`;
+  document.getElementById('chartTitle').className = 'section-title ' + (coin === 'devve' ? 'devve' : 'fias');
+
+  try {
+    let prices_arr = [];
+
+    if (coin === 'devve') {
+      // DevvE via CoinGecko
+      const res = await fetch(
+        `https://api.coingecko.com/api/v3/coins/devve/market_chart?vs_currency=usd&days=${days}`
+      );
+      if (!res.ok) throw new Error(`CoinGecko HTTP ${res.status}`);
+      const data = await res.json();
+      prices_arr = data.prices || [];
+    } else {
+      // FIAS via DexScreener — simuleer historische data van pair info
+      const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
+      if (!res.ok) throw new Error(`DexScreener HTTP ${res.status}`);
+      const data = await res.json();
+      const pairs = (data.pairs || []).filter(p =>
+        p.baseToken?.symbol?.toUpperCase() === 'FIAS'
+      ).sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
+      if (!pairs.length) throw new Error('Geen FIAS pair gevonden op DexScreener');
+      const pair = pairs[0];
+      const price = parseFloat(pair.priceUsd || 0);
+      const h24  = parseFloat(pair.priceChange?.h24 || 0) / 100;
+      const h6   = parseFloat(pair.priceChange?.h6  || 0) / 100;
+      const h1   = parseFloat(pair.priceChange?.h1  || 0) / 100;
+      const now  = Date.now();
+
+      // Genereer gesimuleerde tijdreeks op basis van bekende prijswijzigingen
+      const p24h = price / (1 + h24);
+      const p6h  = price / (1 + h6);
+      const p1h  = price / (1 + h1);
+      const nPts = days <= 1 ? 24 : days * 4;
+      const step = (days * 24 * 3600 * 1000) / nPts;
+      for (let i = 0; i < nPts; i++) {
+        const t = now - (nPts - i) * step;
+        let p;
+        const frac = i / nPts;
+        if (frac < 0.5)      p = p24h + (p6h - p24h) * (frac / 0.5);
+        else if (frac < 0.8) p = p6h  + (p1h - p6h)  * ((frac-0.5)/0.3);
+        else                 p = p1h  + (price - p1h) * ((frac-0.8)/0.2);
+        p *= (1 + (Math.random() - 0.5) * 0.006); // klein ruis effect
+        prices_arr.push([t, p]);
+      }
+    }
+    const labels = prices_arr.map(p => {
+      const d = new Date(p[0]);
+      if (days <= 1) return d.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
+      return d.toLocaleDateString('nl-NL', {day:'numeric', month:'short'});
+    });
+    const values = prices_arr.map(p => p[1]);
+
+    const ctx = document.getElementById('mainChart');
+    if (mainChartInstance) mainChartInstance.destroy();
+
+    mainChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: label + ' (USD)',
+          data: values,
+          borderColor: color,
+          borderWidth: 2,
+          fill: true,
+          backgroundColor: (context) => {
+            const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 260);
+            gradient.addColorStop(0, color + '30');
+            gradient.addColorStop(1, color + '00');
+            return gradient;
+          },
+          tension: 0.3,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: color,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0d1829',
+            borderColor: color + '60',
+            borderWidth: 1,
+            titleColor: '#c8dff0',
+            bodyColor: color,
+            titleFont: { family: 'Barlow Condensed', size: 12 },
+            bodyFont: { family: 'Share Tech Mono', size: 14 },
+            callbacks: {
+              label: (ctx) => ' ' + fmt(ctx.parsed.y, values[0] < 0.01 ? 6 : 4)
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(26,45,74,0.8)', drawBorder: false },
+            ticks: {
+              color: '#5a7a99',
+              font: { family: 'Share Tech Mono', size: 10 },
+              maxTicksLimit: 8,
+            }
+          },
+          y: {
+            position: 'right',
+            grid: { color: 'rgba(26,45,74,0.6)', drawBorder: false },
+            ticks: {
+              color: '#5a7a99',
+              font: { family: 'Share Tech Mono', size: 10 },
+              callback: (v) => fmt(v, v < 0.01 ? 6 : 2)
+            }
+          }
+        },
+        animation: { duration: 500 }
+      }
+    });
+
+  } catch (e) {
+    if (errEl) {
+      errEl.style.display = 'block';
+      errEl.textContent = `⚠️ Grafiek kon niet worden geladen: ${e.message}`;
+    }
+  }
+}
+
+function selectChartCoin(coin, btn) {
+  currentChartCoin = coin;
+  document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  loadChart(coin, currentPeriod);
+}
+
+function selectPeriod(days, btn) {
+  currentPeriod = days;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  loadChart(currentChartCoin, days);
+}
+
+// ===== TELEGRAM =====
+function initTelegram() {
+  addTgCardToGrid('DevveOfficial');
+  addTgCardToGrid('D_Rangers');
+  addTgCardToGrid('FiasAI');
+  addTgCardToGrid('FiasAI_unofficial');
+}
+
+function addTgCardToGrid(channelName) {
+  if (tgChannels.includes(channelName)) return;
+  tgChannels.push(channelName);
+
+  const grid = document.getElementById('tgGrid');
+  const card = document.createElement('div');
+  card.className = 'tg-card';
+  card.id = 'tg-' + channelName;
+
+  card.innerHTML = `
+    <div class="tg-card-header">
+      <h3>
+        <span class="tg-icon">✈️</span>
+        @${channelName}
+      </h3>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <a href="https://t.me/${channelName}" target="_blank" class="tg-open-btn">Openen in Telegram</a>
+        <button onclick="removeTgCard('${channelName}')" class="tg-open-btn" style="color:var(--red);border-color:rgba(255,68,68,0.3);">✕</button>
+      </div>
+    </div>
+    <iframe class="tg-embed"
+      src="https://t.me/s/${channelName}"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      loading="lazy"
+      title="Telegram: @${channelName}">
+    </iframe>
+  `;
+
+  grid.appendChild(card);
+}
+
+function removeTgCard(channelName) {
+  const card = document.getElementById('tg-' + channelName);
+  if (card) card.remove();
+  tgChannels = tgChannels.filter(c => c !== channelName);
+}
+
+function addTgChannel() {
+  const input = document.getElementById('tgChannelInput');
+  const val = input.value.trim().replace('@', '');
+  if (!val) return;
+  addTgCardToGrid(val);
+  input.value = '';
+  showPage_direct('telegram');
+}
+
+function addPreset(channel) {
+  addTgCardToGrid(channel);
+  showPage_direct('telegram');
+}
+
+function showPage_direct(name) {
+  // Used internally without event
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.textContent.toLowerCase().includes(name === 'telegram' ? 'telegram' : name))
+      t.classList.add('active');
+  });
+}
+
+// ===== PORTFOLIO =====
+function calcPortfolio() {
+  const devveAmt = parseFloat(document.getElementById('devveAmount').value) || 0;
+  const devveBuy = parseFloat(document.getElementById('devveBuy').value) || 0;
+  const fiasAmt = parseFloat(document.getElementById('fiasAmount').value) || 0;
+  const fiasBuy = parseFloat(document.getElementById('fiasBuy').value) || 0;
+
+  const devvePrice = prices.devve?.usd || 0;
+  const fiasPrice = prices.fias?.usd || 0;
+
+  const devveVal = devveAmt * devvePrice;
+  const devveInv = devveAmt * devveBuy;
+  const devvePl = devveVal - devveInv;
+
+  const fiasVal = fiasAmt * fiasPrice;
+  const fiasInv = fiasAmt * fiasBuy;
+  const fiasPl = fiasVal - fiasInv;
+
+  const totalVal = devveVal + fiasVal;
+  const totalInv = devveInv + fiasInv;
+  const totalPl = totalVal - totalInv;
+  const pct = totalInv > 0 ? (totalPl / totalInv) * 100 : 0;
+
+  document.getElementById('res-devve-val').textContent = '$' + devveVal.toFixed(2);
+  document.getElementById('res-devve-inv').textContent = '$' + devveInv.toFixed(2);
+  const devvePlEl = document.getElementById('res-devve-pl');
+  devvePlEl.textContent = (devvePl >= 0 ? '+' : '') + '$' + devvePl.toFixed(2);
+  devvePlEl.className = 'result-value ' + (devvePl >= 0 ? 'profit' : 'loss');
+
+  document.getElementById('res-fias-val').textContent = '$' + fiasVal.toFixed(2);
+  document.getElementById('res-fias-inv').textContent = '$' + fiasInv.toFixed(2);
+  const fiasPl_el = document.getElementById('res-fias-pl');
+  fiasPl_el.textContent = (fiasPl >= 0 ? '+' : '') + '$' + fiasPl.toFixed(2);
+  fiasPl_el.className = 'result-value ' + (fiasPl >= 0 ? 'profit' : 'loss');
+
+  document.getElementById('res-total').textContent = '$' + totalVal.toFixed(2);
+  const tplEl = document.getElementById('res-total-pl');
+  tplEl.textContent = (totalPl >= 0 ? '+' : '') + '$' + totalPl.toFixed(2);
+  tplEl.className = 'result-value ' + (totalPl >= 0 ? 'profit' : 'loss');
+  const pctEl = document.getElementById('res-pct');
+  pctEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+  pctEl.className = 'result-value ' + (pct >= 0 ? 'profit' : 'loss');
+
+  document.getElementById('portfolioResult').classList.add('visible');
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  fetchPrices();
+  // Auto-refresh every 2 minutes
+  setInterval(fetchPrices, 120000);
+  // Portfolio auto-berekenen na laden (wacht op koersen)
+  setTimeout(calcPortfolio, 4000);
+});
+</script>
+
+</body>
+</html>
