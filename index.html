@@ -1946,6 +1946,7 @@ function initLwChart() {
     upColor: '#1a9e5a', downColor: '#d93030',
     borderUpColor: '#1a9e5a', borderDownColor: '#d93030',
     wickUpColor: '#1a9e5a', wickDownColor: '#d93030',
+    priceFormat: { type: 'price', precision: 6, minMove: 0.000001 },
   });
   new ResizeObserver(() => { if (lwChart) lwChart.applyOptions({ width: el.clientWidth }); }).observe(el);
 }
