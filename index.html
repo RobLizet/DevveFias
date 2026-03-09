@@ -1961,19 +1961,34 @@ function aggregateCandles(priceArr, intervalMs) {
 }
 
 async function fetchDevveCandles(tf, days) {
-  // DexScreener voor DevvE charts (CoinGecko market_chart niet beschikbaar gratis tier)
-  const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=DEVVE');
-  if (!res.ok) throw new Error('DexScreener ' + res.status);
-  const data = await res.json();
-  const pairs = (data.pairs || [])
-    .filter(p => p.baseToken?.symbol?.toUpperCase() === 'DEVVE')
-    .sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
-  if (!pairs.length) throw new Error('Geen DEVVE pair gevonden');
-  const pair = pairs[0];
-  const price = parseFloat(pair.priceUsd || 0);
-  const h1  = parseFloat(pair.priceChange?.h1  || 0) / 100;
-  const h6  = parseFloat(pair.priceChange?.h6  || 0) / 100;
-  const h24 = parseFloat(pair.priceChange?.h24 || 0) / 100;
+  // Gebruik CoinGecko simple price als anker (klopt altijd)
+  // plus DexScreener voor % veranderingen
+  const [cgRes, dxRes] = await Promise.all([
+    fetch('https://api.coingecko.com/api/v3/simple/price?ids=devve&vs_currencies=usd&include_24hr_change=true'),
+    fetch('https://api.dexscreener.com/latest/dex/search?q=DEVVE+USDT')
+  ]);
+
+  // Haal prijs op uit CoinGecko (meest betrouwbaar)
+  let price = prices?.devve?.usd || 0;
+  if (cgRes.ok) {
+    const cgData = await cgRes.json();
+    price = cgData?.devve?.usd || price;
+  }
+  if (!price) throw new Error('Geen DevvE prijs beschikbaar');
+
+  // Haal % veranderingen uit DexScreener
+  let h1 = 0, h6 = 0, h24 = cgRes.ok ? 0 : 0;
+  if (dxRes.ok) {
+    const dxData = await dxRes.json();
+    const pairs = (dxData.pairs || [])
+      .filter(p => p.baseToken?.symbol?.toUpperCase() === 'DEVVE')
+      .sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
+    if (pairs.length) {
+      h1  = parseFloat(pairs[0].priceChange?.h1  || 0) / 100;
+      h6  = parseFloat(pairs[0].priceChange?.h6  || 0) / 100;
+      h24 = parseFloat(pairs[0].priceChange?.h24 || 0) / 100;
+    }
+  }
   const p24 = price / (1 + h24), p6 = price / (1 + h6), p1 = price / (1 + h1);
   const now = Math.floor(Date.now() / 1000);
   const configs = { '15m':[15*60,96], '4H':[4*3600,42], '1D':[86400,30], '7D':[86400,7], '30D':[86400,30], '1J':[86400,90] };
