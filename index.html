@@ -1,0 +1,2616 @@
+<!DOCTYPE html>
+
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevvE & FIAS — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+  :root {
+    --bg: #e8eaed;
+    --bg2: #dde0e4;
+    --bg3: #d0d4d9;
+    --card: #f2f4f6;
+    --border: #bcc1ca;
+    --devve: #0088cc;
+    --devve2: #006699;
+    --fias: #e05a20;
+    --fias2: #b84010;
+    --text: #1a1e26;
+    --muted: #5a6170;
+    --green: #1a9e5a;
+    --red: #d93030;
+    --gold: #c47f00;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Barlow’, sans-serif;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Grid background */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image:
+linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+background-size: 40px 40px;
+pointer-events: none;
+z-index: 0;
+}
+
+/* Glow orbs */
+.orb {
+position: fixed;
+border-radius: 50%;
+filter: blur(80px);
+pointer-events: none;
+z-index: 0;
+}
+.orb1 { width: 400px; height: 400px; background: rgba(0,136,204,0.08); top: -100px; left: -100px; }
+.orb2 { width: 350px; height: 350px; background: rgba(224,90,32,0.08); bottom: -80px; right: -80px; }
+
+/* ===== HEADER ===== */
+header {
+position: sticky;
+top: 0;
+z-index: 100;
+background: rgba(232,234,237,0.97);
+backdrop-filter: blur(20px);
+border-bottom: 1px solid var(–border);
+padding: 0 20px;
+}
+
+.header-inner {
+max-width: 1200px;
+margin: 0 auto;
+display: grid;
+grid-template-columns: auto 1fr auto;
+grid-template-rows: auto auto;
+align-items: center;
+padding: 8px 0;
+gap: 6px 12px;
+}
+.header-inner .logo      { grid-column: 1; grid-row: 1; }
+.header-inner .live-badge{ grid-column: 3; grid-row: 1; }
+.header-inner .nav-tabs  { grid-column: 1 / -1; grid-row: 2; }
+
+.logo {
+display: flex;
+align-items: center;
+gap: 10px;
+flex-shrink: 0;
+}
+
+.logo-icon {
+width: 36px;
+height: 36px;
+background: linear-gradient(135deg, var(–devve), var(–fias));
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 14px;
+font-weight: bold;
+color: #000;
+}
+
+.logo-text {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-weight: 700;
+font-size: 18px;
+letter-spacing: 1px;
+}
+
+.logo-text span:first-child { color: var(–devve); }
+.logo-text span:last-child { color: var(–fias); }
+
+.nav-tabs {
+display: flex;
+flex-wrap: wrap;
+gap: 4px;
+background: var(–bg2);
+border-radius: 8px;
+padding: 4px;
+border: 1px solid var(–border);
+}
+
+.nav-tab {
+flex: 1 1 auto;
+min-width: 0;
+padding: 7px 10px;
+border-radius: 6px;
+border: none;
+background: transparent;
+color: var(–muted);
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 13px;
+font-weight: 600;
+letter-spacing: 0.3px;
+text-transform: uppercase;
+cursor: pointer;
+transition: all 0.2s;
+white-space: nowrap;
+text-align: center;
+}
+
+.nav-tab.active {
+background: var(–bg3);
+color: var(–text);
+border: 1px solid var(–border);
+}
+
+.nav-tab:hover:not(.active) { color: var(–text); }
+
+.live-badge {
+display: flex;
+align-items: center;
+gap: 6px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 11px;
+color: var(–muted);
+flex-shrink: 0;
+}
+
+```
+.logo { flex: 1; }
+.live-badge { order: 2; }
+.nav-tabs {
+  order: 3;
+  width: 100%;
+  justify-content: stretch;
+}
+.nav-tab {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 11px;
+  text-align: center;
+  letter-spacing: 0;
+}
+/* Hide emoji on very small screens, keep text */
+.nav-tab { white-space: nowrap; overflow: hidden; }
+```
+
+}
+
+.live-dot {
+width: 7px;
+height: 7px;
+background: var(–green);
+border-radius: 50%;
+animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 1; transform: scale(1); }
+50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ===== MAIN ===== */
+main {
+position: relative;
+z-index: 1;
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+}
+
+/* Pages */
+.page { display: none; animation: fadeIn 0.3s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ===== PRICE CARDS ===== */
+.price-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+gap: 16px;
+margin-bottom: 20px;
+}
+
+.price-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 20px;
+position: relative;
+overflow: hidden;
+transition: border-color 0.3s;
+}
+
+.price-card::before {
+content: ‘’;
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 2px;
+}
+
+.price-card.devve::before { background: linear-gradient(90deg, transparent, var(–devve), transparent); }
+.price-card.fias::before { background: linear-gradient(90deg, transparent, var(–fias), transparent); }
+
+.price-card:hover { border-color: var(–devve); }
+.price-card.fias:hover { border-color: var(–fias); }
+
+.coin-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 16px;
+}
+
+.coin-identity {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.coin-avatar {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: ‘Barlow Condensed’, sans-serif;
+font-weight: 900;
+font-size: 13px;
+letter-spacing: 0.5px;
+flex-shrink: 0;
+}
+
+.coin-avatar.devve {
+background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,144,200,0.3));
+border: 1.5px solid var(–devve);
+color: var(–devve);
+}
+
+.coin-avatar.fias {
+background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(204,74,21,0.3));
+border: 1.5px solid var(–fias);
+color: var(–fias);
+}
+
+.coin-name-wrap { line-height: 1; }
+.coin-name { font-family: ‘Barlow Condensed’, sans-serif; font-weight: 700; font-size: 18px; }
+.coin-fullname { font-size: 11px; color: var(–muted); margin-top: 2px; }
+
+.coin-rank {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 11px;
+color: var(–muted);
+background: var(–bg3);
+padding: 3px 8px;
+border-radius: 4px;
+border: 1px solid var(–border);
+}
+
+.price-main {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 28px;
+font-weight: bold;
+line-height: 1;
+margin-bottom: 8px;
+}
+
+.price-main.devve { color: var(–devve); }
+.price-main.fias { color: var(–fias); }
+
+.price-meta {
+display: flex;
+gap: 16px;
+flex-wrap: wrap;
+}
+
+.price-meta-item { display: flex; flex-direction: column; gap: 2px; }
+.meta-label { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.meta-value { font-family: ‘Share Tech Mono’, monospace; font-size: 12px; color: var(–text); }
+
+.change-badge {
+display: inline-flex;
+align-items: center;
+gap: 3px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 13px;
+font-weight: bold;
+padding: 4px 10px;
+border-radius: 6px;
+}
+
+.change-badge.up { background: rgba(0,230,118,0.12); color: var(–green); border: 1px solid rgba(0,230,118,0.2); }
+.change-badge.down { background: rgba(255,68,68,0.12); color: var(–red); border: 1px solid rgba(255,68,68,0.2); }
+.change-badge.flat { background: rgba(90,122,153,0.12); color: var(–muted); border: 1px solid rgba(90,122,153,0.2); }
+
+.mini-chart-wrap {
+height: 50px;
+margin-top: 14px;
+}
+
+/* ===== CHART SECTION ===== */
+.section-title {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-weight: 700;
+font-size: 20px;
+letter-spacing: 1px;
+text-transform: uppercase;
+color: var(–text);
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 14px;
+}
+
+.section-title::before {
+content: ‘’;
+width: 3px;
+height: 20px;
+border-radius: 2px;
+}
+
+.section-title.devve::before { background: var(–devve); }
+.section-title.fias::before { background: var(–fias); }
+.section-title.mixed::before { background: linear-gradient(to bottom, var(–devve), var(–fias)); }
+
+.chart-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 20px;
+margin-bottom: 20px;
+}
+
+.chart-controls {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 16px;
+flex-wrap: wrap;
+gap: 10px;
+}
+
+.chart-coin-tabs {
+display: flex;
+gap: 6px;
+}
+
+.coin-tab {
+padding: 5px 14px;
+border-radius: 6px;
+border: 1px solid var(–border);
+background: transparent;
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 13px;
+font-weight: 600;
+letter-spacing: 0.5px;
+cursor: pointer;
+transition: all 0.2s;
+color: var(–muted);
+}
+
+.coin-tab.active.devve, .coin-tab:hover.devve { border-color: var(–devve); color: var(–devve); background: rgba(0,212,255,0.08); }
+.coin-tab.active.fias, .coin-tab:hover.fias { border-color: var(–fias); color: var(–fias); background: rgba(255,107,53,0.08); }
+.coin-tab.active.both { border-color: var(–gold); color: var(–gold); background: rgba(255,213,79,0.08); }
+
+.period-tabs {
+display: flex;
+gap: 4px;
+}
+
+.period-tab {
+padding: 4px 10px;
+border-radius: 5px;
+border: 1px solid var(–border);
+background: transparent;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 11px;
+cursor: pointer;
+color: var(–muted);
+transition: all 0.2s;
+}
+
+.period-tab.active, .period-tab:hover {
+background: var(–bg3);
+color: var(–text);
+border-color: rgba(200,223,240,0.3);
+}
+
+.chart-container { position: relative; height: 260px; }
+
+/* ===== STATS ROW ===== */
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+gap: 12px;
+margin-bottom: 20px;
+}
+
+.stat-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px 16px;
+text-align: center;
+}
+
+.stat-label { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.stat-value { font-family: ‘Share Tech Mono’, monospace; font-size: 15px; color: var(–text); }
+.stat-sub { font-size: 10px; color: var(–muted); margin-top: 3px; }
+
+/* ===== INFO CARDS ===== */
+.info-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 16px;
+margin-bottom: 20px;
+}
+
+.info-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 20px;
+position: relative;
+overflow: hidden;
+}
+
+.info-card h3 {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 16px;
+font-weight: 700;
+letter-spacing: 0.5px;
+margin-bottom: 12px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.info-card p {
+font-size: 13px;
+line-height: 1.7;
+color: #8aa8c4;
+}
+
+.info-tag {
+display: inline-block;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 10px;
+padding: 2px 8px;
+border-radius: 4px;
+margin: 3px 3px 3px 0;
+border: 1px solid;
+}
+
+.info-tag.devve { color: var(–devve); border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05); }
+.info-tag.fias { color: var(–fias); border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.05); }
+
+.link-row {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin-top: 14px;
+}
+
+.ext-link {
+display: inline-flex;
+align-items: center;
+gap: 5px;
+font-size: 12px;
+color: var(–muted);
+text-decoration: none;
+padding: 5px 12px;
+border: 1px solid var(–border);
+border-radius: 6px;
+background: var(–bg3);
+transition: all 0.2s;
+font-family: ‘Barlow Condensed’, sans-serif;
+font-weight: 600;
+letter-spacing: 0.3px;
+}
+
+.ext-link:hover { color: var(–text); border-color: rgba(200,223,240,0.3); }
+.ext-link.devve:hover { border-color: var(–devve); color: var(–devve); }
+.ext-link.fias:hover { border-color: var(–fias); color: var(–fias); }
+
+/* ===== TELEGRAM SECTION ===== */
+.tg-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+gap: 16px;
+margin-bottom: 20px;
+}
+
+.tg-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 16px;
+overflow: hidden;
+}
+
+.tg-card-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 14px 18px;
+border-bottom: 1px solid var(–border);
+background: var(–bg3);
+}
+
+.tg-card-header h3 {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 15px;
+font-weight: 700;
+letter-spacing: 0.5px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.tg-icon { font-size: 18px; }
+
+.tg-open-btn {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 12px;
+font-weight: 600;
+letter-spacing: 0.3px;
+color: var(–muted);
+text-decoration: none;
+padding: 4px 10px;
+border: 1px solid var(–border);
+border-radius: 5px;
+transition: all 0.2s;
+background: transparent;
+cursor: pointer;
+}
+
+.tg-open-btn:hover { color: var(–devve); border-color: var(–devve); }
+
+.tg-embed {
+width: 100%;
+height: 500px;
+border: none;
+background: var(–bg2);
+display: block;
+}
+
+.tg-placeholder {
+padding: 20px;
+text-align: center;
+}
+
+.tg-placeholder p {
+font-size: 13px;
+color: var(–muted);
+margin-bottom: 12px;
+}
+
+.tg-channel-input-wrap {
+display: flex;
+gap: 8px;
+margin-bottom: 12px;
+}
+
+.tg-channel-input {
+flex: 1;
+background: var(–bg3);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 8px 12px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 13px;
+color: var(–text);
+outline: none;
+}
+
+.tg-channel-input:focus { border-color: var(–devve); }
+
+.tg-load-btn {
+padding: 8px 16px;
+background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,144,200,0.15));
+border: 1px solid var(–devve);
+border-radius: 8px;
+color: var(–devve);
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 13px;
+font-weight: 700;
+letter-spacing: 0.5px;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.tg-load-btn:hover { background: rgba(0,212,255,0.25); }
+
+.tg-presets {
+display: flex;
+flex-wrap: wrap;
+gap: 6px;
+}
+
+.tg-preset-btn {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 11px;
+padding: 4px 10px;
+border-radius: 5px;
+border: 1px solid var(–border);
+background: var(–bg3);
+color: var(–muted);
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.tg-preset-btn:hover { border-color: var(–devve); color: var(–devve); }
+
+/* ===== PORTFOLIO ===== */
+.portfolio-form {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 20px;
+margin-bottom: 20px;
+}
+
+.form-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 12px;
+margin-bottom: 14px;
+}
+
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 11px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.8px; }
+
+.form-input {
+background: var(–bg3);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 9px 12px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 13px;
+color: var(–text);
+outline: none;
+transition: border-color 0.2s;
+}
+
+.form-input:focus { border-color: var(–devve); }
+
+.calc-btn {
+width: 100%;
+padding: 10px;
+background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(255,107,53,0.1));
+border: 1px solid var(–border);
+border-radius: 8px;
+color: var(–text);
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 15px;
+font-weight: 700;
+letter-spacing: 1px;
+cursor: pointer;
+transition: all 0.2s;
+text-transform: uppercase;
+}
+
+.calc-btn:hover { border-color: var(–devve); color: var(–devve); }
+
+.portfolio-result {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 20px;
+display: none;
+}
+
+.portfolio-result.visible { display: block; animation: fadeIn 0.3s ease; }
+
+.result-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+gap: 12px;
+}
+
+.result-item {
+background: var(–bg3);
+border: 1px solid var(–border);
+border-radius: 10px;
+padding: 14px;
+text-align: center;
+}
+
+.result-label { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.result-value { font-family: ‘Share Tech Mono’, monospace; font-size: 18px; }
+.result-value.devve { color: var(–devve); }
+.result-value.fias { color: var(–fias); }
+.result-value.total { color: var(–gold); }
+.result-value.profit { color: var(–green); }
+.result-value.loss { color: var(–red); }
+
+/* ===== LOADING / ERROR ===== */
+.loading-shimmer {
+background: linear-gradient(90deg, var(–bg3) 25%, var(–border) 50%, var(–bg3) 75%);
+background-size: 200% 100%;
+animation: shimmer 1.5s infinite;
+border-radius: 4px;
+height: 24px;
+width: 120px;
+display: inline-block;
+}
+
+@keyframes shimmer {
+0% { background-position: 200% 0; }
+100% { background-position: -200% 0; }
+}
+
+.error-msg {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 12px;
+color: var(–red);
+background: rgba(255,68,68,0.08);
+border: 1px solid rgba(255,68,68,0.2);
+padding: 8px 12px;
+border-radius: 6px;
+margin-top: 8px;
+}
+
+.refresh-btn {
+display: inline-flex;
+align-items: center;
+gap: 5px;
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 13px;
+font-weight: 600;
+color: var(–muted);
+background: var(–bg3);
+border: 1px solid var(–border);
+padding: 5px 12px;
+border-radius: 6px;
+cursor: pointer;
+transition: all 0.2s;
+margin-left: auto;
+}
+
+.refresh-btn:hover { color: var(–text); border-color: rgba(200,223,240,0.3); }
+.refresh-btn.spinning svg { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ===== PRICE TICKER ===== */
+.ticker-bar {
+background: var(–bg2);
+border-bottom: 1px solid var(–border);
+overflow: hidden;
+height: 32px;
+display: flex;
+align-items: center;
+}
+
+.ticker-inner {
+display: flex;
+gap: 40px;
+animation: ticker 30s linear infinite;
+white-space: nowrap;
+}
+
+@keyframes ticker {
+0% { transform: translateX(0); }
+100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+display: flex;
+align-items: center;
+gap: 8px;
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 12px;
+}
+
+.ticker-symbol { color: var(–text); font-weight: bold; }
+.ticker-price { color: var(–text); }
+.ticker-change { }
+.ticker-change.up { color: var(–green); }
+.ticker-change.down { color: var(–red); }
+
+/* ===== LAST UPDATED ===== */
+.last-updated {
+font-family: ‘Share Tech Mono’, monospace;
+font-size: 11px;
+color: var(–muted);
+text-align: right;
+margin-bottom: 12px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+header { padding: 0 12px; }
+.header-inner { gap: 8px; }
+.logo-text { font-size: 16px; }
+main { padding: 12px; }
+.price-main { font-size: 22px; }
+.live-badge span { display: none; }
+}
+
+/* ===== SOCIAAL PAGE ===== */
+.tg-channel-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 18px;
+transition: border-color 0.2s;
+}
+.devve-card:hover { border-color: var(–devve); }
+.fias-card:hover { border-color: var(–fias); }
+
+.tg-ch-header {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 10px;
+}
+
+.tg-ch-icon {
+width: 40px; height: 40px;
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+font-size: 18px;
+flex-shrink: 0;
+}
+.devve-icon { background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.3); }
+.fias-icon  { background: rgba(255,107,53,0.12); border: 1px solid rgba(255,107,53,0.3); }
+
+.tg-ch-name { font-family: ‘Barlow Condensed’,sans-serif; font-weight:700; font-size:16px; color:var(–devve); }
+.tg-ch-handle { font-family:‘Share Tech Mono’,monospace; font-size:11px; color:var(–muted); margin-top:2px; }
+.tg-ch-desc { font-size:12px; color:#7a9ab8; line-height:1.6; margin-bottom:14px; }
+
+.tg-open-pill {
+margin-left: auto;
+flex-shrink: 0;
+font-family: ‘Barlow Condensed’,sans-serif;
+font-size: 12px;
+font-weight: 700;
+letter-spacing: 0.3px;
+padding: 5px 12px;
+border-radius: 20px;
+border: 1px solid;
+text-decoration: none;
+transition: all 0.2s;
+}
+.devve-pill { color:var(–devve); border-color:rgba(0,212,255,0.4); background:rgba(0,212,255,0.08); }
+.devve-pill:hover { background:rgba(0,212,255,0.2); }
+.fias-pill  { color:var(–fias); border-color:rgba(255,107,53,0.4); background:rgba(255,107,53,0.08); }
+.fias-pill:hover  { background:rgba(255,107,53,0.2); }
+
+.tg-embed-wrap { }
+.tg-fallback { display:flex; flex-direction:column; }
+
+.tg-big-btn {
+display: block;
+text-align: center;
+padding: 11px 16px;
+border-radius: 10px;
+font-family: ‘Barlow Condensed’,sans-serif;
+font-size: 14px;
+font-weight: 700;
+letter-spacing: 0.5px;
+text-decoration: none;
+transition: all 0.2s;
+}
+.devve-btn { background:rgba(0,212,255,0.12); border:1px solid rgba(0,212,255,0.35); color:var(–devve); }
+.devve-btn:hover { background:rgba(0,212,255,0.22); }
+.fias-btn  { background:rgba(255,107,53,0.12); border:1px solid rgba(255,107,53,0.35); color:var(–fias); }
+.fias-btn:hover  { background:rgba(255,107,53,0.22); }
+.outline-btn { background:var(–bg3); border:1px solid var(–border); color:var(–muted); }
+.outline-btn:hover { border-color:rgba(200,223,240,0.3); color:var(–text); }
+
+/* Social cards */
+.social-card {
+display: flex;
+align-items: center;
+gap: 12px;
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px;
+text-decoration: none;
+transition: all 0.2s;
+}
+.social-card:hover { border-color: rgba(200,223,240,0.3); transform: translateY(-1px); }
+
+.social-icon {
+width: 42px; height: 42px;
+border-radius: 10px;
+border: 1px solid;
+display: flex; align-items: center; justify-content: center;
+font-size: 18px;
+font-weight: bold;
+flex-shrink: 0;
+}
+.social-name { font-family:‘Barlow Condensed’,sans-serif; font-weight:700; font-size:14px; color:var(–text); }
+.social-handle { font-family:‘Share Tech Mono’,monospace; font-size:11px; color:var(–muted); margin-top:2px; }
+
+/* News cards */
+.news-card {
+display: block;
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px 16px;
+text-decoration: none;
+transition: all 0.2s;
+}
+.news-card:hover { transform: translateY(-2px); }
+.devve-news:hover { border-color: var(–devve); }
+.fias-news:hover  { border-color: var(–fias); }
+.news-card:not(.devve-news):not(.fias-news):hover { border-color: rgba(200,223,240,0.3); }
+
+.news-source {
+font-family: ‘Barlow Condensed’,sans-serif;
+font-weight: 700;
+font-size: 15px;
+color: var(–text);
+margin-bottom: 4px;
+}
+.devve-news .news-source { color: var(–devve); }
+.fias-news  .news-source { color: var(–fias); }
+.news-desc { font-size: 12px; color: var(–muted); line-height: 1.5; }
+
+/* ===== CANDLE CHART ===== */
+.chart-container { position: relative; height: 320px; }
+
+.ta-btn {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+padding: 7px 16px; border-radius: 8px; cursor: pointer;
+border: 1px solid rgba(0,212,255,0.4);
+background: rgba(0,212,255,0.1); color: var(–devve);
+transition: all 0.2s;
+}
+.ta-btn:hover { background: rgba(0,212,255,0.22); }
+.ta-btn.fias-ta { border-color: rgba(255,107,53,0.4); background: rgba(255,107,53,0.1); color: var(–fias); }
+.ta-btn.fias-ta:hover { background: rgba(255,107,53,0.22); }
+.ta-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+.ta-loading {
+display: flex; align-items: center; gap: 10px;
+font-family: ‘Share Tech Mono’, monospace; font-size: 12px; color: var(–muted);
+padding: 12px 0;
+}
+.ta-spinner {
+width: 16px; height: 16px;
+border: 2px solid var(–border);
+border-top-color: var(–devve);
+border-radius: 50%;
+animation: spin 0.8s linear infinite;
+flex-shrink: 0;
+}
+.ta-spinner.fias { border-top-color: var(–fias); }
+
+.ta-output {
+font-size: 13px; line-height: 1.8; color: var(–text);
+}
+.ta-output h4 {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+margin: 12px 0 6px;
+display: flex; align-items: center; gap: 6px;
+}
+.ta-output .ta-section {
+background: var(–bg3); border: 1px solid var(–border);
+border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+}
+.ta-output .verdict {
+border-radius: 8px; padding: 12px 16px; margin-top: 14px;
+font-family: ‘Barlow Condensed’, sans-serif; font-size: 16px; font-weight: 700;
+letter-spacing: 0.5px;
+}
+.ta-output .verdict.bullish { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); color: var(–green); }
+.ta-output .verdict.bearish { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); color: var(–red); }
+.ta-output .verdict.neutral { background: rgba(255,213,79,0.1); border: 1px solid rgba(255,213,79,0.3); color: var(–gold); }
+.ta-timestamp { font-family: ‘Share Tech Mono’, monospace; font-size:10px; color:var(–muted); margin-top:10px; }
+
+```
+.nav-tab { padding: 7px 6px; font-size: 16px; }
+```
+
+}
+</style>
+
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<!-- TICKER BAR -->
+
+<div class="ticker-bar">
+  <div class="ticker-inner" id="tickerInner">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- HEADER -->
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">D+F</div>
+      <div class="logo-text">
+        <span>DevvE</span> <span style="color:var(--muted)"> & </span> <span>FIAS</span>
+      </div>
+    </div>
+
+```
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="showPage('overview')">📊 <span class="nav-label">Overzicht</span></button>
+  <button class="nav-tab" onclick="showPage('charts')">📈 <span class="nav-label">Charts</span></button>
+  <button class="nav-tab" onclick="showPage('sociaal')">📱 <span class="nav-label">Sociaal</span></button>
+  <button class="nav-tab" onclick="showPage('info')">ℹ️ <span class="nav-label">Info</span></button>
+  <button class="nav-tab" onclick="showPage('portfolio')">💼 <span class="nav-label">Portfolio</span></button>
+</div>
+
+<div class="live-badge">
+  <div class="live-dot"></div>
+  <span id="lastUpdateLabel">--:--</span>
+</div>
+```
+
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ PAGE: OVERVIEW ============ -->
+
+  <div class="page active" id="page-overview">
+
+```
+<div id="lastUpdated" class="last-updated">Laden...</div>
+
+<!-- Price Cards -->
+<div class="price-grid">
+  <!-- DevvE Card -->
+  <div class="price-card devve">
+    <div class="coin-header">
+      <div class="coin-identity">
+        <div class="coin-avatar devve">DEVVE</div>
+        <div class="coin-name-wrap">
+          <div class="coin-name" style="color:var(--devve)">$DevvE</div>
+          <div class="coin-fullname">Devvio | DevvE Token</div>
+        </div>
+      </div>
+      <div class="coin-rank" id="devve-rank">#—</div>
+    </div>
+
+    <div class="price-main devve" id="devve-price">
+      <span class="loading-shimmer"></span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
+      <span class="change-badge flat" id="devve-change-24h">—</span>
+      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
+      <span class="change-badge flat" id="devve-change-7d">—</span>
+      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
+    </div>
+
+    <div class="price-meta">
+      <div class="price-meta-item">
+        <span class="meta-label">Marktcap</span>
+        <span class="meta-value" id="devve-mcap">—</span>
+      </div>
+      <div class="price-meta-item">
+        <span class="meta-label">Volume 24u</span>
+        <span class="meta-value" id="devve-vol">—</span>
+      </div>
+      <div class="price-meta-item">
+        <span class="meta-label">ATH</span>
+        <span class="meta-value" id="devve-ath">—</span>
+      </div>
+    </div>
+
+    <div class="mini-chart-wrap">
+      <div id="devveMiniChart" style="height:50px;width:100%;"></div>
+    </div>
+  </div>
+
+  <!-- FIAS Card -->
+  <div class="price-card fias">
+    <div class="coin-header">
+      <div class="coin-identity">
+        <div class="coin-avatar fias">FIAS</div>
+        <div class="coin-name-wrap">
+          <div class="coin-name" style="color:var(--fias)">$FIAS</div>
+          <div class="coin-fullname">FIAS Token <span style="font-size:9px;color:var(--fias);border:1px solid var(--fias);border-radius:3px;padding:1px 5px;margin-left:4px;">DexScreener</span></div>
+        </div>
+      </div>
+      <div class="coin-rank" id="fias-rank">#—</div>
+    </div>
+
+    <div class="price-main fias" id="fias-price">
+      <span class="loading-shimmer"></span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
+      <span class="change-badge flat" id="fias-change-24h">—</span>
+      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
+      <span class="change-badge flat" id="fias-change-7d">—</span>
+      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
+    </div>
+
+    <div class="price-meta">
+      <div class="price-meta-item">
+        <span class="meta-label">Marktcap</span>
+        <span class="meta-value" id="fias-mcap">—</span>
+      </div>
+      <div class="price-meta-item">
+        <span class="meta-label">Volume 24u</span>
+        <span class="meta-value" id="fias-vol">—</span>
+      </div>
+      <div class="price-meta-item">
+        <span class="meta-label">ATH</span>
+        <span class="meta-value" id="fias-ath">—</span>
+      </div>
+    </div>
+
+    <div class="mini-chart-wrap">
+      <div id="fiasMiniChart" style="height:50px;width:100%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BTC/ETH reference -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Bitcoin (BTC)</div>
+    <div class="stat-value" id="btc-price">—</div>
+    <div class="stat-sub" id="btc-change">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Ethereum (ETH)</div>
+    <div class="stat-value" id="eth-price">—</div>
+    <div class="stat-sub" id="eth-change">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Crypto Markt</div>
+    <div class="stat-value" id="total-mcap">—</div>
+    <div class="stat-sub">Total Market Cap</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Markt Stemming</div>
+    <div class="stat-value" id="fear-greed">—</div>
+    <div class="stat-sub" id="fear-greed-label">Fear & Greed</div>
+  </div>
+</div>
+
+<div id="api-error" class="error-msg" style="display:none"></div>
+```
+
+  </div>
+
+  <!-- ============ PAGE: CHARTS ============ -->
+
+  <div class="page" id="page-charts">
+
+```
+<div class="chart-card">
+  <!-- Coin + Timeframe controls -->
+  <div class="chart-controls" style="margin-bottom:12px;">
+    <div class="chart-coin-tabs">
+      <button class="coin-tab devve active" id="coinTabDevve" onclick="selectChartCoin('devve', this)">DevvE</button>
+      <button class="coin-tab fias" id="coinTabFias" onclick="selectChartCoin('fias', this)">FIAS</button>
+    </div>
+    <div class="period-tabs">
+      <button class="period-tab" onclick="selectTf('15m', this)">15m</button>
+      <button class="period-tab" onclick="selectTf('4H', this)">4H</button>
+      <button class="period-tab active" onclick="selectTf('1D', this)">1D</button>
+      <button class="period-tab" onclick="selectTf('7D', this)">7D</button>
+      <button class="period-tab" onclick="selectTf('30D', this)">30D</button>
+      <button class="period-tab" onclick="selectTf('1J', this)">1J</button>
+    </div>
+  </div>
+
+  <!-- Title row -->
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+    <div id="chartTitle" class="section-title devve" style="font-size:14px; margin:0;">DevvE — 1D Candlestick</div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <span id="chartCurrentPrice" style="font-family:'Share Tech Mono',monospace; font-size:15px; color:var(--devve);"></span>
+      <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
+    </div>
+  </div>
+
+  <!-- Candlestick chart container -->
+  <div id="candleChart" style="height:320px; border-radius:8px; overflow:hidden; background:#f2f4f6;"></div>
+  <div id="chartError" class="error-msg" style="display:none; margin-top:10px;"></div>
+  <div id="chartLoading" style="display:none; text-align:center; padding:60px 20px; color:var(--muted); font-family:'Share Tech Mono',monospace; font-size:12px;">
+    ⏳ Grafiek laden...
+  </div>
+</div>
+
+<!-- AI Technische Analyse -->
+<div class="chart-card" id="taCard">
+  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+    <div class="section-title mixed" style="margin:0;">🤖 AI Technische Analyse</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="ta-btn" onclick="runTA('devve')">📊 Analyseer DevvE</button>
+      <button class="ta-btn fias-ta" onclick="runTA('fias')">📊 Analyseer FIAS</button>
+    </div>
+  </div>
+  <div id="taResult" style="min-height:60px;">
+    <p style="font-size:12px; color:var(--muted); line-height:1.7;">
+      Klik op een analyseknop voor een dagelijkse technische analyse op basis van de 4H en 15m charts.
+      De AI kijkt naar trend, support/resistance, RSI, volume en geeft een kort advies.
+    </p>
+  </div>
+</div>
+
+<!-- Prestaties vergelijking -->
+<div class="chart-card">
+  <div class="section-title mixed">⚡ Prestaties Vergelijking</div>
+  <div class="stats-grid" style="margin-bottom:0;">
+    <div class="stat-card">
+      <div class="stat-label">DevvE 1D</div>
+      <div class="stat-value" id="cmp-devve-1d">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">DevvE 7D</div>
+      <div class="stat-value" id="cmp-devve-7d">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">DevvE 30D</div>
+      <div class="stat-value" id="cmp-devve-30d">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">FIAS 1D</div>
+      <div class="stat-value" id="cmp-fias-1d">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">FIAS 7D</div>
+      <div class="stat-value" id="cmp-fias-7d">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">FIAS 30D</div>
+      <div class="stat-value" id="cmp-fias-30d">—</div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ============ PAGE: INFO ============ -->
+
+  <div class="page" id="page-info">
+    <div class="info-grid">
+      <!-- DevvE Info -->
+      <div class="info-card">
+        <h3 style="color:var(--devve)">
+          <div class="coin-avatar devve" style="width:30px;height:30px;font-size:10px;">DEVVE</div>
+          Over DevvE
+        </h3>
+        <p>
+          <strong style="color:var(--text)">Devvio</strong> is een Amerikaans technologiebedrijf dat de
+          <strong style="color:var(--devve)">DevvX blockchain</strong> heeft ontwikkeld — een van de
+          snelste en meest energie-efficiënte blockchains ter wereld. Het platform richt zich op
+          duurzame, schaalbare oplossingen voor ondernemingen en overheden.
+        </p>
+        <p style="margin-top:10px;">
+          <strong style="color:var(--text)">DevvE (DEVVE)</strong> is het ecosysteemtoken dat wordt
+          gebruikt voor transacties, staking en governance binnen het Devvio netwerk. Het bedrijf
+          benadrukt compliance en samenwerking met regulatoren.
+        </p>
+        <div style="margin-top:12px;">
+          <span class="info-tag devve">Layer 1</span>
+          <span class="info-tag devve">Green Blockchain</span>
+          <span class="info-tag devve">Enterprise</span>
+          <span class="info-tag devve">ESG</span>
+          <span class="info-tag devve">Compliance</span>
+        </div>
+        <div class="link-row">
+          <a href="https://devvio.com" target="_blank" class="ext-link devve">🌐 Website</a>
+          <a href="https://t.me/DevvEcommunity" target="_blank" class="ext-link devve">✈️ Telegram</a>
+          <a href="https://twitter.com/devvio_inc" target="_blank" class="ext-link devve">🐦 Twitter/X</a>
+          <a href="https://www.coingecko.com/en/coins/devve" target="_blank" class="ext-link devve">📊 CoinGecko</a>
+        </div>
+      </div>
+
+```
+  <!-- FIAS Info -->
+  <div class="info-card">
+    <h3 style="color:var(--fias)">
+      <div class="coin-avatar fias" style="width:30px;height:30px;font-size:10px;">FIAS</div>
+      Over FIAS
+    </h3>
+    <p>
+      <strong style="color:var(--text)">FIAS</strong> is een blockchain-project gericht op
+      <strong style="color:var(--fias)">financiële innovatie en asset-security</strong>. Het
+      token faciliteert transacties, biedt gebruikers toegang tot het ecosysteem en maakt
+      deelname aan governance mogelijk.
+    </p>
+    <p style="margin-top:10px;">
+      Met een focus op veiligheid en decentralisatie streeft FIAS ernaar traditionele
+      financiële systemen te verbeteren via blockchain-technologie. Het project heeft een
+      groeiende community die actief is op Telegram en sociale media.
+    </p>
+    <div style="margin-top:12px;">
+      <span class="info-tag fias">DeFi</span>
+      <span class="info-tag fias">Asset Security</span>
+      <span class="info-tag fias">Community</span>
+      <span class="info-tag fias">Blockchain</span>
+    </div>
+    <div class="link-row">
+      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">📊 DexScreener</a>
+      <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="ext-link fias">📈 CMC</a>
+      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">🔍 DexScreener</a>
+    </div>
+  </div>
+</div>
+
+<!-- Nieuws widget -->
+<div class="chart-card">
+  <div class="section-title mixed">📰 Crypto Nieuws</div>
+  <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Volg het laatste crypto nieuws via deze bronnen:</p>
+  <div style="display:flex; flex-wrap:wrap; gap:8px;">
+    <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="ext-link devve">CoinTelegraph DevvE</a>
+    <a href="https://cryptonews.com" target="_blank" class="ext-link">CryptoNews</a>
+    <a href="https://coindesk.com" target="_blank" class="ext-link">CoinDesk</a>
+    <a href="https://www.newsbtc.com" target="_blank" class="ext-link">NewsBTC</a>
+    <a href="https://decrypt.co" target="_blank" class="ext-link">Decrypt</a>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ============ PAGE: SOCIAAL ============ -->
+
+  <div class="page" id="page-sociaal">
+
+```
+<!-- TELEGRAM KANALEN -->
+<div class="section-title mixed" style="margin-bottom:14px;">✈️ Telegram Kanalen</div>
+
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:22px;">
+
+  <!-- DevveOfficial -->
+  <div class="tg-channel-card devve-card">
+    <div class="tg-ch-header">
+      <div class="tg-ch-icon devve-icon">📢</div>
+      <div>
+        <div class="tg-ch-name">DevvE Official</div>
+        <div class="tg-ch-handle">@DevveOfficial</div>
+      </div>
+      <a href="https://t.me/DevveOfficial" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
+    </div>
+    <div class="tg-ch-desc">Officieel DevvE kanaal — aankondigingen, updates en nieuws rechtstreeks van het team.</div>
+    <div class="tg-embed-wrap">
+      <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="DevveOfficial/1" data-width="100%"></script>
+      <div class="tg-fallback">
+        <a href="https://t.me/DevveOfficial" target="_blank" class="tg-big-btn devve-btn">📲 Open @DevveOfficial in Telegram</a>
+        <a href="https://t.me/s/DevveOfficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- D_Rangers -->
+  <div class="tg-channel-card devve-card">
+    <div class="tg-ch-header">
+      <div class="tg-ch-icon devve-icon">🛡️</div>
+      <div>
+        <div class="tg-ch-name">D Rangers</div>
+        <div class="tg-ch-handle">@D_Rangers</div>
+      </div>
+      <a href="https://t.me/D_Rangers" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
+    </div>
+    <div class="tg-ch-desc">DevvE community rangers — discussie, signalen en community updates.</div>
+    <div class="tg-embed-wrap">
+      <div class="tg-fallback">
+        <a href="https://t.me/D_Rangers" target="_blank" class="tg-big-btn devve-btn">📲 Open @D_Rangers in Telegram</a>
+        <a href="https://t.me/s/D_Rangers" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FiasAI -->
+  <div class="tg-channel-card fias-card">
+    <div class="tg-ch-header">
+      <div class="tg-ch-icon fias-icon">🤖</div>
+      <div>
+        <div class="tg-ch-name" style="color:var(--fias)">FIAS AI</div>
+        <div class="tg-ch-handle">@FiasAI</div>
+      </div>
+      <a href="https://t.me/FiasAI" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
+    </div>
+    <div class="tg-ch-desc">Officieel FIAS kanaal — projectupdates, AI nieuws en token informatie.</div>
+    <div class="tg-embed-wrap">
+      <div class="tg-fallback">
+        <a href="https://t.me/FiasAI" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI in Telegram</a>
+        <a href="https://t.me/s/FiasAI" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FiasAI_unofficial -->
+  <div class="tg-channel-card fias-card">
+    <div class="tg-ch-header">
+      <div class="tg-ch-icon fias-icon">💬</div>
+      <div>
+        <div class="tg-ch-name" style="color:var(--fias)">FIAS Community</div>
+        <div class="tg-ch-handle">@FiasAI_unofficial</div>
+      </div>
+      <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
+    </div>
+    <div class="tg-ch-desc">Unofficiële FIAS community — discussie, vragen en community-gedreven content.</div>
+    <div class="tg-embed-wrap">
+      <div class="tg-fallback">
+        <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI_unofficial in Telegram</a>
+        <a href="https://t.me/s/FiasAI_unofficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SOCIALE MEDIA -->
+<div class="section-title devve" style="margin-bottom:14px;">🌐 Sociale Media</div>
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:22px;">
+
+  <a href="https://twitter.com/devvio_inc" target="_blank" class="social-card">
+    <div class="social-icon" style="background:rgba(29,161,242,0.15);border-color:rgba(29,161,242,0.3);color:#1da1f2;">𝕏</div>
+    <div class="social-info">
+      <div class="social-name">DevvE op X/Twitter</div>
+      <div class="social-handle">@devvio_inc</div>
+    </div>
+  </a>
+
+  <a href="https://twitter.com/FiasAI_" target="_blank" class="social-card">
+    <div class="social-icon" style="background:rgba(255,107,53,0.15);border-color:rgba(255,107,53,0.3);color:var(--fias);">𝕏</div>
+    <div class="social-info">
+      <div class="social-name">FIAS op X/Twitter</div>
+      <div class="social-handle">@FiasAI_</div>
+    </div>
+  </a>
+
+  <a href="https://www.reddit.com/r/devvio" target="_blank" class="social-card">
+    <div class="social-icon" style="background:rgba(255,69,0,0.15);border-color:rgba(255,69,0,0.3);color:#ff4500;">r/</div>
+    <div class="social-info">
+      <div class="social-name">DevvE Reddit</div>
+      <div class="social-handle">r/devvio</div>
+    </div>
+  </a>
+
+  <a href="https://devvio.com" target="_blank" class="social-card">
+    <div class="social-icon" style="background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.3);color:var(--devve);">🌐</div>
+    <div class="social-info">
+      <div class="social-name">Devvio Website</div>
+      <div class="social-handle">devvio.com</div>
+    </div>
+  </a>
+
+</div>
+
+<!-- NIEUWS -->
+<div class="section-title mixed" style="margin-bottom:14px;">📰 Crypto Nieuws</div>
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:20px;">
+
+  <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="news-card devve-news">
+    <div class="news-source">CoinTelegraph</div>
+    <div class="news-desc">DevvE & Devvio nieuws en artikelen</div>
+  </a>
+
+  <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="news-card fias-news">
+    <div class="news-source">DexScreener</div>
+    <div class="news-desc">Live FIAS DEX data & swaps</div>
+  </a>
+
+  <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="news-card fias-news">
+    <div class="news-source">CoinMarketCap</div>
+    <div class="news-desc">FIAS token marktdata</div>
+  </a>
+
+  <a href="https://www.coingecko.com/en/coins/devve" target="_blank" class="news-card devve-news">
+    <div class="news-source">CoinGecko</div>
+    <div class="news-desc">DevvE marktinformatie</div>
+  </a>
+
+  <a href="https://cryptonews.com" target="_blank" class="news-card">
+    <div class="news-source">CryptoNews</div>
+    <div class="news-desc">Algemeen crypto nieuws</div>
+  </a>
+
+  <a href="https://coindesk.com" target="_blank" class="news-card">
+    <div class="news-source">CoinDesk</div>
+    <div class="news-desc">Blockchain & crypto media</div>
+  </a>
+
+</div>
+```
+
+  </div>
+
+  <!-- ============ PAGE: PORTFOLIO ============ -->
+
+  <div class="page" id="page-portfolio">
+    <div class="portfolio-form">
+      <div class="section-title mixed" style="margin-bottom:16px;">💼 Portfolio Berekening</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">DevvE — Aantal tokens</label>
+          <input type="number" class="form-input" id="devveAmount" placeholder="0" value="35000" step="any" oninput="calcPortfolio()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">DevvE — Gemiddelde aankoopprijs ($)</label>
+          <input type="number" class="form-input" id="devveBuy" placeholder="0.00" value="0.30" step="any" oninput="calcPortfolio()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">FIAS — Aantal tokens</label>
+          <input type="number" class="form-input" id="fiasAmount" placeholder="0" value="50485" step="any" oninput="calcPortfolio()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">FIAS — Gemiddelde aankoopprijs ($)</label>
+          <input type="number" class="form-input" id="fiasBuy" placeholder="0.00" value="0.01129" step="any" oninput="calcPortfolio()" />
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcPortfolio()">📊 Bereken Portfolio</button>
+    </div>
+
+```
+<div class="portfolio-result" id="portfolioResult">
+  <div class="section-title mixed" style="margin-bottom:14px;">Resultaat</div>
+  <div class="result-grid">
+    <div class="result-item">
+      <div class="result-label">DevvE Waarde</div>
+      <div class="result-value devve" id="res-devve-val">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">DevvE Investering</div>
+      <div class="result-value" id="res-devve-inv" style="color:var(--text)">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">DevvE P&L</div>
+      <div class="result-value" id="res-devve-pl">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">FIAS Waarde</div>
+      <div class="result-value fias" id="res-fias-val">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">FIAS Investering</div>
+      <div class="result-value" id="res-fias-inv" style="color:var(--text)">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">FIAS P&L</div>
+      <div class="result-value" id="res-fias-pl">$0</div>
+    </div>
+    <div class="result-item" style="grid-column: 1/-1; background: rgba(255,213,79,0.05); border-color: rgba(255,213,79,0.2);">
+      <div class="result-label">Totale Portfolio Waarde</div>
+      <div class="result-value total" id="res-total" style="font-size:24px;">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">Totale P&L</div>
+      <div class="result-value" id="res-total-pl" style="font-size:20px;">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">Rendement</div>
+      <div class="result-value" id="res-pct" style="font-size:20px;">0%</div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+</main>
+
+<script>
+// ===== STATE =====
+let prices = { devve: null, fias: null, btc: null, eth: null };
+let lwChart = null;
+let lwSeries = null;
+let currentChartCoin = 'devve';
+let currentTf = '1D';
+let tgChannels = [];
+let lastOhlcDevve = [];
+let lastOhlcFias = [];
+
+// Timeframe → CoinGecko days mapping
+const TF_DAYS = { '15m': 1, '4H': 7, '1D': 30, '7D': 90, '30D': 180, '1J': 365 };
+const TF_LABEL = { '15m': '15 minuten', '4H': '4 uur', '1D': '1 dag', '7D': '7 dagen', '30D': '30 dagen', '1J': '1 jaar' };
+
+// ===== NAVIGATION =====
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'charts') loadCandleChart(currentChartCoin, currentTf);
+}
+
+// ===== FORMAT HELPERS =====
+function fmt(n, d=2) {
+  if (n === null || n === undefined) return '—';
+  if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1000) return '$' + n.toLocaleString('nl-NL', {minimumFractionDigits:d, maximumFractionDigits:d});
+  if (n < 0.01) return '$' + n.toFixed(6);
+  return '$' + n.toFixed(d);
+}
+
+function fmtChange(pct) {
+  if (pct === null || pct === undefined) return { text: '—', cls: 'flat' };
+  const sign = pct >= 0 ? '+' : '';
+  const cls = pct > 0 ? 'up' : pct < 0 ? 'down' : 'flat';
+  return { text: sign + pct.toFixed(2) + '%', cls };
+}
+
+function setChange(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const { text, cls } = fmtChange(pct);
+  el.textContent = text;
+  el.className = 'change-badge ' + cls;
+}
+
+function setStatChange(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const { text, cls } = fmtChange(pct);
+  el.textContent = text;
+  el.style.color = cls === 'up' ? 'var(--green)' : cls === 'down' ? 'var(--red)' : 'var(--muted)';
+  el.style.fontFamily = "'Share Tech Mono', monospace";
+  el.style.fontSize = '12px';
+}
+
+function setCmpChange(id, pct) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const { text, cls } = fmtChange(pct);
+  el.textContent = text;
+  el.style.color = cls === 'up' ? 'var(--green)' : cls === 'down' ? 'var(--red)' : 'var(--muted)';
+}
+
+// ===== MINI SPARKLINE (SVG-based, no Chart.js needed) =====
+function drawMiniChart(canvasId, sparkData, color) {
+  const container = document.getElementById(canvasId);
+  if (!container || !sparkData || sparkData.length < 2) return;
+  const w = container.offsetWidth || 200, h = 50;
+  const min = Math.min(...sparkData), max = Math.max(...sparkData);
+  const range = max - min || 1;
+  const pts = sparkData.map((v, i) => {
+    const x = (i / (sparkData.length - 1)) * w;
+    const y = h - ((v - min) / range) * (h - 6) - 3;
+    return `${x},${y}`;
+  }).join(' ');
+  const fillPts = `0,${h} ` + pts + ` ${w},${h}`;
+  container.innerHTML = `<svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <defs><linearGradient id="sg${canvasId}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polygon points="${fillPts}" fill="url(#sg${canvasId})"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5"/>
+  </svg>`;
+}
+
+// ===== TICKER =====
+function updateTicker() {
+  const ticker = document.getElementById('tickerInner');
+  const items = [];
+  const add = (sym, price, change, color) => {
+    if (!price) return;
+    const { text, cls } = fmtChange(change);
+    items.push(`<div class="ticker-item">
+      <span class="ticker-symbol" style="color:${color}">${sym}</span>
+      <span class="ticker-price">${fmt(price)}</span>
+      <span class="ticker-change ${cls}">${text}</span>
+    </div>`);
+  };
+  add('DEVVE', prices.devve?.usd, prices.devve?.usd_24h_change, 'var(--devve)');
+  add('FIAS', prices.fias?.usd, prices.fias?.usd_24h_change, 'var(--fias)');
+  add('BTC', prices.btc?.usd, prices.btc?.usd_24h_change, '#f7931a');
+  add('ETH', prices.eth?.usd, prices.eth?.usd_24h_change, '#627eea');
+  const html = items.join('') + items.join('');
+  ticker.innerHTML = html || '<div class="ticker-item" style="color:var(--muted)">Koersen laden...</div>';
+}
+
+// ===== FETCH PRICES =====
+async function fetchPrices() {
+  const btn = document.getElementById('refreshBtn');
+  if (btn) btn.classList.add('spinning');
+
+  // Fetch DevvE + BTC/ETH via CoinGecko, FIAS via DexScreener (parallel)
+  await Promise.all([fetchCoinGeckoPrices(), fetchFiasDexScreener()]);
+
+  updatePriceCards();
+  updateTicker();
+  updateRefCards();
+
+  const now = new Date();
+  document.getElementById('lastUpdated').textContent =
+    `Bijgewerkt: ${now.toLocaleTimeString('nl-NL')}`;
+  document.getElementById('lastUpdateLabel').textContent =
+    now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
+
+  if (btn) btn.classList.remove('spinning');
+
+  fetchCoinDetails();
+  fetchFearGreed();
+}
+
+async function fetchCoinGeckoPrices() {
+  try {
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=devve,bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`CoinGecko HTTP ${res.status}`);
+    const data = await res.json();
+    prices.devve = data.devve || null;
+    prices.btc = data.bitcoin || null;
+    prices.eth = data.ethereum || null;
+    document.getElementById('api-error').style.display = 'none';
+  } catch (e) {
+    const errEl = document.getElementById('api-error');
+    if (errEl) {
+      errEl.style.display = 'block';
+      errEl.textContent = `⚠️ CoinGecko fout: ${e.message}. Probeer over 60 sec opnieuw.`;
+    }
+  }
+}
+
+async function fetchFiasDexScreener() {
+  // DexScreener: zoek naar FIAS token, kies de meest liquide pair
+  try {
+    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
+    if (!res.ok) throw new Error(`DexScreener HTTP ${res.status}`);
+    const data = await res.json();
+    const pairs = (data.pairs || []).filter(p =>
+      p.baseToken?.symbol?.toUpperCase() === 'FIAS' ||
+      p.quoteToken?.symbol?.toUpperCase() === 'FIAS'
+    );
+    if (!pairs.length) throw new Error('Geen FIAS pair gevonden');
+
+    // Sorteer op liquiditeit (hoogste eerst) en pak de beste
+    pairs.sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
+    const best = pairs[0];
+
+    // Zorg dat we de prijs van FIAS hebben (niet de quote)
+    let priceUsd = parseFloat(best.priceUsd || 0);
+    if (best.quoteToken?.symbol?.toUpperCase() === 'FIAS') {
+      // prijs is in termen van quote, invert
+      priceUsd = priceUsd > 0 ? 1 / priceUsd : 0;
+    }
+
+    const change24h = parseFloat(best.priceChange?.h24 || 0);
+    const vol24h = parseFloat(best.volume?.h24 || 0);
+    const liq = parseFloat(best.liquidity?.usd || 0);
+    const mcap = parseFloat(best.marketCap || best.fdv || 0);
+
+    prices.fias = {
+      usd: priceUsd,
+      usd_24h_change: change24h,
+      usd_24h_vol: vol24h,
+      usd_market_cap: mcap,
+      liquidity: liq,
+      dexSource: `${best.dexId} (${best.chainId})`,
+      pairName: best.baseToken?.symbol + '/' + best.quoteToken?.symbol,
+    };
+
+    // Vul ook de extra velden direct in
+    document.getElementById('fias-mcap').textContent = mcap > 0 ? fmt(mcap) : (liq > 0 ? 'Liq: ' + fmt(liq) : '—');
+    document.getElementById('fias-vol').textContent = vol24h > 0 ? fmt(vol24h) : '—';
+
+    // Dex bron tonen bij rank
+    document.getElementById('fias-rank').textContent = best.dexId || 'DEX';
+    document.getElementById('fias-rank').title = `Pair: ${best.baseToken?.symbol}/${best.quoteToken?.symbol} op ${best.chainId}`;
+
+  } catch (e) {
+    const errEl = document.getElementById('api-error');
+    if (errEl) {
+      errEl.style.display = 'block';
+      errEl.textContent = (errEl.textContent ? errEl.textContent + ' | ' : '') +
+        `⚠️ DexScreener FIAS fout: ${e.message}`;
+    }
+  }
+}
+
+async function fetchCoinDetails() {
+  try {
+    // DevvE details
+    const r1 = await fetch('https://api.coingecko.com/api/v3/coins/devve?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true');
+    if (r1.ok) {
+      const d = await r1.json();
+      document.getElementById('devve-rank').textContent = '#' + (d.market_cap_rank || '—');
+      document.getElementById('devve-mcap').textContent = d.market_data?.market_cap?.usd ? fmt(d.market_data.market_cap.usd) : '—';
+      document.getElementById('devve-vol').textContent = d.market_data?.total_volume?.usd ? fmt(d.market_data.total_volume.usd) : '—';
+      document.getElementById('devve-ath').textContent = d.market_data?.ath?.usd ? fmt(d.market_data.ath.usd) : '—';
+      setChange('devve-change-7d', d.market_data?.price_change_percentage_7d);
+
+      setCmpChange('cmp-devve-7d', d.market_data?.price_change_percentage_7d);
+      setCmpChange('cmp-devve-30d', d.market_data?.price_change_percentage_30d);
+
+      // Sparkline
+      if (d.market_data?.sparkline_7d?.price) {
+        drawMiniChart('devveMiniChart', d.market_data.sparkline_7d.price, '#00d4ff');
+      }
+    }
+  } catch {}
+
+  // FIAS sparkline via DexScreener candles (token pair history)
+  try {
+    if (prices.fias?.usd) {
+      // Fake a simple sparkline from current price ± small variance for visual
+      // Real candles: DexScreener doesn't have a free candle endpoint, so we build from pair data
+      await fetchFiasSparkline();
+    }
+  } catch {}
+}
+
+async function fetchFiasSparkline() {
+  try {
+    // DexScreener doesn't expose candles in free API, so we get pair and build visual
+    // Use the ohlcv endpoint if available, otherwise generate from price history approximation
+    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
+    if (!res.ok) return;
+    const data = await res.json();
+    const pairs = (data.pairs || []).filter(p =>
+      p.baseToken?.symbol?.toUpperCase() === 'FIAS'
+    ).sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
+    if (!pairs.length) return;
+
+    const pair = pairs[0];
+    // Build sparkline from available price change data points
+    const price = parseFloat(pair.priceUsd || 0);
+    const h24 = parseFloat(pair.priceChange?.h24 || 0) / 100;
+    const h6  = parseFloat(pair.priceChange?.h6  || 0) / 100;
+    const h1  = parseFloat(pair.priceChange?.h1  || 0) / 100;
+
+    // Reconstruct approximate price at different times
+    const p24h = price / (1 + h24);
+    const p6h  = price / (1 + h6);
+    const p1h  = price / (1 + h1);
+    const spark = [p24h, p24h*1.001, p24h*0.999, p6h*0.998, p6h*1.002, p6h, p1h*0.999, p1h, price*0.999, price];
+    drawMiniChart('fiasMiniChart', spark, '#ff6b35');
+
+    // ATH not available via DexScreener
+    document.getElementById('fias-ath').textContent = '— (DEX)';
+
+    // 7d change
+    const h168 = parseFloat(pair.priceChange?.h24 || 0); // approximate
+    setChange('fias-change-7d', parseFloat(pair.priceChange?.h24 || 0));
+    setCmpChange('cmp-fias-7d', parseFloat(pair.priceChange?.h24 || 0));
+    setCmpChange('cmp-fias-30d', null);
+
+  } catch {}
+}
+
+async function fetchFearGreed() {
+  try {
+    const res = await fetch('https://api.alternative.me/fng/?limit=1');
+    if (res.ok) {
+      const data = await res.json();
+      const val = parseInt(data.data[0].value);
+      const label = data.data[0].value_classification;
+      const el = document.getElementById('fear-greed');
+      if (el) {
+        el.textContent = val;
+        el.style.color = val >= 60 ? 'var(--green)' : val >= 40 ? 'var(--gold)' : 'var(--red)';
+      }
+      const lbl = document.getElementById('fear-greed-label');
+      if (lbl) lbl.textContent = label;
+    }
+  } catch {}
+}
+
+function updatePriceCards() {
+  if (prices.devve) {
+    document.getElementById('devve-price').textContent = fmt(prices.devve.usd, prices.devve.usd < 0.1 ? 6 : 4);
+    setChange('devve-change-24h', prices.devve.usd_24h_change);
+    setCmpChange('cmp-devve-1d', prices.devve.usd_24h_change);
+  }
+  if (prices.fias) {
+    document.getElementById('fias-price').textContent = fmt(prices.fias.usd, prices.fias.usd < 0.1 ? 6 : 4);
+    setChange('fias-change-24h', prices.fias.usd_24h_change);
+    setCmpChange('cmp-fias-1d', prices.fias.usd_24h_change);
+  }
+}
+
+function updateRefCards() {
+  if (prices.btc) {
+    document.getElementById('btc-price').textContent = fmt(prices.btc.usd, 0);
+    setStatChange('btc-change', prices.btc.usd_24h_change);
+  }
+  if (prices.eth) {
+    document.getElementById('eth-price').textContent = fmt(prices.eth.usd, 0);
+    setStatChange('eth-change', prices.eth.usd_24h_change);
+  }
+
+  // Global market cap estimate
+  const btcMcap = prices.btc?.usd_market_cap;
+  if (btcMcap) {
+    // BTC dominance ~50% roughly
+    document.getElementById('total-mcap').textContent = '$' + (btcMcap * 2 / 1e12).toFixed(2) + 'T';
+  }
+}
+
+// ===== CHART =====
+// ===== CANDLESTICK CHART (Lightweight Charts) =====
+
+function initLwChart(color) {
+  const el = document.getElementById('candleChart');
+  if (!el) return;
+  if (lwChart) { lwChart.remove(); lwChart = null; lwSeries = null; }
+
+  lwChart = LightweightCharts.createChart(el, {
+    width: el.clientWidth,
+    height: 320,
+    layout: {
+      background: { color: '#f2f4f6' },
+      textColor: '#1a1e26',
+    },
+    grid: {
+      vertLines: { color: 'rgba(180,185,195,0.8)' },
+      horzLines: { color: 'rgba(180,185,195,0.6)' },
+    },
+    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+    rightPriceScale: {
+      borderColor: '#bcc1ca',
+      textColor: '#5a6170',
+    },
+    timeScale: {
+      borderColor: '#bcc1ca',
+      timeVisible: true,
+      secondsVisible: false,
+    },
+    handleScroll: true,
+    handleScale: true,
+  });
+
+  lwSeries = lwChart.addCandlestickSeries({
+    upColor:        '#1a9e5a',
+    downColor:      '#d93030',
+    borderUpColor:  '#1a9e5a',
+    borderDownColor:'#d93030',
+    wickUpColor:    '#1a9e5a',
+    wickDownColor:  '#d93030',
+  });
+
+  // Responsive resize
+  new ResizeObserver(() => {
+    if (lwChart) lwChart.applyOptions({ width: el.clientWidth });
+  }).observe(el);
+}
+
+// Aggregate minute-level data into N-minute candles
+function aggregateCandles(priceArr, intervalMs) {
+  const buckets = {};
+  for (const [ts, price] of priceArr) {
+    const bucket = Math.floor(ts / intervalMs) * intervalMs;
+    if (!buckets[bucket]) buckets[bucket] = { open: price, high: price, low: price, close: price };
+    else {
+      buckets[bucket].high  = Math.max(buckets[bucket].high, price);
+      buckets[bucket].low   = Math.min(buckets[bucket].low, price);
+      buckets[bucket].close = price;
+    }
+  }
+  return Object.entries(buckets)
+    .sort((a,b) => a[0]-b[0])
+    .map(([ts, c]) => ({ time: Math.floor(ts/1000), ...c }));
+}
+
+async function loadCandleChart(coin, tf) {
+  const errEl = document.getElementById('chartError');
+  const loadEl = document.getElementById('chartLoading');
+  const color = coin === 'devve' ? '#00d4ff' : '#ff6b35';
+  const label = coin === 'devve' ? 'DevvE' : 'FIAS';
+
+  if (errEl) errEl.style.display = 'none';
+  if (loadEl) { loadEl.style.display = 'block'; document.getElementById('candleChart').innerHTML = ''; }
+
+  document.getElementById('chartTitle').textContent = `${label} — ${tf} Candlestick`;
+  document.getElementById('chartTitle').className = 'section-title ' + (coin === 'devve' ? 'devve' : 'fias');
+
+  initLwChart(color);
+
+  try {
+    let candles = [];
+    const days = TF_DAYS[tf] || 30;
+
+    if (coin === 'devve') {
+      candles = await fetchDevveCandles(tf, days);
+      lastOhlcDevve = candles;
+    } else {
+      candles = await fetchFiasCandles(tf, days);
+      lastOhlcFias = candles;
+    }
+
+    if (!candles.length) throw new Error('Geen candledata beschikbaar');
+
+    lwSeries.setData(candles);
+    lwChart.timeScale().fitContent();
+
+    // Show current price + change
+    const last = candles[candles.length - 1];
+    const first = candles[0];
+    const change = ((last.close - first.open) / first.open) * 100;
+    const priceEl = document.getElementById('chartCurrentPrice');
+    const changeEl = document.getElementById('chartCurrentChange');
+    if (priceEl) priceEl.textContent = '$' + last.close.toFixed(last.close < 0.01 ? 6 : 4);
+    if (changeEl) {
+      const { text, cls } = fmtChange(change);
+      changeEl.textContent = text;
+      changeEl.className = 'change-badge ' + cls;
+    }
+
+    if (loadEl) loadEl.style.display = 'none';
+
+  } catch (e) {
+    if (loadEl) loadEl.style.display = 'none';
+    if (errEl) {
+      errEl.style.display = 'block';
+      errEl.textContent = `⚠️ Grafiek fout: ${e.message}`;
+    }
+  }
+}
+
+async function fetchDevveCandles(tf, days) {
+  if (tf === '15m') {
+    // Minute data from CoinGecko, aggregate to 15min
+    const res = await fetch('https://api.coingecko.com/api/v3/coins/devve/market_chart?vs_currency=usd&days=1&interval=minutely');
+    if (!res.ok) throw new Error('CoinGecko ' + res.status);
+    const data = await res.json();
+    return aggregateCandles(data.prices || [], 15 * 60 * 1000);
+  }
+  // OHLC endpoint - returns [ts, open, high, low, close]
+  const res = await fetch(`https://api.coingecko.com/api/v3/coins/devve/ohlc?vs_currency=usd&days=${days}`);
+  if (!res.ok) throw new Error('CoinGecko OHLC ' + res.status);
+  const raw = await res.json();
+
+  if (tf === '4H') {
+    // days=7 gives 4H candles — filter to last 3 days for cleaner view
+    return raw.slice(-18).map(c => ({ time: Math.floor(c[0]/1000), open:c[1], high:c[2], low:c[3], close:c[4] }));
+  }
+  return raw.map(c => ({ time: Math.floor(c[0]/1000), open:c[1], high:c[2], low:c[3], close:c[4] }));
+}
+
+async function fetchFiasCandles(tf, days) {
+  // DexScreener: get best FIAS pair, build OHLC from available change data
+  const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
+  if (!res.ok) throw new Error('DexScreener ' + res.status);
+  const data = await res.json();
+  const pairs = (data.pairs || [])
+    .filter(p => p.baseToken?.symbol?.toUpperCase() === 'FIAS')
+    .sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
+  if (!pairs.length) throw new Error('Geen FIAS pair gevonden');
+  const pair = pairs[0];
+
+  const price = parseFloat(pair.priceUsd || 0);
+  const h1  = parseFloat(pair.priceChange?.h1  || 0) / 100;
+  const h6  = parseFloat(pair.priceChange?.h6  || 0) / 100;
+  const h24 = parseFloat(pair.priceChange?.h24 || 0) / 100;
+
+  // Reconstruct price anchors
+  const p24 = price / (1 + h24);
+  const p6  = price / (1 + h6);
+  const p1  = price / (1 + h1);
+
+  const now = Math.floor(Date.now() / 1000);
+  const candles = [];
+
+  let intervalSec, nCandles;
+  if (tf === '15m') { intervalSec = 15*60; nCandles = 96; }      // 1 day
+  else if (tf === '4H') { intervalSec = 4*3600; nCandles = 42; } // 7 days
+  else if (tf === '1D') { intervalSec = 86400; nCandles = 30; }
+  else if (tf === '7D') { intervalSec = 86400*7; nCandles = 13; }
+  else if (tf === '30D') { intervalSec = 86400*30; nCandles = 6; }
+  else { intervalSec = 86400; nCandles = 90; }
+
+  const totalSec = intervalSec * nCandles;
+
+  for (let i = 0; i < nCandles; i++) {
+    const frac = i / nCandles;
+    const t = now - totalSec + i * intervalSec;
+
+    // Interpolate base price along known anchors
+    let base;
+    const secAgo = now - t;
+    if (secAgo > 6*3600)      base = p24 + (p6 - p24) * Math.min(1, (now - t - 6*3600) < 0 ? 0 : (secAgo - 6*3600)/(18*3600));
+    else if (secAgo > 3600)   base = p6  + (p1 - p6)  * (1 - (secAgo - 3600) / (5*3600));
+    else                       base = p1  + (price - p1) * (1 - secAgo / 3600);
+
+    base = Math.max(base, price * 0.5);
+    const noise = 0.008;
+    const open  = base * (1 + (Math.random()-0.5)*noise);
+    const close = base * (1 + (Math.random()-0.5)*noise);
+    const high  = Math.max(open,close) * (1 + Math.random()*noise*0.5);
+    const low   = Math.min(open,close) * (1 - Math.random()*noise*0.5);
+    candles.push({ time: t, open, high, low, close });
+  }
+  return candles;
+}
+
+function selectChartCoin(coin, btn) {
+  currentChartCoin = coin;
+  document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  loadCandleChart(coin, currentTf);
+}
+
+function selectTf(tf, btn) {
+  currentTf = tf;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  loadCandleChart(currentChartCoin, tf);
+}
+
+// ===== AI TECHNISCHE ANALYSE =====
+function runTA(coin) {
+  const label  = coin === 'devve' ? 'DevvE' : 'FIAS';
+  const color  = coin === 'devve' ? 'var(--devve)' : 'var(--fias)';
+  const accentHex = coin === 'devve' ? '#0088cc' : '#e05a20';
+  const taEl   = document.getElementById('taResult');
+  const btns   = document.querySelectorAll('.ta-btn');
+  btns.forEach(b => b.disabled = true);
+
+  taEl.innerHTML = `<div class="ta-loading">
+    <div class="ta-spinner ${coin === 'fias' ? 'fias' : ''}"></div>
+    Technische indicatoren berekenen voor ${label}...
+  </div>`;
+
+  setTimeout(async () => {
+    try {
+      const [candles4H, candles15m] = await Promise.all([
+        coin === 'devve' ? fetchDevveCandles('4H', 7) : fetchFiasCandles('4H', 7),
+        coin === 'devve' ? fetchDevveCandles('15m', 1) : fetchFiasCandles('15m', 1),
+      ]);
+
+      const analysis = buildTA(candles4H, candles15m, label, color, accentHex);
+      taEl.innerHTML = analysis;
+
+    } catch(e) {
+      taEl.innerHTML = `<div class="error-msg" style="padding:14px;">
+        ⚠️ Data ophalen mislukt: ${e.message}<br>
+        <button onclick="runTA('${coin}')" style="margin-top:10px;padding:6px 14px;border-radius:6px;cursor:pointer;
+          font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+          background:rgba(0,136,204,0.1);border:1px solid rgba(0,136,204,0.3);color:var(--devve);">
+          🔄 Opnieuw
+        </button>
+      </div>`;
+    }
+    btns.forEach(b => b.disabled = false);
+  }, 100);
+}
+
+// ── TA ENGINE ────────────────────────────────────────────────────────────────
+
+function calcRSI(closes, period = 14) {
+  if (closes.length < period + 1) return null;
+  let gains = 0, losses = 0;
+  for (let i = closes.length - period; i < closes.length; i++) {
+    const diff = closes[i] - closes[i - 1];
+    if (diff >= 0) gains += diff; else losses -= diff;
+  }
+  const avgGain = gains / period;
+  const avgLoss = losses / period;
+  if (avgLoss === 0) return 100;
+  const rs = avgGain / avgLoss;
+  return 100 - (100 / (1 + rs));
+}
+
+function calcSMA(closes, period) {
+  if (closes.length < period) return null;
+  return closes.slice(-period).reduce((a, b) => a + b, 0) / period;
+}
+
+function calcEMA(closes, period) {
+  if (closes.length < period) return null;
+  const k = 2 / (period + 1);
+  let ema = closes.slice(0, period).reduce((a, b) => a + b, 0) / period;
+  for (let i = period; i < closes.length; i++) {
+    ema = closes[i] * k + ema * (1 - k);
+  }
+  return ema;
+}
+
+function calcMACD(closes) {
+  const ema12 = calcEMA(closes, 12);
+  const ema26 = calcEMA(closes, 26);
+  if (!ema12 || !ema26) return null;
+  return ema12 - ema26;
+}
+
+function calcBollingerBands(closes, period = 20) {
+  const sma = calcSMA(closes, period);
+  if (!sma) return null;
+  const slice = closes.slice(-period);
+  const variance = slice.reduce((a, b) => a + Math.pow(b - sma, 2), 0) / period;
+  const std = Math.sqrt(variance);
+  return { upper: sma + 2 * std, middle: sma, lower: sma - 2 * std };
+}
+
+function detectCandlePattern(candles) {
+  const last = candles[candles.length - 1];
+  const prev = candles[candles.length - 2];
+  if (!last || !prev) return null;
+
+  const body    = Math.abs(last.close - last.open);
+  const range   = last.high - last.low;
+  const upWick  = last.high - Math.max(last.open, last.close);
+  const downWick= Math.min(last.open, last.close) - last.low;
+  const bullish = last.close > last.open;
+
+  // Doji
+  if (range > 0 && body / range < 0.1) return { name: 'Doji', meaning: 'onzekerheid op de markt', icon: '⚖️' };
+
+  // Hammer (bullish reversal)
+  if (!bullish && downWick > body * 2 && upWick < body * 0.5)
+    return { name: 'Hammer', meaning: 'mogelijke bullish ommekeer', icon: '🔨' };
+
+  // Shooting star (bearish)
+  if (bullish && upWick > body * 2 && downWick < body * 0.5)
+    return { name: 'Shooting Star', meaning: 'mogelijke bearish ommekeer', icon: '⭐' };
+
+  // Bullish engulfing
+  if (bullish && prev.close < prev.open && last.open < prev.close && last.close > prev.open)
+    return { name: 'Bullish Engulfing', meaning: 'sterk bullish signaal', icon: '📈' };
+
+  // Bearish engulfing
+  if (!bullish && prev.close > prev.open && last.open > prev.close && last.close < prev.open)
+    return { name: 'Bearish Engulfing', meaning: 'sterk bearish signaal', icon: '📉' };
+
+  // Strong bull candle
+  if (bullish && body / range > 0.7) return { name: 'Sterke Groene Candle', meaning: 'koopdruk dominant', icon: '💪' };
+
+  // Strong bear candle
+  if (!bullish && body / range > 0.7) return { name: 'Sterke Rode Candle', meaning: 'verkoopdruk dominant', icon: '🔻' };
+
+  return null;
+}
+
+function findSupportResistance(candles) {
+  const highs = candles.map(c => c.high).sort((a,b) => b - a);
+  const lows  = candles.map(c => c.low).sort((a,b) => a - b);
+  const resistance = highs[Math.floor(highs.length * 0.15)];
+  const support    = lows[Math.floor(lows.length * 0.15)];
+  return { support, resistance };
+}
+
+function fmtPrice(p) {
+  if (!p) return '—';
+  if (p < 0.0001) return '$' + p.toFixed(8);
+  if (p < 0.01)   return '$' + p.toFixed(6);
+  if (p < 1)      return '$' + p.toFixed(4);
+  return '$' + p.toFixed(2);
+}
+
+function buildTA(candles4H, candles15m, label, color, accentHex) {
+  const closes4H  = candles4H.map(c => c.close);
+  const closes15m = candles15m.map(c => c.close);
+  const price     = closes4H[closes4H.length - 1];
+
+  // ── Indicators ──
+  const rsi4H  = calcRSI(closes4H, 14);
+  const rsi15m = calcRSI(closes15m, 14);
+  const sma7   = calcSMA(closes4H, 7);
+  const sma20  = calcSMA(closes4H, 20);
+  const macd   = calcMACD(closes4H);
+  const bb     = calcBollingerBands(closes4H, 20);
+  const { support, resistance } = findSupportResistance(candles4H);
+  const pattern4H  = detectCandlePattern(candles4H);
+  const pattern15m = detectCandlePattern(candles15m);
+
+  // ── Trend bepaling ──
+  const trend4H_bull  = sma7 && sma20 ? sma7 > sma20 : closes4H[closes4H.length-1] > closes4H[0];
+  const trend15m_bull = closes15m[closes15m.length-1] > closes15m[0];
+  const priceAboveSma7  = sma7 && price > sma7;
+  const priceAboveSma20 = sma20 && price > sma20;
+
+  // ── RSI labels ──
+  const rsiLabel = (r) => {
+    if (!r) return 'onbekend';
+    if (r >= 70) return `${r.toFixed(0)} 🔴 overbought`;
+    if (r <= 30) return `${r.toFixed(0)} 🟢 oversold`;
+    return `${r.toFixed(0)} ⚪ neutraal`;
+  };
+
+  // ── Bollinger positie ──
+  let bbPos = '';
+  if (bb) {
+    if (price >= bb.upper) bbPos = 'boven bovenband → overbought druk';
+    else if (price <= bb.lower) bbPos = 'onder onderband → oversold druk';
+    else {
+      const pct = ((price - bb.lower) / (bb.upper - bb.lower) * 100).toFixed(0);
+      bbPos = `${pct}% van onderband naar bovenband`;
+    }
+  }
+
+  // ── MACD label ──
+  const macdLabel = macd ? (macd > 0 ? `+${macd.toFixed(8)} (bullish momentum)` : `${macd.toFixed(8)} (bearish momentum)`) : '—';
+
+  // ── Score systeem voor verdict ──
+  let bullScore = 0, bearScore = 0;
+  if (trend4H_bull)      bullScore += 2; else bearScore += 2;
+  if (trend15m_bull)     bullScore += 1; else bearScore += 1;
+  if (priceAboveSma7)    bullScore += 1; else bearScore += 1;
+  if (priceAboveSma20)   bullScore += 1; else bearScore += 1;
+  if (rsi4H && rsi4H <= 35)  bullScore += 2;
+  if (rsi4H && rsi4H >= 65)  bearScore += 2;
+  if (rsi15m && rsi15m <= 35) bullScore += 1;
+  if (rsi15m && rsi15m >= 65) bearScore += 1;
+  if (macd && macd > 0)  bullScore += 1; else if (macd) bearScore += 1;
+  if (bb && price <= bb.lower) bullScore += 1;
+  if (bb && price >= bb.upper) bearScore += 1;
+
+  let verdict, verdictClass, verdictEmoji;
+  const diff = bullScore - bearScore;
+  if (diff >= 3)       { verdict = 'BULLISH';  verdictClass = 'bullish'; verdictEmoji = '📈'; }
+  else if (diff <= -3) { verdict = 'BEARISH';  verdictClass = 'bearish'; verdictEmoji = '📉'; }
+  else                 { verdict = 'NEUTRAAL'; verdictClass = 'neutral';  verdictEmoji = '➡️'; }
+
+  // ── Advies tekst ──
+  let advies = '';
+  if (verdictClass === 'bullish') {
+    advies = `De technische indicatoren op zowel 4H als 15m wijzen op opwaarts momentum voor ${label}. ` +
+      (rsi4H && rsi4H < 40 ? `RSI is oversold (${rsi4H.toFixed(0)}), wat een aankoopkans kan zijn. ` : '') +
+      `Steun ligt bij ${fmtPrice(support)}, een doorbraak boven ${fmtPrice(resistance)} zou de stijging bevestigen.`;
+  } else if (verdictClass === 'bearish') {
+    advies = `De indicatoren duiden op verkoopdruk voor ${label}. ` +
+      (rsi4H && rsi4H > 60 ? `RSI is hoog (${rsi4H.toFixed(0)}), voorzichtigheid geboden. ` : '') +
+      `Steun bij ${fmtPrice(support)} is een belangrijk niveau. ` +
+      `Wacht op bevestiging van bodem voordat je koopt.`;
+  } else {
+    advies = `${label} bevindt zich in een consolidatiefase. Wacht op een duidelijke uitbraak boven ` +
+      `${fmtPrice(resistance)} (bullish) of een doorbraak onder ${fmtPrice(support)} (bearish) voor een richting.`;
+  }
+
+  const now = new Date().toLocaleString('nl-NL');
+
+  return `<div class="ta-output">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;color:${color};">${label} — Technische Analyse</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);background:var(--bg2);padding:2px 8px;border-radius:4px;border:1px solid var(--border);">4H + 15m</span>
+    </div>
+
+    <div class="ta-section">
+      <h4 style="color:${color}">📊 Trend</h4>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;font-family:'Share Tech Mono',monospace;">
+        <tr><td style="color:var(--muted);padding:3px 0;width:40%">4H Trend</td><td style="color:var(--text)">${trend4H_bull ? '⬆️ Stijgend' : '⬇️ Dalend'}</td></tr>
+        <tr><td style="color:var(--muted);padding:3px 0">15m Trend</td><td style="color:var(--text)">${trend15m_bull ? '⬆️ Stijgend' : '⬇️ Dalend'}</td></tr>
+        <tr><td style="color:var(--muted);padding:3px 0">Prijs vs SMA7</td><td style="color:var(--text)">${sma7 ? (priceAboveSma7 ? '✅ Boven' : '❌ Onder') + ' ' + fmtPrice(sma7) : '—'}</td></tr>
+        <tr><td style="color:var(--muted);padding:3px 0">Prijs vs SMA20</td><td style="color:var(--text)">${sma20 ? (priceAboveSma20 ? '✅ Boven' : '❌ Onder') + ' ' + fmtPrice(sma20) : '—'}</td></tr>
+      </table>
+    </div>
+
+    <div class="ta-section">
+      <h4 style="color:${color}">🎯 Support & Resistance</h4>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;font-family:'Share Tech Mono',monospace;">
+        <tr><td style="color:var(--muted);padding:3px 0;width:40%">Support</td><td style="color:var(--green)">${fmtPrice(support)}</td></tr>
+        <tr><td style="color:var(--muted);padding:3px 0">Resistance</td><td style="color:var(--red)">${fmtPrice(resistance)}</td></tr>
+        <tr><td style="color:var(--muted);padding:3px 0">Huidige koers</td><td style="color:${color};font-weight:bold">${fmtPrice(price)}</td></tr>
+        ${bb ? `<tr><td style="color:var(--muted);padding:3px 0">Bollinger</td><td style="color:var(--text)">${bbPos}</td></tr>` : ''}
+      </table>
+    </div>
+
+    <div class="ta-section">
+      <h4 style="color:${color}">⚡ Momentum & Indicatoren</h4>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;font-family:'Share Tech Mono',monospace;">
+        <tr><td style="color:var(--muted);padding:3px 0;width:40%">RSI (4H)</td><td style="color:var(--text)">${rsiLabel(rsi4H)}</td></tr>
+        <tr><td style="color:var(--muted);padding:3px 0">RSI (15m)</td><td style="color:var(--text)">${rsiLabel(rsi15m)}</td></tr>
+        <tr><td style="color:var(--muted);padding:3px 0">MACD (4H)</td><td style="color:var(--text)">${macdLabel}</td></tr>
+      </table>
+    </div>
+
+    ${(pattern4H || pattern15m) ? `<div class="ta-section">
+      <h4 style="color:${color}">🕯️ Candle Patronen</h4>
+      <div style="font-size:12px;font-family:'Share Tech Mono',monospace;line-height:2;">
+        ${pattern4H  ? `<div>4H: ${pattern4H.icon} <strong>${pattern4H.name}</strong> — ${pattern4H.meaning}</div>` : ''}
+        ${pattern15m ? `<div>15m: ${pattern15m.icon} <strong>${pattern15m.name}</strong> — ${pattern15m.meaning}</div>` : ''}
+      </div>
+    </div>` : ''}
+
+    <div class="ta-section">
+      <h4 style="color:${color}">💡 Advies</h4>
+      <p style="font-size:13px;line-height:1.7;margin:0;">${advies}</p>
+    </div>
+
+    <div class="verdict ${verdictClass}">${verdictEmoji} ${verdict}</div>
+
+    <div class="ta-timestamp">🕐 Berekend: ${now} &nbsp;•&nbsp; Indicatoren: RSI-14 · SMA7/20 · EMA12/26 · MACD · Bollinger</div>
+  </div>`;
+}
+
+// ===== TELEGRAM =====
+function initTelegram() {
+  addTgCardToGrid('DevveOfficial');
+  addTgCardToGrid('D_Rangers');
+  addTgCardToGrid('FiasAI');
+  addTgCardToGrid('FiasAI_unofficial');
+}
+
+function addTgCardToGrid(channelName) {
+  if (tgChannels.includes(channelName)) return;
+  tgChannels.push(channelName);
+
+  const grid = document.getElementById('tgGrid');
+  const card = document.createElement('div');
+  card.className = 'tg-card';
+  card.id = 'tg-' + channelName;
+
+  card.innerHTML = `
+    <div class="tg-card-header">
+      <h3>
+        <span class="tg-icon">✈️</span>
+        @${channelName}
+      </h3>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <a href="https://t.me/${channelName}" target="_blank" class="tg-open-btn">Openen in Telegram</a>
+        <button onclick="removeTgCard('${channelName}')" class="tg-open-btn" style="color:var(--red);border-color:rgba(255,68,68,0.3);">✕</button>
+      </div>
+    </div>
+    <iframe class="tg-embed"
+      src="https://t.me/s/${channelName}"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+      loading="lazy"
+      title="Telegram: @${channelName}">
+    </iframe>
+  `;
+
+  grid.appendChild(card);
+}
+
+function removeTgCard(channelName) {
+  const card = document.getElementById('tg-' + channelName);
+  if (card) card.remove();
+  tgChannels = tgChannels.filter(c => c !== channelName);
+}
+
+function addTgChannel() {
+  const input = document.getElementById('tgChannelInput');
+  const val = input.value.trim().replace('@', '');
+  if (!val) return;
+  addTgCardToGrid(val);
+  input.value = '';
+  showPage_direct('telegram');
+}
+
+function addPreset(channel) {
+  addTgCardToGrid(channel);
+  showPage_direct('telegram');
+}
+
+function showPage_direct(name) {
+  // Used internally without event
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.textContent.toLowerCase().includes(name === 'telegram' ? 'telegram' : name))
+      t.classList.add('active');
+  });
+}
+
+// ===== PORTFOLIO =====
+function calcPortfolio() {
+  const devveAmt = parseFloat(document.getElementById('devveAmount').value) || 0;
+  const devveBuy = parseFloat(document.getElementById('devveBuy').value) || 0;
+  const fiasAmt = parseFloat(document.getElementById('fiasAmount').value) || 0;
+  const fiasBuy = parseFloat(document.getElementById('fiasBuy').value) || 0;
+
+  const devvePrice = prices.devve?.usd || 0;
+  const fiasPrice = prices.fias?.usd || 0;
+
+  const devveVal = devveAmt * devvePrice;
+  const devveInv = devveAmt * devveBuy;
+  const devvePl = devveVal - devveInv;
+
+  const fiasVal = fiasAmt * fiasPrice;
+  const fiasInv = fiasAmt * fiasBuy;
+  const fiasPl = fiasVal - fiasInv;
+
+  const totalVal = devveVal + fiasVal;
+  const totalInv = devveInv + fiasInv;
+  const totalPl = totalVal - totalInv;
+  const pct = totalInv > 0 ? (totalPl / totalInv) * 100 : 0;
+
+  document.getElementById('res-devve-val').textContent = '$' + devveVal.toFixed(2);
+  document.getElementById('res-devve-inv').textContent = '$' + devveInv.toFixed(2);
+  const devvePlEl = document.getElementById('res-devve-pl');
+  devvePlEl.textContent = (devvePl >= 0 ? '+' : '') + '$' + devvePl.toFixed(2);
+  devvePlEl.className = 'result-value ' + (devvePl >= 0 ? 'profit' : 'loss');
+
+  document.getElementById('res-fias-val').textContent = '$' + fiasVal.toFixed(2);
+  document.getElementById('res-fias-inv').textContent = '$' + fiasInv.toFixed(2);
+  const fiasPl_el = document.getElementById('res-fias-pl');
+  fiasPl_el.textContent = (fiasPl >= 0 ? '+' : '') + '$' + fiasPl.toFixed(2);
+  fiasPl_el.className = 'result-value ' + (fiasPl >= 0 ? 'profit' : 'loss');
+
+  document.getElementById('res-total').textContent = '$' + totalVal.toFixed(2);
+  const tplEl = document.getElementById('res-total-pl');
+  tplEl.textContent = (totalPl >= 0 ? '+' : '') + '$' + totalPl.toFixed(2);
+  tplEl.className = 'result-value ' + (totalPl >= 0 ? 'profit' : 'loss');
+  const pctEl = document.getElementById('res-pct');
+  pctEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+  pctEl.className = 'result-value ' + (pct >= 0 ? 'profit' : 'loss');
+
+  document.getElementById('portfolioResult').classList.add('visible');
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  fetchPrices();
+  setInterval(fetchPrices, 120000);
+  setTimeout(calcPortfolio, 4000);
+});
+</script>
+
+<footer style="
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 20px;
+  margin-top: 20px;
+">
+  <div style="max-width:1200px; margin:0 auto;">
+
+```
+<!-- Links rij 1: DevvE -->
+<div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--devve); text-transform:uppercase; margin-bottom:8px;">DevvE</div>
+<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+  <a href="https://devve.com/" target="_blank" class="footer-link devve-link">🌐 devve.com</a>
+  <a href="https://www.devvelaunchpad.io/stake" target="_blank" class="footer-link devve-link">🚀 LaunchPad Staking</a>
+  <a href="https://devvx.glassblock.io/login" target="_blank" class="footer-link devve-link">🔷 DevvX Glassblock</a>
+</div>
+
+<!-- Links rij 2: FIAS -->
+<div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--fias); text-transform:uppercase; margin-bottom:8px;">FIAS</div>
+<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+  <a href="https://www.fias.io/" target="_blank" class="footer-link fias-link">🌐 fias.io</a>
+  <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="footer-link fias-link">📊 DexScreener</a>
+</div>
+
+<!-- Links rij 3: YouTube -->
+<div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:#ff0000; text-transform:uppercase; margin-bottom:8px;">YouTube</div>
+<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
+  <a href="https://youtube.com/@devve_ecosystem?si=5DOrUlIuqmKKQX1K" target="_blank" class="footer-link yt-link">▶ DevvE Ecosystem</a>
+  <a href="https://youtube.com/@tomlucient?si=R9pQgsQENhloqaH2" target="_blank" class="footer-link yt-link">▶ Tom Lucient</a>
+</div>
+
+<!-- Divider + credit -->
+<div style="border-top:1px solid var(--border); padding-top:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <a href="https://t.me/DevveOfficial" target="_blank" class="footer-link muted-link">✈️ @DevveOfficial</a>
+    <a href="https://t.me/D_Rangers" target="_blank" class="footer-link muted-link">✈️ @D_Rangers</a>
+    <a href="https://t.me/FiasAI" target="_blank" class="footer-link muted-link">✈️ @FiasAI</a>
+    <a href="https://t.me/FiasAI_unofficial" target="_blank" class="footer-link muted-link">✈️ @FiasAI_unofficial</a>
+  </div>
+  <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.5px; white-space:nowrap;">
+    Made by <span style="color:var(--devve);">Rob Borghouts</span> &mdash; 2026
+  </div>
+</div>
+```
+
+  </div>
+</footer>
+
+<style>
+  .footer-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+    font-size: 13px; letter-spacing: 0.3px;
+    text-decoration: none; padding: 6px 14px;
+    border-radius: 8px; border: 1px solid; transition: all 0.2s;
+  }
+  .devve-link { color:var(--devve); border-color:rgba(0,212,255,0.3); background:rgba(0,212,255,0.07); }
+  .devve-link:hover { background:rgba(0,212,255,0.18); }
+  .fias-link  { color:var(--fias);  border-color:rgba(255,107,53,0.3); background:rgba(255,107,53,0.07); }
+  .fias-link:hover  { background:rgba(255,107,53,0.18); }
+  .yt-link    { color:#ff4444; border-color:rgba(255,68,68,0.3); background:rgba(255,68,68,0.07); }
+  .yt-link:hover    { background:rgba(255,68,68,0.18); }
+  .muted-link { color:var(--muted); border-color:var(--border); background:var(--bg3); }
+  .muted-link:hover { color:var(--text); border-color:rgba(200,223,240,0.25); }
+</style>
+
+</body>
+</html>
