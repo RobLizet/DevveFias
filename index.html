@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -26,996 +25,992 @@
     --gold: #c47f00;
   }
 
-- { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-background: var(–bg);
-color: var(–text);
-font-family: ‘Barlow’, sans-serif;
-min-height: 100vh;
-overflow-x: hidden;
-}
-
-/* Grid background */
-body::before {
-content: ‘’;
-position: fixed;
-inset: 0;
-background-image:
-linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
-linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
-background-size: 40px 40px;
-pointer-events: none;
-z-index: 0;
-}
-
-/* Glow orbs */
-.orb {
-position: fixed;
-border-radius: 50%;
-filter: blur(80px);
-pointer-events: none;
-z-index: 0;
-}
-.orb1 { width: 400px; height: 400px; background: rgba(0,136,204,0.08); top: -100px; left: -100px; }
-.orb2 { width: 350px; height: 350px; background: rgba(224,90,32,0.08); bottom: -80px; right: -80px; }
-
-/* ===== HEADER ===== */
-header {
-position: sticky;
-top: 0;
-z-index: 100;
-background: rgba(232,234,237,0.97);
-backdrop-filter: blur(20px);
-border-bottom: 1px solid var(–border);
-padding: 0 20px;
-}
-
-.header-inner {
-max-width: 1200px;
-margin: 0 auto;
-display: flex;
-flex-direction: column;
-gap: 8px;
-padding: 10px 0;
-}
-.header-row1 {
-display: flex;
-align-items: center;
-justify-content: space-between;
-}
-
-.logo {
-display: flex;
-align-items: center;
-gap: 10px;
-flex-shrink: 0;
-}
-
-.logo-icon {
-width: 36px;
-height: 36px;
-background: linear-gradient(135deg, var(–devve), var(–fias));
-border-radius: 8px;
-display: flex;
-align-items: center;
-justify-content: center;
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 14px;
-font-weight: bold;
-color: #000;
-}
-
-.logo-text {
-font-family: ‘Barlow Condensed’, sans-serif;
-font-weight: 700;
-font-size: 18px;
-letter-spacing: 1px;
-}
-
-.logo-text span:first-child { color: var(–devve); }
-.logo-text span:last-child { color: var(–fias); }
-
-.nav-tabs {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 4px;
-background: var(–bg2);
-border-radius: 10px;
-padding: 4px;
-border: 1px solid var(–border);
-}
-
-/* Last 2 tabs span to center them on row 2 */
-.nav-tab:nth-child(4) { grid-column: 1; }
-.nav-tab:nth-child(5) { grid-column: 2; }
-
-.nav-tab {
-padding: 9px 4px;
-border-radius: 7px;
-border: none;
-background: transparent;
-color: var(–muted);
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 13px;
-font-weight: 700;
-letter-spacing: 0.3px;
-text-transform: uppercase;
-cursor: pointer;
-transition: all 0.2s;
-white-space: nowrap;
-text-align: center;
-width: 100%;
-}
-
-.nav-tab.active {
-background: var(–bg3);
-color: var(–text);
-border: 1px solid var(–border);
-}
-
-.nav-tab:hover:not(.active) { color: var(–text); }
-
-.live-badge {
-display: flex;
-align-items: center;
-gap: 6px;
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 11px;
-color: var(–muted);
-flex-shrink: 0;
-}
-
-```
-.nav-tab {
-  flex: 1;
-  padding: 6px 4px;
-  font-size: 11px;
-  text-align: center;
-  letter-spacing: 0;
-}
-/* Hide emoji on very small screens, keep text */
-.nav-tab { white-space: nowrap; overflow: hidden; }
-```
-
-}
-
-.live-dot {
-width: 7px;
-height: 7px;
-background: var(–green);
-border-radius: 50%;
-animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-0%, 100% { opacity: 1; transform: scale(1); }
-50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-/* ===== MAIN ===== */
-main {
-position: relative;
-z-index: 1;
-max-width: 1200px;
-margin: 0 auto;
-padding: 20px;
-}
-
-/* Pages */
-.page { display: none; animation: fadeIn 0.3s ease; }
-.page.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-
-/* ===== PRICE CARDS ===== */
-.price-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-gap: 16px;
-margin-bottom: 20px;
-}
-
-.price-card {
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 16px;
-padding: 20px;
-position: relative;
-overflow: hidden;
-transition: border-color 0.3s;
-}
-
-.price-card::before {
-content: ‘’;
-position: absolute;
-top: 0; left: 0; right: 0;
-height: 2px;
-}
-
-.price-card.devve::before { background: linear-gradient(90deg, transparent, var(–devve), transparent); }
-.price-card.fias::before { background: linear-gradient(90deg, transparent, var(–fias), transparent); }
-
-.price-card:hover { border-color: var(–devve); }
-.price-card.fias:hover { border-color: var(–fias); }
-
-.coin-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 16px;
-}
-
-.coin-identity {
-display: flex;
-align-items: center;
-gap: 10px;
-}
-
-.coin-avatar {
-width: 40px;
-height: 40px;
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-font-family: ‘Barlow Condensed’, sans-serif;
-font-weight: 900;
-font-size: 13px;
-letter-spacing: 0.5px;
-flex-shrink: 0;
-}
-
-.coin-avatar.devve {
-background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,144,200,0.3));
-border: 1.5px solid var(–devve);
-color: var(–devve);
-}
-
-.coin-avatar.fias {
-background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(204,74,21,0.3));
-border: 1.5px solid var(–fias);
-color: var(–fias);
-}
-
-.coin-name-wrap { line-height: 1; }
-.coin-name { font-family: ‘Barlow Condensed’, sans-serif; font-weight: 700; font-size: 18px; }
-.coin-fullname { font-size: 11px; color: var(–muted); margin-top: 2px; }
-
-.coin-rank {
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 11px;
-color: var(–muted);
-background: var(–bg3);
-padding: 3px 8px;
-border-radius: 4px;
-border: 1px solid var(–border);
-}
-
-.price-main {
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 28px;
-font-weight: bold;
-line-height: 1;
-margin-bottom: 8px;
-}
-
-.price-main.devve { color: var(–devve); }
-.price-main.fias { color: var(–fias); }
-
-.price-meta {
-display: flex;
-gap: 16px;
-flex-wrap: wrap;
-}
-
-.price-meta-item { display: flex; flex-direction: column; gap: 2px; }
-.meta-label { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.8px; }
-.meta-value { font-family: ‘Share Tech Mono’, monospace; font-size: 12px; color: var(–text); }
-
-.change-badge {
-display: inline-flex;
-align-items: center;
-gap: 3px;
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 13px;
-font-weight: bold;
-padding: 4px 10px;
-border-radius: 6px;
-}
-
-.change-badge.up { background: rgba(0,230,118,0.12); color: var(–green); border: 1px solid rgba(0,230,118,0.2); }
-.change-badge.down { background: rgba(255,68,68,0.12); color: var(–red); border: 1px solid rgba(255,68,68,0.2); }
-.change-badge.flat { background: rgba(90,122,153,0.12); color: var(–muted); border: 1px solid rgba(90,122,153,0.2); }
-
-.mini-chart-wrap {
-height: 50px;
-margin-top: 14px;
-}
-
-/* ===== CHART SECTION ===== */
-.section-title {
-font-family: ‘Barlow Condensed’, sans-serif;
-font-weight: 700;
-font-size: 20px;
-letter-spacing: 1px;
-text-transform: uppercase;
-color: var(–text);
-display: flex;
-align-items: center;
-gap: 10px;
-margin-bottom: 14px;
-}
-
-.section-title::before {
-content: ‘’;
-width: 3px;
-height: 20px;
-border-radius: 2px;
-}
-
-.section-title.devve::before { background: var(–devve); }
-.section-title.fias::before { background: var(–fias); }
-.section-title.mixed::before { background: linear-gradient(to bottom, var(–devve), var(–fias)); }
-
-.chart-card {
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 16px;
-padding: 20px;
-margin-bottom: 20px;
-}
-
-.chart-controls {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 16px;
-flex-wrap: wrap;
-gap: 10px;
-}
-
-.chart-coin-tabs {
-display: flex;
-gap: 6px;
-}
-
-.coin-tab {
-padding: 5px 14px;
-border-radius: 6px;
-border: 1px solid var(–border);
-background: transparent;
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 13px;
-font-weight: 600;
-letter-spacing: 0.5px;
-cursor: pointer;
-transition: all 0.2s;
-color: var(–muted);
-}
-
-.coin-tab.active.devve, .coin-tab:hover.devve { border-color: var(–devve); color: var(–devve); background: rgba(0,212,255,0.08); }
-.coin-tab.active.fias, .coin-tab:hover.fias { border-color: var(–fias); color: var(–fias); background: rgba(255,107,53,0.08); }
-.coin-tab.active.both { border-color: var(–gold); color: var(–gold); background: rgba(255,213,79,0.08); }
-
-.period-tabs {
-display: flex;
-gap: 4px;
-}
-
-.period-tab {
-padding: 4px 10px;
-border-radius: 5px;
-border: 1px solid var(–border);
-background: transparent;
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 11px;
-cursor: pointer;
-color: var(–muted);
-transition: all 0.2s;
-}
-
-.period-tab.active, .period-tab:hover {
-background: var(–bg3);
-color: var(–text);
-border-color: rgba(200,223,240,0.3);
-}
-
-.chart-container { position: relative; height: 260px; }
-
-/* ===== STATS ROW ===== */
-.stats-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-gap: 12px;
-margin-bottom: 20px;
-}
-
-.stat-card {
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 12px;
-padding: 14px 16px;
-text-align: center;
-}
-
-.stat-label { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-.stat-value { font-family: ‘Share Tech Mono’, monospace; font-size: 15px; color: var(–text); }
-.stat-sub { font-size: 10px; color: var(–muted); margin-top: 3px; }
-
-/* ===== INFO CARDS ===== */
-.info-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-gap: 16px;
-margin-bottom: 20px;
-}
-
-.info-card {
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 16px;
-padding: 20px;
-position: relative;
-overflow: hidden;
-}
-
-.info-card h3 {
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 16px;
-font-weight: 700;
-letter-spacing: 0.5px;
-margin-bottom: 12px;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-
-.info-card p {
-font-size: 13px;
-line-height: 1.7;
-color: #8aa8c4;
-}
-
-.info-tag {
-display: inline-block;
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 10px;
-padding: 2px 8px;
-border-radius: 4px;
-margin: 3px 3px 3px 0;
-border: 1px solid;
-}
-
-.info-tag.devve { color: var(–devve); border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05); }
-.info-tag.fias { color: var(–fias); border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.05); }
-
-.link-row {
-display: flex;
-flex-wrap: wrap;
-gap: 8px;
-margin-top: 14px;
-}
-
-.ext-link {
-display: inline-flex;
-align-items: center;
-gap: 5px;
-font-size: 12px;
-color: var(–muted);
-text-decoration: none;
-padding: 5px 12px;
-border: 1px solid var(–border);
-border-radius: 6px;
-background: var(–bg3);
-transition: all 0.2s;
-font-family: ‘Barlow Condensed’, sans-serif;
-font-weight: 600;
-letter-spacing: 0.3px;
-}
-
-.ext-link:hover { color: var(–text); border-color: rgba(200,223,240,0.3); }
-.ext-link.devve:hover { border-color: var(–devve); color: var(–devve); }
-.ext-link.fias:hover { border-color: var(–fias); color: var(–fias); }
-
-/* ===== TELEGRAM SECTION ===== */
-.tg-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-gap: 16px;
-margin-bottom: 20px;
-}
-
-.tg-card {
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 16px;
-overflow: hidden;
-}
-
-.tg-card-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 14px 18px;
-border-bottom: 1px solid var(–border);
-background: var(–bg3);
-}
-
-.tg-card-header h3 {
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 15px;
-font-weight: 700;
-letter-spacing: 0.5px;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-
-.tg-icon { font-size: 18px; }
-
-.tg-open-btn {
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 12px;
-font-weight: 600;
-letter-spacing: 0.3px;
-color: var(–muted);
-text-decoration: none;
-padding: 4px 10px;
-border: 1px solid var(–border);
-border-radius: 5px;
-transition: all 0.2s;
-background: transparent;
-cursor: pointer;
-}
-
-.tg-open-btn:hover { color: var(–devve); border-color: var(–devve); }
-
-.tg-embed {
-width: 100%;
-height: 500px;
-border: none;
-background: var(–bg2);
-display: block;
-}
-
-.tg-placeholder {
-padding: 20px;
-text-align: center;
-}
-
-.tg-placeholder p {
-font-size: 13px;
-color: var(–muted);
-margin-bottom: 12px;
-}
-
-.tg-channel-input-wrap {
-display: flex;
-gap: 8px;
-margin-bottom: 12px;
-}
-
-.tg-channel-input {
-flex: 1;
-background: var(–bg3);
-border: 1px solid var(–border);
-border-radius: 8px;
-padding: 8px 12px;
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 13px;
-color: var(–text);
-outline: none;
-}
-
-.tg-channel-input:focus { border-color: var(–devve); }
-
-.tg-load-btn {
-padding: 8px 16px;
-background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,144,200,0.15));
-border: 1px solid var(–devve);
-border-radius: 8px;
-color: var(–devve);
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 13px;
-font-weight: 700;
-letter-spacing: 0.5px;
-cursor: pointer;
-transition: all 0.2s;
-}
-
-.tg-load-btn:hover { background: rgba(0,212,255,0.25); }
-
-.tg-presets {
-display: flex;
-flex-wrap: wrap;
-gap: 6px;
-}
-
-.tg-preset-btn {
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 11px;
-padding: 4px 10px;
-border-radius: 5px;
-border: 1px solid var(–border);
-background: var(–bg3);
-color: var(–muted);
-cursor: pointer;
-transition: all 0.2s;
-}
-
-.tg-preset-btn:hover { border-color: var(–devve); color: var(–devve); }
-
-/* ===== PORTFOLIO ===== */
-.portfolio-form {
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 16px;
-padding: 20px;
-margin-bottom: 20px;
-}
-
-.form-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-gap: 12px;
-margin-bottom: 14px;
-}
-
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-label { font-size: 11px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.8px; }
-
-.form-input {
-background: var(–bg3);
-border: 1px solid var(–border);
-border-radius: 8px;
-padding: 9px 12px;
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 13px;
-color: var(–text);
-outline: none;
-transition: border-color 0.2s;
-}
-
-.form-input:focus { border-color: var(–devve); }
-
-.calc-btn {
-width: 100%;
-padding: 10px;
-background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(255,107,53,0.1));
-border: 1px solid var(–border);
-border-radius: 8px;
-color: var(–text);
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 15px;
-font-weight: 700;
-letter-spacing: 1px;
-cursor: pointer;
-transition: all 0.2s;
-text-transform: uppercase;
-}
-
-.calc-btn:hover { border-color: var(–devve); color: var(–devve); }
-
-.portfolio-result {
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 16px;
-padding: 20px;
-display: none;
-}
-
-.portfolio-result.visible { display: block; animation: fadeIn 0.3s ease; }
-
-.result-grid {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-gap: 12px;
-}
-
-.result-item {
-background: var(–bg3);
-border: 1px solid var(–border);
-border-radius: 10px;
-padding: 14px;
-text-align: center;
-}
-
-.result-label { font-size: 10px; color: var(–muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-.result-value { font-family: ‘Share Tech Mono’, monospace; font-size: 18px; }
-.result-value.devve { color: var(–devve); }
-.result-value.fias { color: var(–fias); }
-.result-value.total { color: var(–gold); }
-.result-value.profit { color: var(–green); }
-.result-value.loss { color: var(–red); }
-
-/* ===== LOADING / ERROR ===== */
-.loading-shimmer {
-background: linear-gradient(90deg, var(–bg3) 25%, var(–border) 50%, var(–bg3) 75%);
-background-size: 200% 100%;
-animation: shimmer 1.5s infinite;
-border-radius: 4px;
-height: 24px;
-width: 120px;
-display: inline-block;
-}
-
-@keyframes shimmer {
-0% { background-position: 200% 0; }
-100% { background-position: -200% 0; }
-}
-
-.error-msg {
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 12px;
-color: var(–red);
-background: rgba(255,68,68,0.08);
-border: 1px solid rgba(255,68,68,0.2);
-padding: 8px 12px;
-border-radius: 6px;
-margin-top: 8px;
-}
-
-.refresh-btn {
-display: inline-flex;
-align-items: center;
-gap: 5px;
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 13px;
-font-weight: 600;
-color: var(–muted);
-background: var(–bg3);
-border: 1px solid var(–border);
-padding: 5px 12px;
-border-radius: 6px;
-cursor: pointer;
-transition: all 0.2s;
-margin-left: auto;
-}
-
-.refresh-btn:hover { color: var(–text); border-color: rgba(200,223,240,0.3); }
-.refresh-btn.spinning svg { animation: spin 1s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-/* ===== PRICE TICKER ===== */
-.ticker-bar {
-background: var(–bg2);
-border-bottom: 1px solid var(–border);
-overflow: hidden;
-height: 32px;
-display: flex;
-align-items: center;
-}
-
-.ticker-inner {
-display: flex;
-gap: 40px;
-animation: ticker 30s linear infinite;
-white-space: nowrap;
-}
-
-@keyframes ticker {
-0% { transform: translateX(0); }
-100% { transform: translateX(-50%); }
-}
-
-.ticker-item {
-display: flex;
-align-items: center;
-gap: 8px;
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 12px;
-}
-
-.ticker-symbol { color: var(–text); font-weight: bold; }
-.ticker-price { color: var(–text); }
-.ticker-change { }
-.ticker-change.up { color: var(–green); }
-.ticker-change.down { color: var(–red); }
-
-/* ===== LAST UPDATED ===== */
-.last-updated {
-font-family: ‘Share Tech Mono’, monospace;
-font-size: 11px;
-color: var(–muted);
-text-align: right;
-margin-bottom: 12px;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
-header { padding: 0 12px; }
-.header-inner { gap: 8px; }
-.logo-text { font-size: 16px; }
-main { padding: 12px; }
-.price-main { font-size: 22px; }
-.live-badge span { display: none; }
-}
-
-/* ===== SOCIAAL PAGE ===== */
-.tg-channel-card {
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 16px;
-padding: 18px;
-transition: border-color 0.2s;
-}
-.devve-card:hover { border-color: var(–devve); }
-.fias-card:hover { border-color: var(–fias); }
-
-.tg-ch-header {
-display: flex;
-align-items: center;
-gap: 12px;
-margin-bottom: 10px;
-}
-
-.tg-ch-icon {
-width: 40px; height: 40px;
-border-radius: 50%;
-display: flex; align-items: center; justify-content: center;
-font-size: 18px;
-flex-shrink: 0;
-}
-.devve-icon { background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.3); }
-.fias-icon  { background: rgba(255,107,53,0.12); border: 1px solid rgba(255,107,53,0.3); }
-
-.tg-ch-name { font-family: ‘Barlow Condensed’,sans-serif; font-weight:700; font-size:16px; color:var(–devve); }
-.tg-ch-handle { font-family:‘Share Tech Mono’,monospace; font-size:11px; color:var(–muted); margin-top:2px; }
-.tg-ch-desc { font-size:12px; color:#7a9ab8; line-height:1.6; margin-bottom:14px; }
-
-.tg-open-pill {
-margin-left: auto;
-flex-shrink: 0;
-font-family: ‘Barlow Condensed’,sans-serif;
-font-size: 12px;
-font-weight: 700;
-letter-spacing: 0.3px;
-padding: 5px 12px;
-border-radius: 20px;
-border: 1px solid;
-text-decoration: none;
-transition: all 0.2s;
-}
-.devve-pill { color:var(–devve); border-color:rgba(0,212,255,0.4); background:rgba(0,212,255,0.08); }
-.devve-pill:hover { background:rgba(0,212,255,0.2); }
-.fias-pill  { color:var(–fias); border-color:rgba(255,107,53,0.4); background:rgba(255,107,53,0.08); }
-.fias-pill:hover  { background:rgba(255,107,53,0.2); }
-
-.tg-embed-wrap { }
-.tg-fallback { display:flex; flex-direction:column; }
-
-.tg-big-btn {
-display: block;
-text-align: center;
-padding: 11px 16px;
-border-radius: 10px;
-font-family: ‘Barlow Condensed’,sans-serif;
-font-size: 14px;
-font-weight: 700;
-letter-spacing: 0.5px;
-text-decoration: none;
-transition: all 0.2s;
-}
-.devve-btn { background:rgba(0,212,255,0.12); border:1px solid rgba(0,212,255,0.35); color:var(–devve); }
-.devve-btn:hover { background:rgba(0,212,255,0.22); }
-.fias-btn  { background:rgba(255,107,53,0.12); border:1px solid rgba(255,107,53,0.35); color:var(–fias); }
-.fias-btn:hover  { background:rgba(255,107,53,0.22); }
-.outline-btn { background:var(–bg3); border:1px solid var(–border); color:var(–muted); }
-.outline-btn:hover { border-color:rgba(200,223,240,0.3); color:var(–text); }
-
-/* Social cards */
-.social-card {
-display: flex;
-align-items: center;
-gap: 12px;
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 12px;
-padding: 14px;
-text-decoration: none;
-transition: all 0.2s;
-}
-.social-card:hover { border-color: rgba(200,223,240,0.3); transform: translateY(-1px); }
-
-.social-icon {
-width: 42px; height: 42px;
-border-radius: 10px;
-border: 1px solid;
-display: flex; align-items: center; justify-content: center;
-font-size: 18px;
-font-weight: bold;
-flex-shrink: 0;
-}
-.social-name { font-family:‘Barlow Condensed’,sans-serif; font-weight:700; font-size:14px; color:var(–text); }
-.social-handle { font-family:‘Share Tech Mono’,monospace; font-size:11px; color:var(–muted); margin-top:2px; }
-
-/* News cards */
-.news-card {
-display: block;
-background: var(–card);
-border: 1px solid var(–border);
-border-radius: 12px;
-padding: 14px 16px;
-text-decoration: none;
-transition: all 0.2s;
-}
-.news-card:hover { transform: translateY(-2px); }
-.devve-news:hover { border-color: var(–devve); }
-.fias-news:hover  { border-color: var(–fias); }
-.news-card:not(.devve-news):not(.fias-news):hover { border-color: rgba(200,223,240,0.3); }
-
-.news-source {
-font-family: ‘Barlow Condensed’,sans-serif;
-font-weight: 700;
-font-size: 15px;
-color: var(–text);
-margin-bottom: 4px;
-}
-.devve-news .news-source { color: var(–devve); }
-.fias-news  .news-source { color: var(–fias); }
-.news-desc { font-size: 12px; color: var(–muted); line-height: 1.5; }
-
-/* ===== CANDLE CHART ===== */
-.chart-container { position: relative; height: 320px; }
-
-.ta-btn {
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
-padding: 7px 16px; border-radius: 8px; cursor: pointer;
-border: 1px solid rgba(0,212,255,0.4);
-background: rgba(0,212,255,0.1); color: var(–devve);
-transition: all 0.2s;
-}
-.ta-btn:hover { background: rgba(0,212,255,0.22); }
-.ta-btn.fias-ta { border-color: rgba(255,107,53,0.4); background: rgba(255,107,53,0.1); color: var(–fias); }
-.ta-btn.fias-ta:hover { background: rgba(255,107,53,0.22); }
-.ta-btn:disabled { opacity:0.5; cursor:not-allowed; }
-
-.ta-loading {
-display: flex; align-items: center; gap: 10px;
-font-family: ‘Share Tech Mono’, monospace; font-size: 12px; color: var(–muted);
-padding: 12px 0;
-}
-.ta-spinner {
-width: 16px; height: 16px;
-border: 2px solid var(–border);
-border-top-color: var(–devve);
-border-radius: 50%;
-animation: spin 0.8s linear infinite;
-flex-shrink: 0;
-}
-.ta-spinner.fias { border-top-color: var(–fias); }
-
-.ta-output {
-font-size: 13px; line-height: 1.8; color: var(–text);
-}
-.ta-output h4 {
-font-family: ‘Barlow Condensed’, sans-serif;
-font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
-margin: 12px 0 6px;
-display: flex; align-items: center; gap: 6px;
-}
-.ta-output .ta-section {
-background: var(–bg3); border: 1px solid var(–border);
-border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
-}
-.ta-output .verdict {
-border-radius: 8px; padding: 12px 16px; margin-top: 14px;
-font-family: ‘Barlow Condensed’, sans-serif; font-size: 16px; font-weight: 700;
-letter-spacing: 0.5px;
-}
-.ta-output .verdict.bullish { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); color: var(–green); }
-.ta-output .verdict.bearish { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); color: var(–red); }
-.ta-output .verdict.neutral { background: rgba(255,213,79,0.1); border: 1px solid rgba(255,213,79,0.3); color: var(–gold); }
-.ta-timestamp { font-family: ‘Share Tech Mono’, monospace; font-size:10px; color:var(–muted); margin-top:10px; }
-
-```
-.nav-tab { padding: 7px 6px; font-size: 16px; }
-```
-
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 { width: 400px; height: 400px; background: rgba(0,136,204,0.08); top: -100px; left: -100px; }
+  .orb2 { width: 350px; height: 350px; background: rgba(224,90,32,0.08); bottom: -80px; right: -80px; }
+
+  /* ===== HEADER ===== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(232,234,237,0.97);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 0;
+  }
+  .header-row1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--devve), var(--fias));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    color: #000;
+  }
+
+  .logo-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 1px;
+  }
+
+  .logo-text span:first-child { color: var(--devve); }
+  .logo-text span:last-child { color: var(--fias); }
+
+  .nav-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    background: var(--bg2);
+    border-radius: 10px;
+    padding: 4px;
+    border: 1px solid var(--border);
+  }
+
+  /* Last 2 tabs span to center them on row 2 */
+  .nav-tab:nth-child(4) { grid-column: 1; }
+  .nav-tab:nth-child(5) { grid-column: 2; }
+
+  .nav-tab {
+    padding: 9px 4px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-align: center;
+    width: 100%;
+  }
+
+  .nav-tab.active {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .nav-tab:hover:not(.active) { color: var(--text); }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+    .nav-tab {
+      flex: 1;
+      padding: 6px 4px;
+      font-size: 11px;
+      text-align: center;
+      letter-spacing: 0;
+    }
+    /* Hide emoji on very small screens, keep text */
+    .nav-tab { white-space: nowrap; overflow: hidden; }
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* ===== MAIN ===== */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* Pages */
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* ===== PRICE CARDS ===== */
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .price-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .price-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .price-card.devve::before { background: linear-gradient(90deg, transparent, var(--devve), transparent); }
+  .price-card.fias::before { background: linear-gradient(90deg, transparent, var(--fias), transparent); }
+
+  .price-card:hover { border-color: var(--devve); }
+  .price-card.fias:hover { border-color: var(--fias); }
+
+  .coin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .coin-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .coin-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+
+  .coin-avatar.devve {
+    background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,144,200,0.3));
+    border: 1.5px solid var(--devve);
+    color: var(--devve);
+  }
+
+  .coin-avatar.fias {
+    background: linear-gradient(135deg, rgba(255,107,53,0.2), rgba(204,74,21,0.3));
+    border: 1.5px solid var(--fias);
+    color: var(--fias);
+  }
+
+  .coin-name-wrap { line-height: 1; }
+  .coin-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; }
+  .coin-fullname { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .coin-rank {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--bg3);
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  .price-main {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .price-main.devve { color: var(--devve); }
+  .price-main.fias { color: var(--fias); }
+
+  .price-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .price-meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .meta-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+  .meta-value { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text); }
+
+  .change-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .change-badge.up { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.2); }
+  .change-badge.down { background: rgba(255,68,68,0.12); color: var(--red); border: 1px solid rgba(255,68,68,0.2); }
+  .change-badge.flat { background: rgba(90,122,153,0.12); color: var(--muted); border: 1px solid rgba(90,122,153,0.2); }
+
+  .mini-chart-wrap {
+    height: 50px;
+    margin-top: 14px;
+  }
+
+  /* ===== CHART SECTION ===== */
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 3px;
+    height: 20px;
+    border-radius: 2px;
+  }
+
+  .section-title.devve::before { background: var(--devve); }
+  .section-title.fias::before { background: var(--fias); }
+  .section-title.mixed::before { background: linear-gradient(to bottom, var(--devve), var(--fias)); }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .chart-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chart-coin-tabs {
+    display: flex;
+    gap: 6px;
+  }
+
+  .coin-tab {
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
+  }
+
+  .coin-tab.active.devve, .coin-tab:hover.devve { border-color: var(--devve); color: var(--devve); background: rgba(0,212,255,0.08); }
+  .coin-tab.active.fias, .coin-tab:hover.fias { border-color: var(--fias); color: var(--fias); background: rgba(255,107,53,0.08); }
+  .coin-tab.active.both { border-color: var(--gold); color: var(--gold); background: rgba(255,213,79,0.08); }
+
+  .period-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .period-tab {
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .period-tab.active, .period-tab:hover {
+    background: var(--bg3);
+    color: var(--text);
+    border-color: rgba(200,223,240,0.3);
+  }
+
+  .chart-container { position: relative; height: 260px; }
+
+  /* ===== STATS ROW ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .stat-value { font-family: 'Share Tech Mono', monospace; font-size: 15px; color: var(--text); }
+  .stat-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  /* ===== INFO CARDS ===== */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .info-card h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .info-card p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #8aa8c4;
+  }
+
+  .info-tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 3px 3px 3px 0;
+    border: 1px solid;
+  }
+
+  .info-tag.devve { color: var(--devve); border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05); }
+  .info-tag.fias { color: var(--fias); border-color: rgba(255,107,53,0.3); background: rgba(255,107,53,0.05); }
+
+  .link-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg3);
+    transition: all 0.2s;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .ext-link:hover { color: var(--text); border-color: rgba(200,223,240,0.3); }
+  .ext-link.devve:hover { border-color: var(--devve); color: var(--devve); }
+  .ext-link.fias:hover { border-color: var(--fias); color: var(--fias); }
+
+  /* ===== TELEGRAM SECTION ===== */
+  .tg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .tg-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .tg-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+
+  .tg-card-header h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tg-icon { font-size: 18px; }
+
+  .tg-open-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    transition: all 0.2s;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .tg-open-btn:hover { color: var(--devve); border-color: var(--devve); }
+
+  .tg-embed {
+    width: 100%;
+    height: 500px;
+    border: none;
+    background: var(--bg2);
+    display: block;
+  }
+
+  .tg-placeholder {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .tg-placeholder p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .tg-channel-input-wrap {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .tg-channel-input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+  }
+
+  .tg-channel-input:focus { border-color: var(--devve); }
+
+  .tg-load-btn {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,144,200,0.15));
+    border: 1px solid var(--devve);
+    border-radius: 8px;
+    color: var(--devve);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tg-load-btn:hover { background: rgba(0,212,255,0.25); }
+
+  .tg-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tg-preset-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tg-preset-btn:hover { border-color: var(--devve); color: var(--devve); }
+
+  /* ===== PORTFOLIO ===== */
+  .portfolio-form {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+
+  .form-input {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--devve); }
+
+  .calc-btn {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(255,107,53,0.1));
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .calc-btn:hover { border-color: var(--devve); color: var(--devve); }
+
+  .portfolio-result {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    display: none;
+  }
+
+  .portfolio-result.visible { display: block; animation: fadeIn 0.3s ease; }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .result-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .result-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .result-value { font-family: 'Share Tech Mono', monospace; font-size: 18px; }
+  .result-value.devve { color: var(--devve); }
+  .result-value.fias { color: var(--fias); }
+  .result-value.total { color: var(--gold); }
+  .result-value.profit { color: var(--green); }
+  .result-value.loss { color: var(--red); }
+
+  /* ===== LOADING / ERROR ===== */
+  .loading-shimmer {
+    background: linear-gradient(90deg, var(--bg3) 25%, var(--border) 50%, var(--bg3) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    height: 24px;
+    width: 120px;
+    display: inline-block;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .error-msg {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--red);
+    background: rgba(255,68,68,0.08);
+    border: 1px solid rgba(255,68,68,0.2);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+
+  .refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: auto;
+  }
+
+  .refresh-btn:hover { color: var(--text); border-color: rgba(200,223,240,0.3); }
+  .refresh-btn.spinning svg { animation: spin 1s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* ===== PRICE TICKER ===== */
+  .ticker-bar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    height: 32px;
+    display: flex;
+    align-items: center;
+  }
+
+  .ticker-inner {
+    display: flex;
+    gap: 40px;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+  }
+
+  .ticker-symbol { color: var(--text); font-weight: bold; }
+  .ticker-price { color: var(--text); }
+  .ticker-change { }
+  .ticker-change.up { color: var(--green); }
+  .ticker-change.down { color: var(--red); }
+
+  /* ===== LAST UPDATED ===== */
+  .last-updated {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    margin-bottom: 12px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 600px) {
+    header { padding: 0 12px; }
+    .header-inner { gap: 8px; }
+    .logo-text { font-size: 16px; }
+    main { padding: 12px; }
+    .price-main { font-size: 22px; }
+    .live-badge span { display: none; }
+  }
+
+  /* ===== SOCIAAL PAGE ===== */
+  .tg-channel-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    transition: border-color 0.2s;
+  }
+  .devve-card:hover { border-color: var(--devve); }
+  .fias-card:hover { border-color: var(--fias); }
+
+  .tg-ch-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .tg-ch-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .devve-icon { background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.3); }
+  .fias-icon  { background: rgba(255,107,53,0.12); border: 1px solid rgba(255,107,53,0.3); }
+
+  .tg-ch-name { font-family: 'Barlow Condensed',sans-serif; font-weight:700; font-size:16px; color:var(--devve); }
+  .tg-ch-handle { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); margin-top:2px; }
+  .tg-ch-desc { font-size:12px; color:#7a9ab8; line-height:1.6; margin-bottom:14px; }
+
+  .tg-open-pill {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-family: 'Barlow Condensed',sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .devve-pill { color:var(--devve); border-color:rgba(0,212,255,0.4); background:rgba(0,212,255,0.08); }
+  .devve-pill:hover { background:rgba(0,212,255,0.2); }
+  .fias-pill  { color:var(--fias); border-color:rgba(255,107,53,0.4); background:rgba(255,107,53,0.08); }
+  .fias-pill:hover  { background:rgba(255,107,53,0.2); }
+
+  .tg-embed-wrap { }
+  .tg-fallback { display:flex; flex-direction:column; }
+
+  .tg-big-btn {
+    display: block;
+    text-align: center;
+    padding: 11px 16px;
+    border-radius: 10px;
+    font-family: 'Barlow Condensed',sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .devve-btn { background:rgba(0,212,255,0.12); border:1px solid rgba(0,212,255,0.35); color:var(--devve); }
+  .devve-btn:hover { background:rgba(0,212,255,0.22); }
+  .fias-btn  { background:rgba(255,107,53,0.12); border:1px solid rgba(255,107,53,0.35); color:var(--fias); }
+  .fias-btn:hover  { background:rgba(255,107,53,0.22); }
+  .outline-btn { background:var(--bg3); border:1px solid var(--border); color:var(--muted); }
+  .outline-btn:hover { border-color:rgba(200,223,240,0.3); color:var(--text); }
+
+  /* Social cards */
+  .social-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .social-card:hover { border-color: rgba(200,223,240,0.3); transform: translateY(-1px); }
+
+  .social-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    border: 1px solid;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .social-name { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14px; color:var(--text); }
+  .social-handle { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); margin-top:2px; }
+
+  /* News cards */
+  .news-card {
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .news-card:hover { transform: translateY(-2px); }
+  .devve-news:hover { border-color: var(--devve); }
+  .fias-news:hover  { border-color: var(--fias); }
+  .news-card:not(.devve-news):not(.fias-news):hover { border-color: rgba(200,223,240,0.3); }
+
+  .news-source {
+    font-family: 'Barlow Condensed',sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .devve-news .news-source { color: var(--devve); }
+  .fias-news  .news-source { color: var(--fias); }
+  .news-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+
+  /* ===== CANDLE CHART ===== */
+  .chart-container { position: relative; height: 320px; }
+
+  .ta-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 7px 16px; border-radius: 8px; cursor: pointer;
+    border: 1px solid rgba(0,212,255,0.4);
+    background: rgba(0,212,255,0.1); color: var(--devve);
+    transition: all 0.2s;
+  }
+  .ta-btn:hover { background: rgba(0,212,255,0.22); }
+  .ta-btn.fias-ta { border-color: rgba(255,107,53,0.4); background: rgba(255,107,53,0.1); color: var(--fias); }
+  .ta-btn.fias-ta:hover { background: rgba(255,107,53,0.22); }
+  .ta-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+  .ta-loading {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--muted);
+    padding: 12px 0;
+  }
+  .ta-spinner {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--devve);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+  .ta-spinner.fias { border-top-color: var(--fias); }
+
+  .ta-output {
+    font-size: 13px; line-height: 1.8; color: var(--text);
+  }
+  .ta-output h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+    margin: 12px 0 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ta-output .ta-section {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+  }
+  .ta-output .verdict {
+    border-radius: 8px; padding: 12px 16px; margin-top: 14px;
+    font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .ta-output .verdict.bullish { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.3); color: var(--green); }
+  .ta-output .verdict.bearish { background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3); color: var(--red); }
+  .ta-output .verdict.neutral { background: rgba(255,213,79,0.1); border: 1px solid rgba(255,213,79,0.3); color: var(--gold); }
+  .ta-timestamp { font-family: 'Share Tech Mono', monospace; font-size:10px; color:var(--muted); margin-top:10px; }
+
+
+  
+    .nav-tab { padding: 7px 6px; font-size: 16px; }
+  }
 </style>
-
 </head>
 <body>
 
@@ -1023,7 +1018,6 @@ letter-spacing: 0.5px;
 <div class="orb orb2"></div>
 
 <!-- TICKER BAR -->
-
 <div class="ticker-bar">
   <div class="ticker-inner" id="tickerInner">
     <!-- populated by JS -->
@@ -1031,7 +1025,6 @@ letter-spacing: 0.5px;
 </div>
 
 <!-- HEADER -->
-
 <header>
   <div class="header-inner">
     <!-- Rij 1: Logo + Tijd -->
@@ -1061,224 +1054,216 @@ letter-spacing: 0.5px;
 <main>
 
   <!-- ============ PAGE: OVERVIEW ============ -->
-
   <div class="page active" id="page-overview">
 
-```
-<div id="lastUpdated" class="last-updated">Laden...</div>
+    <div id="lastUpdated" class="last-updated">Laden...</div>
 
-<!-- Price Cards -->
-<div class="price-grid">
-  <!-- DevvE Card -->
-  <div class="price-card devve">
-    <div class="coin-header">
-      <div class="coin-identity">
-        <div class="coin-avatar devve">DEVVE</div>
-        <div class="coin-name-wrap">
-          <div class="coin-name" style="color:var(--devve)">$DevvE</div>
-          <div class="coin-fullname">Devvio | DevvE Token</div>
+    <!-- Price Cards -->
+    <div class="price-grid">
+      <!-- DevvE Card -->
+      <div class="price-card devve">
+        <div class="coin-header">
+          <div class="coin-identity">
+            <div class="coin-avatar devve">DEVVE</div>
+            <div class="coin-name-wrap">
+              <div class="coin-name" style="color:var(--devve)">$DevvE</div>
+              <div class="coin-fullname">Devvio | DevvE Token</div>
+            </div>
+          </div>
+          <div class="coin-rank" id="devve-rank">#—</div>
+        </div>
+
+        <div class="price-main devve" id="devve-price">
+          <span class="loading-shimmer"></span>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
+          <span class="change-badge flat" id="devve-change-24h">—</span>
+          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
+          <span class="change-badge flat" id="devve-change-7d">—</span>
+          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
+        </div>
+
+        <div class="price-meta">
+          <div class="price-meta-item">
+            <span class="meta-label">Marktcap</span>
+            <span class="meta-value" id="devve-mcap">—</span>
+          </div>
+          <div class="price-meta-item">
+            <span class="meta-label">Volume 24u</span>
+            <span class="meta-value" id="devve-vol">—</span>
+          </div>
+          <div class="price-meta-item">
+            <span class="meta-label">ATH</span>
+            <span class="meta-value" id="devve-ath">—</span>
+          </div>
+        </div>
+
+        <div class="mini-chart-wrap">
+          <div id="devveMiniChart" style="height:50px;width:100%;"></div>
         </div>
       </div>
-      <div class="coin-rank" id="devve-rank">#—</div>
-    </div>
 
-    <div class="price-main devve" id="devve-price">
-      <span class="loading-shimmer"></span>
-    </div>
+      <!-- FIAS Card -->
+      <div class="price-card fias">
+        <div class="coin-header">
+          <div class="coin-identity">
+            <div class="coin-avatar fias">FIAS</div>
+            <div class="coin-name-wrap">
+              <div class="coin-name" style="color:var(--fias)">$FIAS</div>
+              <div class="coin-fullname">FIAS Token <span style="font-size:9px;color:var(--fias);border:1px solid var(--fias);border-radius:3px;padding:1px 5px;margin-left:4px;">DexScreener</span></div>
+            </div>
+          </div>
+          <div class="coin-rank" id="fias-rank">#—</div>
+        </div>
 
-    <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
-      <span class="change-badge flat" id="devve-change-24h">—</span>
-      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
-      <span class="change-badge flat" id="devve-change-7d">—</span>
-      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
-    </div>
+        <div class="price-main fias" id="fias-price">
+          <span class="loading-shimmer"></span>
+        </div>
 
-    <div class="price-meta">
-      <div class="price-meta-item">
-        <span class="meta-label">Marktcap</span>
-        <span class="meta-value" id="devve-mcap">—</span>
-      </div>
-      <div class="price-meta-item">
-        <span class="meta-label">Volume 24u</span>
-        <span class="meta-value" id="devve-vol">—</span>
-      </div>
-      <div class="price-meta-item">
-        <span class="meta-label">ATH</span>
-        <span class="meta-value" id="devve-ath">—</span>
-      </div>
-    </div>
+        <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
+          <span class="change-badge flat" id="fias-change-24h">—</span>
+          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
+          <span class="change-badge flat" id="fias-change-7d">—</span>
+          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
+        </div>
 
-    <div class="mini-chart-wrap">
-      <div id="devveMiniChart" style="height:50px;width:100%;"></div>
-    </div>
-  </div>
+        <div class="price-meta">
+          <div class="price-meta-item">
+            <span class="meta-label">Marktcap</span>
+            <span class="meta-value" id="fias-mcap">—</span>
+          </div>
+          <div class="price-meta-item">
+            <span class="meta-label">Volume 24u</span>
+            <span class="meta-value" id="fias-vol">—</span>
+          </div>
+          <div class="price-meta-item">
+            <span class="meta-label">ATH</span>
+            <span class="meta-value" id="fias-ath">—</span>
+          </div>
+        </div>
 
-  <!-- FIAS Card -->
-  <div class="price-card fias">
-    <div class="coin-header">
-      <div class="coin-identity">
-        <div class="coin-avatar fias">FIAS</div>
-        <div class="coin-name-wrap">
-          <div class="coin-name" style="color:var(--fias)">$FIAS</div>
-          <div class="coin-fullname">FIAS Token <span style="font-size:9px;color:var(--fias);border:1px solid var(--fias);border-radius:3px;padding:1px 5px;margin-left:4px;">DexScreener</span></div>
+        <div class="mini-chart-wrap">
+          <div id="fiasMiniChart" style="height:50px;width:100%;"></div>
         </div>
       </div>
-      <div class="coin-rank" id="fias-rank">#—</div>
     </div>
 
-    <div class="price-main fias" id="fias-price">
-      <span class="loading-shimmer"></span>
-    </div>
-
-    <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
-      <span class="change-badge flat" id="fias-change-24h">—</span>
-      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
-      <span class="change-badge flat" id="fias-change-7d">—</span>
-      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
-    </div>
-
-    <div class="price-meta">
-      <div class="price-meta-item">
-        <span class="meta-label">Marktcap</span>
-        <span class="meta-value" id="fias-mcap">—</span>
+    <!-- BTC/ETH reference -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Bitcoin (BTC)</div>
+        <div class="stat-value" id="btc-price">—</div>
+        <div class="stat-sub" id="btc-change">—</div>
       </div>
-      <div class="price-meta-item">
-        <span class="meta-label">Volume 24u</span>
-        <span class="meta-value" id="fias-vol">—</span>
+      <div class="stat-card">
+        <div class="stat-label">Ethereum (ETH)</div>
+        <div class="stat-value" id="eth-price">—</div>
+        <div class="stat-sub" id="eth-change">—</div>
       </div>
-      <div class="price-meta-item">
-        <span class="meta-label">ATH</span>
-        <span class="meta-value" id="fias-ath">—</span>
+      <div class="stat-card">
+        <div class="stat-label">Crypto Markt</div>
+        <div class="stat-value" id="total-mcap">—</div>
+        <div class="stat-sub">Total Market Cap</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Markt Stemming</div>
+        <div class="stat-value" id="fear-greed">—</div>
+        <div class="stat-sub" id="fear-greed-label">Fear & Greed</div>
       </div>
     </div>
 
-    <div class="mini-chart-wrap">
-      <div id="fiasMiniChart" style="height:50px;width:100%;"></div>
-    </div>
-  </div>
-</div>
-
-<!-- BTC/ETH reference -->
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-label">Bitcoin (BTC)</div>
-    <div class="stat-value" id="btc-price">—</div>
-    <div class="stat-sub" id="btc-change">—</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Ethereum (ETH)</div>
-    <div class="stat-value" id="eth-price">—</div>
-    <div class="stat-sub" id="eth-change">—</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Crypto Markt</div>
-    <div class="stat-value" id="total-mcap">—</div>
-    <div class="stat-sub">Total Market Cap</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Markt Stemming</div>
-    <div class="stat-value" id="fear-greed">—</div>
-    <div class="stat-sub" id="fear-greed-label">Fear & Greed</div>
-  </div>
-</div>
-
-<div id="api-error" class="error-msg" style="display:none"></div>
-```
+    <div id="api-error" class="error-msg" style="display:none"></div>
 
   </div>
 
   <!-- ============ PAGE: CHARTS ============ -->
-
   <div class="page" id="page-charts">
 
-```
-<div class="chart-card">
-  <!-- Coin + Timeframe controls -->
-  <div class="chart-controls" style="margin-bottom:12px;">
-    <div class="chart-coin-tabs">
-      <button class="coin-tab devve active" id="coinTabDevve" onclick="selectChartCoin('devve', this)">DevvE</button>
-      <button class="coin-tab fias" id="coinTabFias" onclick="selectChartCoin('fias', this)">FIAS</button>
-    </div>
-    <div class="period-tabs">
-      <button class="period-tab" onclick="selectTf('15m', this)">15m</button>
-      <button class="period-tab" onclick="selectTf('4H', this)">4H</button>
-      <button class="period-tab active" onclick="selectTf('1D', this)">1D</button>
-      <button class="period-tab" onclick="selectTf('7D', this)">7D</button>
-      <button class="period-tab" onclick="selectTf('30D', this)">30D</button>
-      <button class="period-tab" onclick="selectTf('1J', this)">1J</button>
-    </div>
-  </div>
+    <div class="chart-card">
+      <!-- Coin + Timeframe controls -->
+      <div class="chart-controls" style="margin-bottom:12px;">
+        <div class="chart-coin-tabs">
+          <button class="coin-tab devve active" id="coinTabDevve" onclick="selectChartCoin('devve', this)">DevvE</button>
+          <button class="coin-tab fias" id="coinTabFias" onclick="selectChartCoin('fias', this)">FIAS</button>
+        </div>
+        <div class="period-tabs">
+          <button class="period-tab" onclick="selectTf('15m', this)">15m</button>
+          <button class="period-tab" onclick="selectTf('4H', this)">4H</button>
+          <button class="period-tab active" onclick="selectTf('1D', this)">1D</button>
+          <button class="period-tab" onclick="selectTf('7D', this)">7D</button>
+          <button class="period-tab" onclick="selectTf('30D', this)">30D</button>
+          <button class="period-tab" onclick="selectTf('1J', this)">1J</button>
+        </div>
+      </div>
 
-  <!-- Title row -->
-  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
-    <div id="chartTitle" class="section-title devve" style="font-size:14px; margin:0;">DevvE — 1D Candlestick</div>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <span id="chartCurrentPrice" style="font-family:'Share Tech Mono',monospace; font-size:15px; color:var(--devve);"></span>
-      <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
-    </div>
-  </div>
+      <!-- Title row -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+        <div id="chartTitle" class="section-title devve" style="font-size:14px; margin:0;">DevvE — 1D Candlestick</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span id="chartCurrentPrice" style="font-family:'Share Tech Mono',monospace; font-size:15px; color:var(--devve);"></span>
+          <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
+        </div>
+      </div>
 
-  <!-- Candlestick chart container -->
-  <div id="candleChart" style="height:320px; border-radius:8px; overflow:hidden; background:#f2f4f6;"></div>
-  <div id="chartError" class="error-msg" style="display:none; margin-top:10px;"></div>
-  <div id="chartLoading" style="display:none; text-align:center; padding:60px 20px; color:var(--muted); font-family:'Share Tech Mono',monospace; font-size:12px;">
-    ⏳ Grafiek laden...
-  </div>
-</div>
+      <!-- Candlestick chart container -->
+      <div id="candleChart" style="height:320px; border-radius:8px; overflow:hidden; background:#f2f4f6;"></div>
+      <div id="chartError" class="error-msg" style="display:none; margin-top:10px;"></div>
+      <div id="chartLoading" style="display:none; text-align:center; padding:60px 20px; color:var(--muted); font-family:'Share Tech Mono',monospace; font-size:12px;">
+        ⏳ Grafiek laden...
+      </div>
+    </div>
 
-<!-- AI Technische Analyse -->
-<div class="chart-card" id="taCard">
-  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-    <div class="section-title mixed" style="margin:0;">🤖 AI Technische Analyse</div>
-    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button class="ta-btn" onclick="runTA('devve')">📊 Analyseer DevvE</button>
-      <button class="ta-btn fias-ta" onclick="runTA('fias')">📊 Analyseer FIAS</button>
+    <!-- AI Technische Analyse -->
+    <div class="chart-card" id="taCard">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+        <div class="section-title mixed" style="margin:0;">🤖 AI Technische Analyse</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="ta-btn" onclick="runTA('devve')">📊 Analyseer DevvE</button>
+          <button class="ta-btn fias-ta" onclick="runTA('fias')">📊 Analyseer FIAS</button>
+        </div>
+      </div>
+      <div id="taResult" style="min-height:60px;">
+        <p style="font-size:12px; color:var(--muted); line-height:1.7;">
+          Klik op een analyseknop voor een dagelijkse technische analyse op basis van de 4H en 15m charts.
+          De AI kijkt naar trend, support/resistance, RSI, volume en geeft een kort advies.
+        </p>
+      </div>
     </div>
-  </div>
-  <div id="taResult" style="min-height:60px;">
-    <p style="font-size:12px; color:var(--muted); line-height:1.7;">
-      Klik op een analyseknop voor een dagelijkse technische analyse op basis van de 4H en 15m charts.
-      De AI kijkt naar trend, support/resistance, RSI, volume en geeft een kort advies.
-    </p>
-  </div>
-</div>
 
-<!-- Prestaties vergelijking -->
-<div class="chart-card">
-  <div class="section-title mixed">⚡ Prestaties Vergelijking</div>
-  <div class="stats-grid" style="margin-bottom:0;">
-    <div class="stat-card">
-      <div class="stat-label">DevvE 1D</div>
-      <div class="stat-value" id="cmp-devve-1d">—</div>
+    <!-- Prestaties vergelijking -->
+    <div class="chart-card">
+      <div class="section-title mixed">⚡ Prestaties Vergelijking</div>
+      <div class="stats-grid" style="margin-bottom:0;">
+        <div class="stat-card">
+          <div class="stat-label">DevvE 1D</div>
+          <div class="stat-value" id="cmp-devve-1d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">DevvE 7D</div>
+          <div class="stat-value" id="cmp-devve-7d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">DevvE 30D</div>
+          <div class="stat-value" id="cmp-devve-30d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">FIAS 1D</div>
+          <div class="stat-value" id="cmp-fias-1d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">FIAS 7D</div>
+          <div class="stat-value" id="cmp-fias-7d">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">FIAS 30D</div>
+          <div class="stat-value" id="cmp-fias-30d">—</div>
+        </div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">DevvE 7D</div>
-      <div class="stat-value" id="cmp-devve-7d">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">DevvE 30D</div>
-      <div class="stat-value" id="cmp-devve-30d">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">FIAS 1D</div>
-      <div class="stat-value" id="cmp-fias-1d">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">FIAS 7D</div>
-      <div class="stat-value" id="cmp-fias-7d">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">FIAS 30D</div>
-      <div class="stat-value" id="cmp-fias-30d">—</div>
-    </div>
-  </div>
-</div>
-```
-
   </div>
 
   <!-- ============ PAGE: INFO ============ -->
-
   <div class="page" id="page-info">
     <div class="info-grid">
       <!-- DevvE Info -->
@@ -1313,222 +1298,215 @@ letter-spacing: 0.5px;
         </div>
       </div>
 
-```
-  <!-- FIAS Info -->
-  <div class="info-card">
-    <h3 style="color:var(--fias)">
-      <div class="coin-avatar fias" style="width:30px;height:30px;font-size:10px;">FIAS</div>
-      Over FIAS
-    </h3>
-    <p>
-      <strong style="color:var(--text)">FIAS</strong> is een blockchain-project gericht op
-      <strong style="color:var(--fias)">financiële innovatie en asset-security</strong>. Het
-      token faciliteert transacties, biedt gebruikers toegang tot het ecosysteem en maakt
-      deelname aan governance mogelijk.
-    </p>
-    <p style="margin-top:10px;">
-      Met een focus op veiligheid en decentralisatie streeft FIAS ernaar traditionele
-      financiële systemen te verbeteren via blockchain-technologie. Het project heeft een
-      groeiende community die actief is op Telegram en sociale media.
-    </p>
-    <div style="margin-top:12px;">
-      <span class="info-tag fias">DeFi</span>
-      <span class="info-tag fias">Asset Security</span>
-      <span class="info-tag fias">Community</span>
-      <span class="info-tag fias">Blockchain</span>
+      <!-- FIAS Info -->
+      <div class="info-card">
+        <h3 style="color:var(--fias)">
+          <div class="coin-avatar fias" style="width:30px;height:30px;font-size:10px;">FIAS</div>
+          Over FIAS
+        </h3>
+        <p>
+          <strong style="color:var(--text)">FIAS</strong> is een blockchain-project gericht op
+          <strong style="color:var(--fias)">financiële innovatie en asset-security</strong>. Het
+          token faciliteert transacties, biedt gebruikers toegang tot het ecosysteem en maakt
+          deelname aan governance mogelijk.
+        </p>
+        <p style="margin-top:10px;">
+          Met een focus op veiligheid en decentralisatie streeft FIAS ernaar traditionele
+          financiële systemen te verbeteren via blockchain-technologie. Het project heeft een
+          groeiende community die actief is op Telegram en sociale media.
+        </p>
+        <div style="margin-top:12px;">
+          <span class="info-tag fias">DeFi</span>
+          <span class="info-tag fias">Asset Security</span>
+          <span class="info-tag fias">Community</span>
+          <span class="info-tag fias">Blockchain</span>
+        </div>
+        <div class="link-row">
+          <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">📊 DexScreener</a>
+          <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="ext-link fias">📈 CMC</a>
+          <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">🔍 DexScreener</a>
+        </div>
+      </div>
     </div>
-    <div class="link-row">
-      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">📊 DexScreener</a>
-      <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="ext-link fias">📈 CMC</a>
-      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">🔍 DexScreener</a>
+
+    <!-- Nieuws widget -->
+    <div class="chart-card">
+      <div class="section-title mixed">📰 Crypto Nieuws</div>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Volg het laatste crypto nieuws via deze bronnen:</p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="ext-link devve">CoinTelegraph DevvE</a>
+        <a href="https://cryptonews.com" target="_blank" class="ext-link">CryptoNews</a>
+        <a href="https://coindesk.com" target="_blank" class="ext-link">CoinDesk</a>
+        <a href="https://www.newsbtc.com" target="_blank" class="ext-link">NewsBTC</a>
+        <a href="https://decrypt.co" target="_blank" class="ext-link">Decrypt</a>
+      </div>
     </div>
-  </div>
-</div>
-
-<!-- Nieuws widget -->
-<div class="chart-card">
-  <div class="section-title mixed">📰 Crypto Nieuws</div>
-  <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Volg het laatste crypto nieuws via deze bronnen:</p>
-  <div style="display:flex; flex-wrap:wrap; gap:8px;">
-    <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="ext-link devve">CoinTelegraph DevvE</a>
-    <a href="https://cryptonews.com" target="_blank" class="ext-link">CryptoNews</a>
-    <a href="https://coindesk.com" target="_blank" class="ext-link">CoinDesk</a>
-    <a href="https://www.newsbtc.com" target="_blank" class="ext-link">NewsBTC</a>
-    <a href="https://decrypt.co" target="_blank" class="ext-link">Decrypt</a>
-  </div>
-</div>
-```
-
   </div>
 
   <!-- ============ PAGE: SOCIAAL ============ -->
-
   <div class="page" id="page-sociaal">
 
-```
-<!-- TELEGRAM KANALEN -->
-<div class="section-title mixed" style="margin-bottom:14px;">✈️ Telegram Kanalen</div>
+    <!-- TELEGRAM KANALEN -->
+    <div class="section-title mixed" style="margin-bottom:14px;">✈️ Telegram Kanalen</div>
 
-<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:22px;">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:22px;">
 
-  <!-- DevveOfficial -->
-  <div class="tg-channel-card devve-card">
-    <div class="tg-ch-header">
-      <div class="tg-ch-icon devve-icon">📢</div>
-      <div>
-        <div class="tg-ch-name">DevvE Official</div>
-        <div class="tg-ch-handle">@DevveOfficial</div>
+      <!-- DevveOfficial -->
+      <div class="tg-channel-card devve-card">
+        <div class="tg-ch-header">
+          <div class="tg-ch-icon devve-icon">📢</div>
+          <div>
+            <div class="tg-ch-name">DevvE Official</div>
+            <div class="tg-ch-handle">@DevveOfficial</div>
+          </div>
+          <a href="https://t.me/DevveOfficial" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
+        </div>
+        <div class="tg-ch-desc">Officieel DevvE kanaal — aankondigingen, updates en nieuws rechtstreeks van het team.</div>
+        <div class="tg-embed-wrap">
+          <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="DevveOfficial/1" data-width="100%"></script>
+          <div class="tg-fallback">
+            <a href="https://t.me/DevveOfficial" target="_blank" class="tg-big-btn devve-btn">📲 Open @DevveOfficial in Telegram</a>
+            <a href="https://t.me/s/DevveOfficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+          </div>
+        </div>
       </div>
-      <a href="https://t.me/DevveOfficial" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
-    </div>
-    <div class="tg-ch-desc">Officieel DevvE kanaal — aankondigingen, updates en nieuws rechtstreeks van het team.</div>
-    <div class="tg-embed-wrap">
-      <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="DevveOfficial/1" data-width="100%"></script>
-      <div class="tg-fallback">
-        <a href="https://t.me/DevveOfficial" target="_blank" class="tg-big-btn devve-btn">📲 Open @DevveOfficial in Telegram</a>
-        <a href="https://t.me/s/DevveOfficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+
+      <!-- D_Rangers -->
+      <div class="tg-channel-card devve-card">
+        <div class="tg-ch-header">
+          <div class="tg-ch-icon devve-icon">🛡️</div>
+          <div>
+            <div class="tg-ch-name">D Rangers</div>
+            <div class="tg-ch-handle">@D_Rangers</div>
+          </div>
+          <a href="https://t.me/D_Rangers" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
+        </div>
+        <div class="tg-ch-desc">DevvE community rangers — discussie, signalen en community updates.</div>
+        <div class="tg-embed-wrap">
+          <div class="tg-fallback">
+            <a href="https://t.me/D_Rangers" target="_blank" class="tg-big-btn devve-btn">📲 Open @D_Rangers in Telegram</a>
+            <a href="https://t.me/s/D_Rangers" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- D_Rangers -->
-  <div class="tg-channel-card devve-card">
-    <div class="tg-ch-header">
-      <div class="tg-ch-icon devve-icon">🛡️</div>
-      <div>
-        <div class="tg-ch-name">D Rangers</div>
-        <div class="tg-ch-handle">@D_Rangers</div>
+      <!-- FiasAI -->
+      <div class="tg-channel-card fias-card">
+        <div class="tg-ch-header">
+          <div class="tg-ch-icon fias-icon">🤖</div>
+          <div>
+            <div class="tg-ch-name" style="color:var(--fias)">FIAS AI</div>
+            <div class="tg-ch-handle">@FiasAI</div>
+          </div>
+          <a href="https://t.me/FiasAI" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
+        </div>
+        <div class="tg-ch-desc">Officieel FIAS kanaal — projectupdates, AI nieuws en token informatie.</div>
+        <div class="tg-embed-wrap">
+          <div class="tg-fallback">
+            <a href="https://t.me/FiasAI" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI in Telegram</a>
+            <a href="https://t.me/s/FiasAI" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+          </div>
+        </div>
       </div>
-      <a href="https://t.me/D_Rangers" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
-    </div>
-    <div class="tg-ch-desc">DevvE community rangers — discussie, signalen en community updates.</div>
-    <div class="tg-embed-wrap">
-      <div class="tg-fallback">
-        <a href="https://t.me/D_Rangers" target="_blank" class="tg-big-btn devve-btn">📲 Open @D_Rangers in Telegram</a>
-        <a href="https://t.me/s/D_Rangers" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+
+      <!-- FiasAI_unofficial -->
+      <div class="tg-channel-card fias-card">
+        <div class="tg-ch-header">
+          <div class="tg-ch-icon fias-icon">💬</div>
+          <div>
+            <div class="tg-ch-name" style="color:var(--fias)">FIAS Community</div>
+            <div class="tg-ch-handle">@FiasAI_unofficial</div>
+          </div>
+          <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
+        </div>
+        <div class="tg-ch-desc">Unofficiële FIAS community — discussie, vragen en community-gedreven content.</div>
+        <div class="tg-embed-wrap">
+          <div class="tg-fallback">
+            <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI_unofficial in Telegram</a>
+            <a href="https://t.me/s/FiasAI_unofficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+          </div>
+        </div>
       </div>
+
     </div>
-  </div>
 
-  <!-- FiasAI -->
-  <div class="tg-channel-card fias-card">
-    <div class="tg-ch-header">
-      <div class="tg-ch-icon fias-icon">🤖</div>
-      <div>
-        <div class="tg-ch-name" style="color:var(--fias)">FIAS AI</div>
-        <div class="tg-ch-handle">@FiasAI</div>
-      </div>
-      <a href="https://t.me/FiasAI" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
+    <!-- SOCIALE MEDIA -->
+    <div class="section-title devve" style="margin-bottom:14px;">🌐 Sociale Media</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:22px;">
+
+      <a href="https://twitter.com/devvio_inc" target="_blank" class="social-card">
+        <div class="social-icon" style="background:rgba(29,161,242,0.15);border-color:rgba(29,161,242,0.3);color:#1da1f2;">𝕏</div>
+        <div class="social-info">
+          <div class="social-name">DevvE op X/Twitter</div>
+          <div class="social-handle">@devvio_inc</div>
+        </div>
+      </a>
+
+      <a href="https://twitter.com/FiasAI_" target="_blank" class="social-card">
+        <div class="social-icon" style="background:rgba(255,107,53,0.15);border-color:rgba(255,107,53,0.3);color:var(--fias);">𝕏</div>
+        <div class="social-info">
+          <div class="social-name">FIAS op X/Twitter</div>
+          <div class="social-handle">@FiasAI_</div>
+        </div>
+      </a>
+
+      <a href="https://www.reddit.com/r/devvio" target="_blank" class="social-card">
+        <div class="social-icon" style="background:rgba(255,69,0,0.15);border-color:rgba(255,69,0,0.3);color:#ff4500;">r/</div>
+        <div class="social-info">
+          <div class="social-name">DevvE Reddit</div>
+          <div class="social-handle">r/devvio</div>
+        </div>
+      </a>
+
+      <a href="https://devvio.com" target="_blank" class="social-card">
+        <div class="social-icon" style="background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.3);color:var(--devve);">🌐</div>
+        <div class="social-info">
+          <div class="social-name">Devvio Website</div>
+          <div class="social-handle">devvio.com</div>
+        </div>
+      </a>
+
     </div>
-    <div class="tg-ch-desc">Officieel FIAS kanaal — projectupdates, AI nieuws en token informatie.</div>
-    <div class="tg-embed-wrap">
-      <div class="tg-fallback">
-        <a href="https://t.me/FiasAI" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI in Telegram</a>
-        <a href="https://t.me/s/FiasAI" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
-      </div>
+
+    <!-- NIEUWS -->
+    <div class="section-title mixed" style="margin-bottom:14px;">📰 Crypto Nieuws</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:20px;">
+
+      <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="news-card devve-news">
+        <div class="news-source">CoinTelegraph</div>
+        <div class="news-desc">DevvE & Devvio nieuws en artikelen</div>
+      </a>
+
+      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="news-card fias-news">
+        <div class="news-source">DexScreener</div>
+        <div class="news-desc">Live FIAS DEX data & swaps</div>
+      </a>
+
+      <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="news-card fias-news">
+        <div class="news-source">CoinMarketCap</div>
+        <div class="news-desc">FIAS token marktdata</div>
+      </a>
+
+      <a href="https://www.coingecko.com/en/coins/devve" target="_blank" class="news-card devve-news">
+        <div class="news-source">CoinGecko</div>
+        <div class="news-desc">DevvE marktinformatie</div>
+      </a>
+
+      <a href="https://cryptonews.com" target="_blank" class="news-card">
+        <div class="news-source">CryptoNews</div>
+        <div class="news-desc">Algemeen crypto nieuws</div>
+      </a>
+
+      <a href="https://coindesk.com" target="_blank" class="news-card">
+        <div class="news-source">CoinDesk</div>
+        <div class="news-desc">Blockchain & crypto media</div>
+      </a>
+
     </div>
-  </div>
-
-  <!-- FiasAI_unofficial -->
-  <div class="tg-channel-card fias-card">
-    <div class="tg-ch-header">
-      <div class="tg-ch-icon fias-icon">💬</div>
-      <div>
-        <div class="tg-ch-name" style="color:var(--fias)">FIAS Community</div>
-        <div class="tg-ch-handle">@FiasAI_unofficial</div>
-      </div>
-      <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
-    </div>
-    <div class="tg-ch-desc">Unofficiële FIAS community — discussie, vragen en community-gedreven content.</div>
-    <div class="tg-embed-wrap">
-      <div class="tg-fallback">
-        <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI_unofficial in Telegram</a>
-        <a href="https://t.me/s/FiasAI_unofficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- SOCIALE MEDIA -->
-<div class="section-title devve" style="margin-bottom:14px;">🌐 Sociale Media</div>
-<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:22px;">
-
-  <a href="https://twitter.com/devvio_inc" target="_blank" class="social-card">
-    <div class="social-icon" style="background:rgba(29,161,242,0.15);border-color:rgba(29,161,242,0.3);color:#1da1f2;">𝕏</div>
-    <div class="social-info">
-      <div class="social-name">DevvE op X/Twitter</div>
-      <div class="social-handle">@devvio_inc</div>
-    </div>
-  </a>
-
-  <a href="https://twitter.com/FiasAI_" target="_blank" class="social-card">
-    <div class="social-icon" style="background:rgba(255,107,53,0.15);border-color:rgba(255,107,53,0.3);color:var(--fias);">𝕏</div>
-    <div class="social-info">
-      <div class="social-name">FIAS op X/Twitter</div>
-      <div class="social-handle">@FiasAI_</div>
-    </div>
-  </a>
-
-  <a href="https://www.reddit.com/r/devvio" target="_blank" class="social-card">
-    <div class="social-icon" style="background:rgba(255,69,0,0.15);border-color:rgba(255,69,0,0.3);color:#ff4500;">r/</div>
-    <div class="social-info">
-      <div class="social-name">DevvE Reddit</div>
-      <div class="social-handle">r/devvio</div>
-    </div>
-  </a>
-
-  <a href="https://devvio.com" target="_blank" class="social-card">
-    <div class="social-icon" style="background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.3);color:var(--devve);">🌐</div>
-    <div class="social-info">
-      <div class="social-name">Devvio Website</div>
-      <div class="social-handle">devvio.com</div>
-    </div>
-  </a>
-
-</div>
-
-<!-- NIEUWS -->
-<div class="section-title mixed" style="margin-bottom:14px;">📰 Crypto Nieuws</div>
-<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:20px;">
-
-  <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="news-card devve-news">
-    <div class="news-source">CoinTelegraph</div>
-    <div class="news-desc">DevvE & Devvio nieuws en artikelen</div>
-  </a>
-
-  <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="news-card fias-news">
-    <div class="news-source">DexScreener</div>
-    <div class="news-desc">Live FIAS DEX data & swaps</div>
-  </a>
-
-  <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="news-card fias-news">
-    <div class="news-source">CoinMarketCap</div>
-    <div class="news-desc">FIAS token marktdata</div>
-  </a>
-
-  <a href="https://www.coingecko.com/en/coins/devve" target="_blank" class="news-card devve-news">
-    <div class="news-source">CoinGecko</div>
-    <div class="news-desc">DevvE marktinformatie</div>
-  </a>
-
-  <a href="https://cryptonews.com" target="_blank" class="news-card">
-    <div class="news-source">CryptoNews</div>
-    <div class="news-desc">Algemeen crypto nieuws</div>
-  </a>
-
-  <a href="https://coindesk.com" target="_blank" class="news-card">
-    <div class="news-source">CoinDesk</div>
-    <div class="news-desc">Blockchain & crypto media</div>
-  </a>
-
-</div>
-```
 
   </div>
 
   <!-- ============ PAGE: PORTFOLIO ============ -->
-
   <div class="page" id="page-portfolio">
     <div class="portfolio-form">
       <div class="section-title mixed" style="margin-bottom:16px;">💼 Portfolio Berekening</div>
@@ -1553,50 +1531,47 @@ letter-spacing: 0.5px;
       <button class="calc-btn" onclick="calcPortfolio()">📊 Bereken Portfolio</button>
     </div>
 
-```
-<div class="portfolio-result" id="portfolioResult">
-  <div class="section-title mixed" style="margin-bottom:14px;">Resultaat</div>
-  <div class="result-grid">
-    <div class="result-item">
-      <div class="result-label">DevvE Waarde</div>
-      <div class="result-value devve" id="res-devve-val">$0</div>
+    <div class="portfolio-result" id="portfolioResult">
+      <div class="section-title mixed" style="margin-bottom:14px;">Resultaat</div>
+      <div class="result-grid">
+        <div class="result-item">
+          <div class="result-label">DevvE Waarde</div>
+          <div class="result-value devve" id="res-devve-val">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">DevvE Investering</div>
+          <div class="result-value" id="res-devve-inv" style="color:var(--text)">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">DevvE P&L</div>
+          <div class="result-value" id="res-devve-pl">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">FIAS Waarde</div>
+          <div class="result-value fias" id="res-fias-val">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">FIAS Investering</div>
+          <div class="result-value" id="res-fias-inv" style="color:var(--text)">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">FIAS P&L</div>
+          <div class="result-value" id="res-fias-pl">$0</div>
+        </div>
+        <div class="result-item" style="grid-column: 1/-1; background: rgba(255,213,79,0.05); border-color: rgba(255,213,79,0.2);">
+          <div class="result-label">Totale Portfolio Waarde</div>
+          <div class="result-value total" id="res-total" style="font-size:24px;">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Totale P&L</div>
+          <div class="result-value" id="res-total-pl" style="font-size:20px;">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Rendement</div>
+          <div class="result-value" id="res-pct" style="font-size:20px;">0%</div>
+        </div>
+      </div>
     </div>
-    <div class="result-item">
-      <div class="result-label">DevvE Investering</div>
-      <div class="result-value" id="res-devve-inv" style="color:var(--text)">$0</div>
-    </div>
-    <div class="result-item">
-      <div class="result-label">DevvE P&L</div>
-      <div class="result-value" id="res-devve-pl">$0</div>
-    </div>
-    <div class="result-item">
-      <div class="result-label">FIAS Waarde</div>
-      <div class="result-value fias" id="res-fias-val">$0</div>
-    </div>
-    <div class="result-item">
-      <div class="result-label">FIAS Investering</div>
-      <div class="result-value" id="res-fias-inv" style="color:var(--text)">$0</div>
-    </div>
-    <div class="result-item">
-      <div class="result-label">FIAS P&L</div>
-      <div class="result-value" id="res-fias-pl">$0</div>
-    </div>
-    <div class="result-item" style="grid-column: 1/-1; background: rgba(255,213,79,0.05); border-color: rgba(255,213,79,0.2);">
-      <div class="result-label">Totale Portfolio Waarde</div>
-      <div class="result-value total" id="res-total" style="font-size:24px;">$0</div>
-    </div>
-    <div class="result-item">
-      <div class="result-label">Totale P&L</div>
-      <div class="result-value" id="res-total-pl" style="font-size:20px;">$0</div>
-    </div>
-    <div class="result-item">
-      <div class="result-label">Rendement</div>
-      <div class="result-value" id="res-pct" style="font-size:20px;">0%</div>
-    </div>
-  </div>
-</div>
-```
-
   </div>
 
 </main>
@@ -2540,6 +2515,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+
 <footer style="
   position: relative; z-index: 1;
   border-top: 1px solid var(--border);
@@ -2549,42 +2525,40 @@ document.addEventListener('DOMContentLoaded', () => {
 ">
   <div style="max-width:1200px; margin:0 auto;">
 
-```
-<!-- Links rij 1: DevvE -->
-<div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--devve); text-transform:uppercase; margin-bottom:8px;">DevvE</div>
-<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-  <a href="https://devve.com/" target="_blank" class="footer-link devve-link">🌐 devve.com</a>
-  <a href="https://www.devvelaunchpad.io/stake" target="_blank" class="footer-link devve-link">🚀 LaunchPad Staking</a>
-  <a href="https://devvx.glassblock.io/login" target="_blank" class="footer-link devve-link">🔷 DevvX Glassblock</a>
-</div>
+    <!-- Links rij 1: DevvE -->
+    <div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--devve); text-transform:uppercase; margin-bottom:8px;">DevvE</div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+      <a href="https://devve.com/" target="_blank" class="footer-link devve-link">🌐 devve.com</a>
+      <a href="https://www.devvelaunchpad.io/stake" target="_blank" class="footer-link devve-link">🚀 LaunchPad Staking</a>
+      <a href="https://devvx.glassblock.io/login" target="_blank" class="footer-link devve-link">🔷 DevvX Glassblock</a>
+    </div>
 
-<!-- Links rij 2: FIAS -->
-<div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--fias); text-transform:uppercase; margin-bottom:8px;">FIAS</div>
-<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-  <a href="https://www.fias.io/" target="_blank" class="footer-link fias-link">🌐 fias.io</a>
-  <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="footer-link fias-link">📊 DexScreener</a>
-</div>
+    <!-- Links rij 2: FIAS -->
+    <div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--fias); text-transform:uppercase; margin-bottom:8px;">FIAS</div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+      <a href="https://www.fias.io/" target="_blank" class="footer-link fias-link">🌐 fias.io</a>
+      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="footer-link fias-link">📊 DexScreener</a>
+    </div>
 
-<!-- Links rij 3: YouTube -->
-<div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:#ff0000; text-transform:uppercase; margin-bottom:8px;">YouTube</div>
-<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
-  <a href="https://youtube.com/@devve_ecosystem?si=5DOrUlIuqmKKQX1K" target="_blank" class="footer-link yt-link">▶ DevvE Ecosystem</a>
-  <a href="https://youtube.com/@tomlucient?si=R9pQgsQENhloqaH2" target="_blank" class="footer-link yt-link">▶ Tom Lucient</a>
-</div>
+    <!-- Links rij 3: YouTube -->
+    <div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:#ff0000; text-transform:uppercase; margin-bottom:8px;">YouTube</div>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
+      <a href="https://youtube.com/@devve_ecosystem?si=5DOrUlIuqmKKQX1K" target="_blank" class="footer-link yt-link">▶ DevvE Ecosystem</a>
+      <a href="https://youtube.com/@tomlucient?si=R9pQgsQENhloqaH2" target="_blank" class="footer-link yt-link">▶ Tom Lucient</a>
+    </div>
 
-<!-- Divider + credit -->
-<div style="border-top:1px solid var(--border); padding-top:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-  <div style="display:flex; gap:8px; flex-wrap:wrap;">
-    <a href="https://t.me/DevveOfficial" target="_blank" class="footer-link muted-link">✈️ @DevveOfficial</a>
-    <a href="https://t.me/D_Rangers" target="_blank" class="footer-link muted-link">✈️ @D_Rangers</a>
-    <a href="https://t.me/FiasAI" target="_blank" class="footer-link muted-link">✈️ @FiasAI</a>
-    <a href="https://t.me/FiasAI_unofficial" target="_blank" class="footer-link muted-link">✈️ @FiasAI_unofficial</a>
-  </div>
-  <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.5px; white-space:nowrap;">
-    Made by <span style="color:var(--devve);">Rob Borghouts</span> &mdash; 2026
-  </div>
-</div>
-```
+    <!-- Divider + credit -->
+    <div style="border-top:1px solid var(--border); padding-top:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <a href="https://t.me/DevveOfficial" target="_blank" class="footer-link muted-link">✈️ @DevveOfficial</a>
+        <a href="https://t.me/D_Rangers" target="_blank" class="footer-link muted-link">✈️ @D_Rangers</a>
+        <a href="https://t.me/FiasAI" target="_blank" class="footer-link muted-link">✈️ @FiasAI</a>
+        <a href="https://t.me/FiasAI_unofficial" target="_blank" class="footer-link muted-link">✈️ @FiasAI_unofficial</a>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.5px; white-space:nowrap;">
+        Made by <span style="color:var(--devve);">Rob Borghouts</span> &mdash; 2026
+      </div>
+    </div>
 
   </div>
 </footer>
