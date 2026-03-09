@@ -1961,12 +1961,17 @@ function aggregateCandles(priceArr, intervalMs) {
 }
 
 async function fetchDevveCandles(tf, days) {
-  const interval = days <= 1 ? 'minutely' : 'hourly';
-  const res = await fetch(`https://api.coingecko.com/api/v3/coins/devve/market_chart?vs_currency=usd&days=${days}&interval=${interval}`);
+  // days=1 zonder interval → CoinGecko geeft automatisch ~5min data (gratis tier)
+  // days>1 → hourly
+  const url = days <= 1
+    ? 'https://api.coingecko.com/api/v3/coins/devve/market_chart?vs_currency=usd&days=1'
+    : `https://api.coingecko.com/api/v3/coins/devve/market_chart?vs_currency=usd&days=${days}&interval=hourly`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error('CoinGecko ' + res.status);
   const data = await res.json();
+  if (!data.prices?.length) throw new Error('Geen data van CoinGecko');
   const bucketMs = { '15m': 15*60*1000, '4H': 4*3600*1000, '1D': 86400*1000, '7D': 86400*1000, '30D': 86400*1000, '1J': 86400*1000 }[tf] || 86400*1000;
-  return aggregateCandles(data.prices || [], bucketMs);
+  return aggregateCandles(data.prices, bucketMs);
 }
 
 async function fetchFiasCandles(tf, days) {
