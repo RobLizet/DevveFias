@@ -1607,11 +1607,16 @@ const TF_LABEL = { '15m': '15 minuten', '4H': '4 uur', '1D': '1 dag', '7D': '7 d
 // ===== NAVIGATION =====
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  if (name === 'charts') setTimeout(() => loadCandleChart(currentChartCoin, currentTf), 50);
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  event.currentTarget.classList.add('active');
-
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
+  // Mark correct tab active
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + name + "'")) {
+      t.classList.add('active');
+    }
+  });
+  if (name === 'charts') setTimeout(() => loadCandleChart(currentChartCoin, currentTf), 80);
 }
 
 // ===== FORMAT HELPERS =====
