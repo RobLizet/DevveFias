@@ -2061,11 +2061,10 @@ function calcRSIarr(candles, period = 14) {
 }
 
 function calcVolumeArr(candles) {
-  // Reconstruct approximate volume from candle size
   return candles.map(c => ({
     time: c.time,
-    value: Math.abs(c.high - c.low) / c.close * 1000000,
-    color: c.close >= c.open ? 'rgba(26,158,90,0.5)' : 'rgba(217,48,48,0.5)',
+    value: c.volume && c.volume > 0 ? c.volume : Math.abs(c.high - c.low) / c.close * 1000000,
+    color: c.close >= c.open ? 'rgba(26,158,90,0.6)' : 'rgba(217,48,48,0.6)',
   }));
 }
 
@@ -2080,54 +2079,25 @@ function aggregateCandles(priceArr, intervalMs) {
 }
 
 async function fetchDevveCandles(tf, days) {
-  // Gebruik CoinGecko simple price als anker (klopt altijd)
-  // plus DexScreener voor % veranderingen
-  const [cgRes, dxRes] = await Promise.all([
-    fetch('https://api.coingecko.com/api/v3/simple/price?ids=devve&vs_currencies=usd&include_24hr_change=true'),
-    fetch('https://api.dexscreener.com/latest/dex/search?q=DEVVE+USDT')
-  ]);
-
-  // Haal prijs op uit CoinGecko (meest betrouwbaar)
-  let price = prices?.devve?.usd || 0;
-  if (cgRes.ok) {
-    const cgData = await cgRes.json();
-    price = cgData?.devve?.usd || price;
-  }
-  if (!price) throw new Error('Geen DevvE prijs beschikbaar');
-
-  // Haal % veranderingen uit DexScreener
-  let h1 = 0, h6 = 0, h24 = cgRes.ok ? 0 : 0;
-  if (dxRes.ok) {
-    const dxData = await dxRes.json();
-    const pairs = (dxData.pairs || [])
-      .filter(p => p.baseToken?.symbol?.toUpperCase() === 'DEVVE')
-      .sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
-    if (pairs.length) {
-      h1  = parseFloat(pairs[0].priceChange?.h1  || 0) / 100;
-      h6  = parseFloat(pairs[0].priceChange?.h6  || 0) / 100;
-      h24 = parseFloat(pairs[0].priceChange?.h24 || 0) / 100;
-    }
-  }
-  const p24 = price / (1 + h24), p6 = price / (1 + h6), p1 = price / (1 + h1);
-  const now = Math.floor(Date.now() / 1000);
-  const configs = { '15m':[15*60,96], '4H':[4*3600,42], '1D':[86400,30], '7D':[86400,7], '30D':[86400,30], '1J':[86400,90] };
-  const [intervalSec, nCandles] = configs[tf] || [86400, 30];
-  const totalSec = intervalSec * nCandles;
-  const candles = [];
-  for (let i = 0; i < nCandles; i++) {
-    const t = now - totalSec + i * intervalSec;
-    const secAgo = now - t;
-    let base = secAgo > 6*3600
-      ? p24 + (p6-p24) * Math.max(0, Math.min(1, (secAgo-6*3600)/(18*3600)))
-      : secAgo > 3600
-        ? p6 + (p1-p6) * (1 - (secAgo-3600)/(5*3600))
-        : p1 + (price-p1) * (1 - secAgo/3600);
-    base = Math.max(base, price * 0.3);
-    const n = 0.007;
-    const o = base*(1+(Math.random()-.5)*n), c = base*(1+(Math.random()-.5)*n);
-    candles.push({ time: t, open: o, high: Math.max(o,c)*(1+Math.random()*n*.5), low: Math.min(o,c)*(1-Math.random()*n*.5), close: c });
-  }
-  return candles;
+  // MEXC publieke klines API - echte OHLC data
+  const intervalMap = { '15m':'15m', '4H':'4h', '1D':'1d', '7D':'1d', '30D':'1d', '1J':'1d' };
+  const limitMap    = { '15m': 96,  '4H': 42,  '1D': 30,  '7D': 7,   '30D': 30,  '1J': 90  };
+  const interval = intervalMap[tf] || '1d';
+  const limit    = limitMap[tf]    || 30;
+  const url = `https://api.mexc.com/api/v3/klines?symbol=DEVVEUSDT&interval=${interval}&limit=${limit}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('MEXC ' + res.status);
+  const raw = await res.json();
+  if (!Array.isArray(raw) || !raw.length) throw new Error('Geen MEXC data');
+  // MEXC kline format: [openTime, open, high, low, close, volume, closeTime, ...]
+  return raw.map(k => ({
+    time:  Math.floor(k[0] / 1000),
+    open:  parseFloat(k[1]),
+    high:  parseFloat(k[2]),
+    low:   parseFloat(k[3]),
+    close: parseFloat(k[4]),
+    volume: parseFloat(k[5]),
+  }));
 }
 
 async function fetchFiasCandles(tf, days) {
