@@ -1213,7 +1213,24 @@
       <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
     </div>
   </div>
-  <div id="candleChart" style="height:340px;border-radius:8px;overflow:hidden;background:#f2f4f6;"></div>
+  <!-- Indicator labels -->
+  <div id="chartIndicators" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;min-height:14px;"></div>
+  <!-- Candles -->
+  <div id="candleChart" style="height:260px;border-radius:6px 6px 0 0;overflow:hidden;background:#f2f4f6;"></div>
+  <!-- Volume -->
+  <div id="volumeChart" style="height:60px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
+  <!-- MACD -->
+  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">MACD(12,26,9)</span>
+    <span id="macdLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
+  </div>
+  <div id="macdChart" style="height:70px;overflow:hidden;background:#f2f4f6;"></div>
+  <!-- RSI -->
+  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">RSI(14)</span>
+    <span id="rsiLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
+  </div>
+  <div id="rsiChart" style="height:70px;border-radius:0 0 6px 6px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
   <div id="chartError" class="error-msg" style="display:none;margin-top:10px;"></div>
   <div id="chartLoading" style="display:none;text-align:center;padding:60px 20px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;">⏳ Grafiek laden...</div>
 </div>
@@ -1927,28 +1944,129 @@ function updateRefCards() {
 
 // ===== CANDLESTICK CHART (Lightweight Charts) =====
 let lwChart = null, lwSeries = null;
+let lwVolChart = null, lwVolSeries = null;
+let lwMacdChart = null, lwMacdSeries = null, lwMacdSignal = null, lwMacdHist = null;
+let lwRsiChart = null, lwRsiSeries = null;
 const TF_DAYS = { '15m': 1, '4H': 7, '1D': 30, '7D': 7, '30D': 30, '1J': 90 };
 
+function destroyCharts() {
+  [lwChart, lwVolChart, lwMacdChart, lwRsiChart].forEach(c => { if (c) c.remove(); });
+  lwChart = lwSeries = lwVolChart = lwVolSeries = null;
+  lwMacdChart = lwMacdSeries = lwMacdSignal = lwMacdHist = null;
+  lwRsiChart = lwRsiSeries = null;
+}
+
+const CHART_OPTS = (el, h) => ({
+  width: el.clientWidth, height: h,
+  layout: { background: { color: '#f2f4f6' }, textColor: '#1a1e26', fontSize: 10 },
+  grid: { vertLines: { color: 'rgba(180,185,195,0.4)' }, horzLines: { color: 'rgba(180,185,195,0.3)' } },
+  crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+  rightPriceScale: { borderColor: '#bcc1ca', scaleMargins: { top: 0.05, bottom: 0.05 } },
+  timeScale: { borderColor: '#bcc1ca', timeVisible: true, secondsVisible: false },
+  handleScroll: true, handleScale: true,
+});
+
 function initLwChart() {
-  const el = document.getElementById('candleChart');
-  if (!el) return;
-  if (lwChart) { lwChart.remove(); lwChart = null; lwSeries = null; }
-  lwChart = LightweightCharts.createChart(el, {
-    width: el.clientWidth, height: 340,
-    layout: { background: { color: '#f2f4f6' }, textColor: '#1a1e26' },
-    grid: { vertLines: { color: 'rgba(180,185,195,0.6)' }, horzLines: { color: 'rgba(180,185,195,0.4)' } },
-    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-    rightPriceScale: { borderColor: '#bcc1ca' },
-    timeScale: { borderColor: '#bcc1ca', timeVisible: true, secondsVisible: false },
-    handleScroll: true, handleScale: true,
-  });
+  destroyCharts();
+  const elC = document.getElementById('candleChart');
+  const elV = document.getElementById('volumeChart');
+  const elM = document.getElementById('macdChart');
+  const elR = document.getElementById('rsiChart');
+  if (!elC) return;
+
+  // Main candle chart
+  lwChart = LightweightCharts.createChart(elC, CHART_OPTS(elC, 260));
   lwSeries = lwChart.addCandlestickSeries({
     upColor: '#1a9e5a', downColor: '#d93030',
     borderUpColor: '#1a9e5a', borderDownColor: '#d93030',
     wickUpColor: '#1a9e5a', wickDownColor: '#d93030',
     priceFormat: { type: 'price', precision: 6, minMove: 0.000001 },
   });
-  new ResizeObserver(() => { if (lwChart) lwChart.applyOptions({ width: el.clientWidth }); }).observe(el);
+
+  // Volume chart
+  lwVolChart = LightweightCharts.createChart(elV, { ...CHART_OPTS(elV, 60), rightPriceScale: { borderColor: '#bcc1ca', scaleMargins: { top: 0.1, bottom: 0 } } });
+  lwVolSeries = lwVolChart.addHistogramSeries({ priceFormat: { type: 'volume' }, priceScaleId: 'right' });
+
+  // MACD chart
+  lwMacdChart = LightweightCharts.createChart(elM, { ...CHART_OPTS(elM, 70) });
+  lwMacdHist   = lwMacdChart.addHistogramSeries({ color: '#26a69a', priceFormat: { type: 'price', precision: 8, minMove: 0.00000001 }, lineWidth: 1 });
+  lwMacdSeries = lwMacdChart.addLineSeries({ color: '#0088cc', lineWidth: 1, priceFormat: { type: 'price', precision: 8, minMove: 0.00000001 } });
+  lwMacdSignal = lwMacdChart.addLineSeries({ color: '#e05a20', lineWidth: 1, priceFormat: { type: 'price', precision: 8, minMove: 0.00000001 } });
+
+  // RSI chart
+  lwRsiChart = LightweightCharts.createChart(elR, { ...CHART_OPTS(elR, 70) });
+  lwRsiSeries = lwRsiChart.addLineSeries({ color: '#c47f00', lineWidth: 1.5, priceFormat: { type: 'price', precision: 1, minMove: 0.1 } });
+  // RSI overbought/oversold lines
+  lwRsiChart.addLineSeries({ color: 'rgba(217,48,48,0.4)', lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false })
+    .setData([]);
+
+  // Sync timescales
+  function syncTime(src, targets) {
+    src.timeScale().subscribeVisibleLogicalRangeChange(range => {
+      if (range) targets.forEach(t => t.timeScale().setVisibleLogicalRange(range));
+    });
+  }
+  syncTime(lwChart, [lwVolChart, lwMacdChart, lwRsiChart]);
+  syncTime(lwVolChart, [lwChart, lwMacdChart, lwRsiChart]);
+
+  // Responsive
+  new ResizeObserver(() => {
+    [lwChart, lwVolChart, lwMacdChart, lwRsiChart].forEach((c, i) => {
+      if (!c) return;
+      const els = [elC, elV, elM, elR];
+      c.applyOptions({ width: els[i].clientWidth });
+    });
+  }).observe(elC);
+}
+
+// ── Indicator calculations ──
+function calcEMAarr(closes, period) {
+  const k = 2 / (period + 1), result = [];
+  let ema = closes[0];
+  for (let i = 0; i < closes.length; i++) {
+    ema = i === 0 ? closes[0] : closes[i] * k + ema * (1 - k);
+    result.push(ema);
+  }
+  return result;
+}
+
+function calcMACDarr(candles) {
+  const closes = candles.map(c => c.close);
+  const ema12 = calcEMAarr(closes, 12);
+  const ema26 = calcEMAarr(closes, 26);
+  const macdLine = ema12.map((v, i) => v - ema26[i]);
+  const signal = calcEMAarr(macdLine, 9);
+  return candles.map((c, i) => ({
+    time: c.time,
+    macd: macdLine[i],
+    signal: signal[i],
+    hist: macdLine[i] - signal[i],
+  }));
+}
+
+function calcRSIarr(candles, period = 14) {
+  const closes = candles.map(c => c.close);
+  const result = [];
+  for (let i = 0; i < closes.length; i++) {
+    if (i < period) { result.push({ time: candles[i].time, value: 50 }); continue; }
+    let gains = 0, losses = 0;
+    for (let j = i - period + 1; j <= i; j++) {
+      const d = closes[j] - closes[j-1];
+      if (d > 0) gains += d; else losses -= d;
+    }
+    const rs = losses === 0 ? 100 : gains / losses;
+    result.push({ time: candles[i].time, value: 100 - 100 / (1 + rs) });
+  }
+  return result;
+}
+
+function calcVolumeArr(candles) {
+  // Reconstruct approximate volume from candle size
+  return candles.map(c => ({
+    time: c.time,
+    value: Math.abs(c.high - c.low) / c.close * 1000000,
+    color: c.close >= c.open ? 'rgba(26,158,90,0.5)' : 'rgba(217,48,48,0.5)',
+  }));
 }
 
 function aggregateCandles(priceArr, intervalMs) {
@@ -2045,7 +2163,7 @@ async function loadCandleChart(coin, tf) {
   const errEl = document.getElementById('chartError');
   const loadEl = document.getElementById('chartLoading');
   if (errEl) errEl.style.display = 'none';
-  if (loadEl) { loadEl.style.display = 'block'; }
+  if (loadEl) loadEl.style.display = 'block';
   const label = coin === 'devve' ? 'DevvE' : 'FIAS';
   document.getElementById('chartTitle').textContent = `${label} — ${tf} Candlestick`;
   document.getElementById('chartTitle').className = 'section-title ' + (coin==='devve'?'devve':'fias');
@@ -2055,13 +2173,47 @@ async function loadCandleChart(coin, tf) {
     let candles = coin === 'devve' ? await fetchDevveCandles(tf, days) : await fetchFiasCandles(tf, days);
     if (coin === 'devve') lastOhlcDevve = candles; else lastOhlcFias = candles;
     if (!candles.length) throw new Error('Geen candledata');
+
+    // Candles
     lwSeries.setData(candles);
     lwChart.timeScale().fitContent();
+
+    // Volume
+    const volData = calcVolumeArr(candles);
+    lwVolSeries.setData(volData);
+    lwVolChart.timeScale().fitContent();
+
+    // MACD
+    const macdData = calcMACDarr(candles);
+    lwMacdHist.setData(macdData.map(d => ({ time: d.time, value: d.hist, color: d.hist >= 0 ? 'rgba(26,158,90,0.7)' : 'rgba(217,48,48,0.7)' })));
+    lwMacdSeries.setData(macdData.map(d => ({ time: d.time, value: d.macd })));
+    lwMacdSignal.setData(macdData.map(d => ({ time: d.time, value: d.signal })));
+    lwMacdChart.timeScale().fitContent();
+    const lastMacd = macdData[macdData.length - 1];
+    const macdEl = document.getElementById('macdLabel');
+    if (macdEl) {
+      const col = lastMacd.hist >= 0 ? '#1a9e5a' : '#d93030';
+      macdEl.innerHTML = `<span style="color:#0088cc">MACD:${lastMacd.macd.toExponential(2)}</span> <span style="color:#e05a20">Signal:${lastMacd.signal.toExponential(2)}</span> <span style="color:${col}">Hist:${lastMacd.hist.toExponential(2)}</span>`;
+    }
+
+    // RSI
+    const rsiData = calcRSIarr(candles);
+    lwRsiSeries.setData(rsiData);
+    lwRsiChart.timeScale().fitContent();
+    const lastRsi = rsiData[rsiData.length - 1]?.value;
+    const rsiEl = document.getElementById('rsiLabel');
+    if (rsiEl && lastRsi) {
+      const col = lastRsi >= 70 ? '#d93030' : lastRsi <= 30 ? '#1a9e5a' : '#c47f00';
+      rsiEl.innerHTML = `<span style="color:${col};font-weight:700">${lastRsi.toFixed(1)}</span> ${lastRsi >= 70 ? '🔴 Overbought' : lastRsi <= 30 ? '🟢 Oversold' : ''}`;
+    }
+
+    // Price display
     const last = candles[candles.length-1], first = candles[0];
     const priceEl = document.getElementById('chartCurrentPrice');
     const changeEl = document.getElementById('chartCurrentChange');
     if (priceEl) priceEl.textContent = '$' + last.close.toFixed(last.close < 0.01 ? 6 : 4);
     if (changeEl) { const { text, cls } = fmtChange(((last.close-first.open)/first.open)*100); changeEl.textContent = text; changeEl.className = 'change-badge ' + cls; }
+
     if (loadEl) loadEl.style.display = 'none';
   } catch(e) {
     if (loadEl) loadEl.style.display = 'none';
