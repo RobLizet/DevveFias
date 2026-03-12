@@ -2093,7 +2093,7 @@ async function fetchDevveCandles(tf, days) {
     if (!res.ok) throw new Error('direct ' + res.status);
     raw = await res.json();
   } catch(e) {
-    const proxy = `https://corsproxy.io/?${encodeURIComponent(mexcUrl)}`;
+    const proxy = `https://corsproxy.io/?url=${encodeURIComponent(mexcUrl)}
     const res2 = await fetch(proxy);
     if (!res2.ok) throw new Error('MEXC ' + res2.status);
     raw = await res2.json();
