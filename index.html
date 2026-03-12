@@ -190,6 +190,69 @@
     50% { opacity: 0.5; transform: scale(0.8); }
   }
 
+
+  .top-meta {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
+  .version-chip {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 8px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background: var(--card);
+    font-family:'Share Tech Mono', monospace;
+    font-size:10px;
+    color: var(--muted);
+  }
+
+  .utility-row {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  .utility-btn {
+    border:1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text);
+    border-radius:10px;
+    padding:9px 12px;
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  .utility-btn:hover {
+    background: var(--bg3);
+  }
+
+  .source-badge {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 8px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background: var(--bg2);
+    font-family:'Share Tech Mono', monospace;
+    font-size:10px;
+    color: var(--muted);
+  }
+
+  .subtle-note {
+    font-size:11px;
+    color: var(--muted);
+    line-height:1.6;
+  }
+
   /* ===== MAIN ===== */
   main {
     position: relative;
@@ -1041,9 +1104,12 @@
           <span>DevvE</span> <span style="color:var(--muted)"> & </span> <span>FIAS</span>
         </div>
       </div>
-      <div class="live-badge">
-        <div class="live-dot"></div>
-        <span id="lastUpdateLabel">--:--</span>
+      <div class="top-meta">
+        <div class="version-chip">STABIEL v1.1</div>
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          <span id="lastUpdateLabel">--:--</span>
+        </div>
       </div>
     </div>
     <!-- Rij 2: Navigatie tabs -->
@@ -1063,7 +1129,6 @@
 
   <div class="page active" id="page-overview">
 
-```
 <div id="lastUpdated" class="last-updated">Laden...</div>
 
 <!-- Price Cards -->
@@ -1182,7 +1247,6 @@
 </div>
 
 <div id="api-error" class="error-msg" style="display:none"></div>
-```
 
   </div>
 
@@ -1190,7 +1254,6 @@
 
   <div class="page" id="page-charts">
 
-```
 <div class="chart-card">
   <div class="chart-controls" style="margin-bottom:12px;">
     <div class="chart-coin-tabs">
@@ -1213,6 +1276,12 @@
       <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
     </div>
   </div>
+  <div class="utility-row">
+    <span id="chartSourceBadge" class="source-badge">Bron: laden...</span>
+    <button class="utility-btn" onclick="reloadCurrentChart()">↻ Herlaad chart</button>
+    <button class="utility-btn" onclick="clearTAResult()">✕ Wis analyse</button>
+  </div>
+  <div class="subtle-note" id="chartSourceNote" style="margin:10px 0 4px 0;">DevvE gebruikt MEXC met fallback. FIAS gebruikt DexScreener en TradingView analyse.</div>
   <!-- Indicator labels -->
   <div id="chartIndicators" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;min-height:14px;"></div>
   <!-- Candles -->
@@ -1282,7 +1351,6 @@
     </div>
   </div>
 </div>
-```
 
   </div>
 
@@ -1322,7 +1390,6 @@
         </div>
       </div>
 
-```
   <!-- FIAS Info -->
   <div class="info-card">
     <h3 style="color:var(--fias)">
@@ -1366,7 +1433,6 @@
     <a href="https://decrypt.co" target="_blank" class="ext-link">Decrypt</a>
   </div>
 </div>
-```
 
   </div>
 
@@ -1374,7 +1440,6 @@
 
   <div class="page" id="page-sociaal">
 
-```
 <!-- TELEGRAM KANALEN -->
 <div class="section-title mixed" style="margin-bottom:14px;">✈️ Telegram Kanalen</div>
 
@@ -1532,7 +1597,6 @@
   </a>
 
 </div>
-```
 
   </div>
 
@@ -1560,9 +1624,15 @@
         </div>
       </div>
       <button class="calc-btn" onclick="calcPortfolio()">📊 Bereken Portfolio</button>
+      <div class="utility-row">
+        <button class="utility-btn" onclick="exportAppBackup()">⬇️ Back-up</button>
+        <button class="utility-btn" onclick="document.getElementById('backupFileInput').click()">⬆️ Herstel</button>
+        <button class="utility-btn" onclick="resetPortfolioInputs()">🗑️ Reset portfolio</button>
+      </div>
+      <input type="file" id="backupFileInput" accept="application/json" style="display:none" onchange="importAppBackup(event)">
+      <div class="subtle-note" style="margin-top:10px;">Back-up bewaart jouw portfolio invoer en de laatst gekozen chartinstellingen.</div>
     </div>
 
-```
 <div class="portfolio-result" id="portfolioResult">
   <div class="section-title mixed" style="margin-bottom:14px;">Resultaat</div>
   <div class="result-grid">
@@ -1604,7 +1674,6 @@
     </div>
   </div>
 </div>
-```
 
   </div>
 
@@ -1618,6 +1687,121 @@ let currentTf = '1D';
 let tgChannels = [];
 let lastOhlcDevve = [];
 let lastOhlcFias = [];
+const APP_STORAGE_KEY = 'devveFiasDashboardState_v1';
+
+function getAppState() {
+  return {
+    version: 'stabiel-v1.1',
+    savedAt: new Date().toISOString(),
+    portfolio: {
+      devveAmount: document.getElementById('devveAmount')?.value || '',
+      devveBuy: document.getElementById('devveBuy')?.value || '',
+      fiasAmount: document.getElementById('fiasAmount')?.value || '',
+      fiasBuy: document.getElementById('fiasBuy')?.value || ''
+    },
+    chart: {
+      coin: currentChartCoin,
+      tf: currentTf
+    }
+  };
+}
+
+function saveAppState() {
+  try {
+    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(getAppState()));
+  } catch (e) {
+    console.warn('Opslaan mislukt', e);
+  }
+}
+
+function loadAppState() {
+  try {
+    const raw = localStorage.getItem(APP_STORAGE_KEY);
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    if (state.portfolio) {
+      if (document.getElementById('devveAmount')) document.getElementById('devveAmount').value = state.portfolio.devveAmount || '';
+      if (document.getElementById('devveBuy')) document.getElementById('devveBuy').value = state.portfolio.devveBuy || '';
+      if (document.getElementById('fiasAmount')) document.getElementById('fiasAmount').value = state.portfolio.fiasAmount || '';
+      if (document.getElementById('fiasBuy')) document.getElementById('fiasBuy').value = state.portfolio.fiasBuy || '';
+    }
+    if (state.chart?.coin) currentChartCoin = state.chart.coin;
+    if (state.chart?.tf) currentTf = state.chart.tf;
+  } catch (e) {
+    console.warn('Laden opgeslagen staat mislukt', e);
+  }
+}
+
+function exportAppBackup() {
+  const blob = new Blob([JSON.stringify(getAppState(), null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `devve-fias-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importAppBackup(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const state = JSON.parse(reader.result);
+      if (state.portfolio) {
+        document.getElementById('devveAmount').value = state.portfolio.devveAmount || '';
+        document.getElementById('devveBuy').value = state.portfolio.devveBuy || '';
+        document.getElementById('fiasAmount').value = state.portfolio.fiasAmount || '';
+        document.getElementById('fiasBuy').value = state.portfolio.fiasBuy || '';
+      }
+      if (state.chart?.coin) currentChartCoin = state.chart.coin;
+      if (state.chart?.tf) currentTf = state.chart.tf;
+      syncChartControls();
+      calcPortfolio();
+      if (document.getElementById('page-charts')?.classList.contains('active')) loadCandleChart(currentChartCoin, currentTf);
+      saveAppState();
+      alert('Back-up hersteld');
+    } catch (e) {
+      alert('Back-up bestand is ongeldig');
+    } finally {
+      event.target.value = '';
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetPortfolioInputs() {
+  if (!confirm('Portfolio invoer wissen?')) return;
+  document.getElementById('devveAmount').value = '';
+  document.getElementById('devveBuy').value = '';
+  document.getElementById('fiasAmount').value = '';
+  document.getElementById('fiasBuy').value = '';
+  calcPortfolio();
+  saveAppState();
+}
+
+function reloadCurrentChart() {
+  loadCandleChart(currentChartCoin, currentTf);
+}
+
+function clearTAResult() {
+  const el = document.getElementById('taResult');
+  if (!el) return;
+  el.innerHTML = `<p style="font-size:12px; color:var(--muted); line-height:1.7;">Klik op een analyseknop voor een dagelijkse technische analyse op basis van de 4H en 15m charts. De AI kijkt naar trend, support/resistance, RSI, volume en geeft een kort advies.</p>`;
+}
+
+function syncChartControls() {
+  document.querySelectorAll('.coin-tab').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.period-tab').forEach(btn => btn.classList.remove('active'));
+  const coinBtn = currentChartCoin === 'devve' ? document.getElementById('coinTabDevve') : document.getElementById('coinTabFias');
+  if (coinBtn) coinBtn.classList.add('active');
+  document.querySelectorAll('.period-tab').forEach(btn => {
+    if (btn.textContent.trim() === currentTf) btn.classList.add('active');
+  });
+}
 
 // Timeframe → CoinGecko days mapping
 const TF_LABEL = { '15m': '15 minuten', '4H': '4 uur', '1D': '1 dag', '7D': '7 dagen', '30D': '30 dagen', '1J': '1 jaar' };
@@ -1635,6 +1819,7 @@ function showPage(name) {
     }
   });
   if (name === 'charts') setTimeout(() => loadCandleChart(currentChartCoin, currentTf), 80);
+  saveAppState();
 }
 
 // ===== FORMAT HELPERS =====
@@ -2229,6 +2414,17 @@ async function loadCandleChart(coin, tf) {
   const label = coin === 'devve' ? 'DevvE' : 'FIAS';
   document.getElementById('chartTitle').textContent = `${label} — ${tf} Candlestick`;
   document.getElementById('chartTitle').className = 'section-title ' + (coin==='devve'?'devve':'fias');
+  const sourceBadge = document.getElementById('chartSourceBadge');
+  const sourceNote = document.getElementById('chartSourceNote');
+  if (sourceBadge && sourceNote) {
+    if (coin === 'devve') {
+      sourceBadge.textContent = 'Bron: MEXC + CoinGecko fallback';
+      sourceNote.textContent = 'DevvE chart gebruikt MEXC. Als MEXC blokkeert, blijft analyse werken via CoinGecko fallback.';
+    } else {
+      sourceBadge.textContent = 'Bron: DexScreener + TradingView';
+      sourceNote.textContent = 'FIAS chart en analyse gebruiken DexScreener data en TradingView logica zonder MEXC.';
+    }
+  }
   initLwChart();
   try {
     const days = TF_DAYS[tf] || 30;
@@ -2285,6 +2481,7 @@ async function loadCandleChart(coin, tf) {
 
 function selectChartCoin(coin, btn) {
   currentChartCoin = coin;
+  saveAppState();
   document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   loadCandleChart(coin, currentTf);
@@ -2292,6 +2489,7 @@ function selectChartCoin(coin, btn) {
 
 function selectTf(tf, btn) {
   currentTf = tf;
+  saveAppState();
   document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   loadCandleChart(currentChartCoin, tf);
@@ -2302,6 +2500,7 @@ function selectTf(tf, btn) {
 
 
 function runTA(coin) {
+  saveAppState();
   const label  = coin === 'devve' ? 'DevvE' : 'FIAS';
   const color  = coin === 'devve' ? 'var(--devve)' : 'var(--fias)';
   const accentHex = coin === 'devve' ? '#0088cc' : '#e05a20';
@@ -2647,6 +2846,7 @@ function showPage_direct(name) {
 
 // ===== PORTFOLIO =====
 function calcPortfolio() {
+  saveAppState();
   const devveAmt = parseFloat(document.getElementById('devveAmount').value) || 0;
   const devveBuy = parseFloat(document.getElementById('devveBuy').value) || 0;
   const fiasAmt = parseFloat(document.getElementById('fiasAmount').value) || 0;
@@ -2693,6 +2893,8 @@ function calcPortfolio() {
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
+  loadAppState();
+  syncChartControls();
   fetchPrices();
   setInterval(fetchPrices, 120000);
   setTimeout(calcPortfolio, 4000);
@@ -2708,7 +2910,6 @@ document.addEventListener('DOMContentLoaded', () => {
 ">
   <div style="max-width:1200px; margin:0 auto;">
 
-```
 <!-- Links rij 1: DevvE -->
 <div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--devve); text-transform:uppercase; margin-bottom:8px;">DevvE</div>
 <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
@@ -2743,7 +2944,6 @@ document.addEventListener('DOMContentLoaded', () => {
     Made by <span style="color:var(--devve);">Rob Borghouts</span> &mdash; 2026
   </div>
 </div>
-```
 
   </div>
 </footer>
