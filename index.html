@@ -190,69 +190,6 @@
     50% { opacity: 0.5; transform: scale(0.8); }
   }
 
-
-  .top-meta {
-    display:flex;
-    align-items:center;
-    gap:8px;
-    flex-wrap:wrap;
-  }
-
-  .version-chip {
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:4px 8px;
-    border-radius:999px;
-    border:1px solid var(--border);
-    background: var(--card);
-    font-family:'Share Tech Mono', monospace;
-    font-size:10px;
-    color: var(--muted);
-  }
-
-  .utility-row {
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-top:12px;
-  }
-
-  .utility-btn {
-    border:1px solid var(--border);
-    background: var(--bg2);
-    color: var(--text);
-    border-radius:10px;
-    padding:9px 12px;
-    font-family:'Barlow Condensed', sans-serif;
-    font-size:13px;
-    font-weight:700;
-    cursor:pointer;
-  }
-
-  .utility-btn:hover {
-    background: var(--bg3);
-  }
-
-  .source-badge {
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:4px 8px;
-    border-radius:999px;
-    border:1px solid var(--border);
-    background: var(--bg2);
-    font-family:'Share Tech Mono', monospace;
-    font-size:10px;
-    color: var(--muted);
-  }
-
-  .subtle-note {
-    font-size:11px;
-    color: var(--muted);
-    line-height:1.6;
-  }
-
   /* ===== MAIN ===== */
   main {
     position: relative;
@@ -1104,12 +1041,9 @@
           <span>DevvE</span> <span style="color:var(--muted)"> & </span> <span>FIAS</span>
         </div>
       </div>
-      <div class="top-meta">
-        <div class="version-chip">STABIEL v1.1</div>
-        <div class="live-badge">
-          <div class="live-dot"></div>
-          <span id="lastUpdateLabel">--:--</span>
-        </div>
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span id="lastUpdateLabel">--:--</span>
       </div>
     </div>
     <!-- Rij 2: Navigatie tabs -->
@@ -1257,8 +1191,7 @@
 <div class="chart-card">
   <div class="chart-controls" style="margin-bottom:12px;">
     <div class="chart-coin-tabs">
-      <button class="coin-tab devve active" id="coinTabDevve" onclick="selectChartCoin('devve', this)">DevvE</button>
-      <button class="coin-tab fias" id="coinTabFias" onclick="selectChartCoin('fias', this)">FIAS</button>
+      <button class="coin-tab devve active" id="coinTabDevve" type="button">DevvE</button>
     </div>
     <div class="period-tabs">
       <button class="period-tab" onclick="selectTf('15m', this)">15m</button>
@@ -1270,38 +1203,14 @@
     </div>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-    <div id="chartTitle" class="section-title devve" style="font-size:14px;margin:0;">DevvE — 1D Candlestick</div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <span id="chartCurrentPrice" style="font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--devve);"></span>
-      <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
-    </div>
+    <div id="chartTitle" class="section-title devve" style="font-size:14px;margin:0;">DevvE — TradingView chart</div>
+    <div id="chartTvNote" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);">Bron: TradingView</div>
   </div>
-  <div class="utility-row">
-    <span id="chartSourceBadge" class="source-badge">Bron: CoinGecko / DexScreener</span>
-    <button class="utility-btn" onclick="reloadCurrentChart()">↻ Herlaad chart</button>
-    <button class="utility-btn" onclick="clearTAResult()">✕ Wis analyse</button>
+  <div id="tradingviewChartWrap" style="background:#f2f4f6;border:1px solid var(--border);border-radius:10px;overflow:hidden;min-height:560px;">
+    <div id="tradingviewChart" style="height:560px;"></div>
   </div>
-  <div class="subtle-note" id="chartSourceNote" style="margin:10px 0 4px 0;">DevvE gebruikt TradingView voor chart en CoinGecko voor analyse. FIAS gebruikt vaste DexScreener pair-data.</div>
-  <!-- Indicator labels -->
-  <div id="chartIndicators" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;min-height:14px;"></div>
-  <!-- Candles -->
-  <div id="candleChart" style="height:260px;border-radius:6px 6px 0 0;overflow:hidden;background:#f2f4f6;"></div>
-  <!-- Volume -->
-  <div id="volumeChart" style="height:60px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
-  <!-- MACD -->
-  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
-    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">MACD(12,26,9)</span>
-    <span id="macdLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
-  </div>
-  <div id="macdChart" style="height:70px;overflow:hidden;background:#f2f4f6;"></div>
-  <!-- RSI -->
-  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
-    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">RSI(14)</span>
-    <span id="rsiLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
-  </div>
-  <div id="rsiChart" style="height:70px;border-radius:0 0 6px 6px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
   <div id="chartError" class="error-msg" style="display:none;margin-top:10px;"></div>
-  <div id="chartLoading" style="display:none;text-align:center;padding:60px 20px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;">⏳ Grafiek laden...</div>
+  <div id="chartLoading" style="display:none;text-align:center;padding:18px 20px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;">⏳ TradingView grafiek laden...</div>
 </div>
 
 <!-- AI Technische Analyse -->
@@ -1315,8 +1224,7 @@
   </div>
   <div id="taResult" style="min-height:60px;">
     <p style="font-size:12px; color:var(--muted); line-height:1.7;">
-      Klik op een analyseknop voor een dagelijkse technische analyse op basis van de 4H en 15m charts.
-      De AI kijkt naar trend, support/resistance, RSI, volume en geeft een kort advies.
+      Klik op een analyseknop. DevvE opent TradingView technische analyse. FIAS gebruikt de ingebouwde analyse op basis van 4H en 15m data.
     </p>
   </div>
 </div>
@@ -1624,13 +1532,6 @@
         </div>
       </div>
       <button class="calc-btn" onclick="calcPortfolio()">📊 Bereken Portfolio</button>
-      <div class="utility-row">
-        <button class="utility-btn" onclick="exportAppBackup()">⬇️ Back-up</button>
-        <button class="utility-btn" onclick="document.getElementById('backupFileInput').click()">⬆️ Herstel</button>
-        <button class="utility-btn" onclick="resetPortfolioInputs()">🗑️ Reset portfolio</button>
-      </div>
-      <input type="file" id="backupFileInput" accept="application/json" style="display:none" onchange="importAppBackup(event)">
-      <div class="subtle-note" style="margin-top:10px;">Back-up bewaart jouw portfolio invoer en de laatst gekozen chartinstellingen.</div>
     </div>
 
 <div class="portfolio-result" id="portfolioResult">
@@ -1687,121 +1588,6 @@ let currentTf = '1D';
 let tgChannels = [];
 let lastOhlcDevve = [];
 let lastOhlcFias = [];
-const APP_STORAGE_KEY = 'devveFiasDashboardState_v1';
-
-function getAppState() {
-  return {
-    version: 'stabiel-v1.1',
-    savedAt: new Date().toISOString(),
-    portfolio: {
-      devveAmount: document.getElementById('devveAmount')?.value || '',
-      devveBuy: document.getElementById('devveBuy')?.value || '',
-      fiasAmount: document.getElementById('fiasAmount')?.value || '',
-      fiasBuy: document.getElementById('fiasBuy')?.value || ''
-    },
-    chart: {
-      coin: currentChartCoin,
-      tf: currentTf
-    }
-  };
-}
-
-function saveAppState() {
-  try {
-    localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(getAppState()));
-  } catch (e) {
-    console.warn('Opslaan mislukt', e);
-  }
-}
-
-function loadAppState() {
-  try {
-    const raw = localStorage.getItem(APP_STORAGE_KEY);
-    if (!raw) return;
-    const state = JSON.parse(raw);
-    if (state.portfolio) {
-      if (document.getElementById('devveAmount')) document.getElementById('devveAmount').value = state.portfolio.devveAmount || '';
-      if (document.getElementById('devveBuy')) document.getElementById('devveBuy').value = state.portfolio.devveBuy || '';
-      if (document.getElementById('fiasAmount')) document.getElementById('fiasAmount').value = state.portfolio.fiasAmount || '';
-      if (document.getElementById('fiasBuy')) document.getElementById('fiasBuy').value = state.portfolio.fiasBuy || '';
-    }
-    if (state.chart?.coin) currentChartCoin = state.chart.coin;
-    if (state.chart?.tf) currentTf = state.chart.tf;
-  } catch (e) {
-    console.warn('Laden opgeslagen staat mislukt', e);
-  }
-}
-
-function exportAppBackup() {
-  const blob = new Blob([JSON.stringify(getAppState(), null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `devve-fias-backup-${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-function importAppBackup(event) {
-  const file = event.target.files && event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const state = JSON.parse(reader.result);
-      if (state.portfolio) {
-        document.getElementById('devveAmount').value = state.portfolio.devveAmount || '';
-        document.getElementById('devveBuy').value = state.portfolio.devveBuy || '';
-        document.getElementById('fiasAmount').value = state.portfolio.fiasAmount || '';
-        document.getElementById('fiasBuy').value = state.portfolio.fiasBuy || '';
-      }
-      if (state.chart?.coin) currentChartCoin = state.chart.coin;
-      if (state.chart?.tf) currentTf = state.chart.tf;
-      syncChartControls();
-      calcPortfolio();
-      if (document.getElementById('page-charts')?.classList.contains('active')) loadCandleChart(currentChartCoin, currentTf);
-      saveAppState();
-      alert('Back-up hersteld');
-    } catch (e) {
-      alert('Back-up bestand is ongeldig');
-    } finally {
-      event.target.value = '';
-    }
-  };
-  reader.readAsText(file);
-}
-
-function resetPortfolioInputs() {
-  if (!confirm('Portfolio invoer wissen?')) return;
-  document.getElementById('devveAmount').value = '';
-  document.getElementById('devveBuy').value = '';
-  document.getElementById('fiasAmount').value = '';
-  document.getElementById('fiasBuy').value = '';
-  calcPortfolio();
-  saveAppState();
-}
-
-function reloadCurrentChart() {
-  loadCandleChart(currentChartCoin, currentTf);
-}
-
-function clearTAResult() {
-  const el = document.getElementById('taResult');
-  if (!el) return;
-  el.innerHTML = `<p style="font-size:12px; color:var(--muted); line-height:1.7;">Klik op een analyseknop voor een dagelijkse technische analyse op basis van de 4H en 15m charts. De AI kijkt naar trend, support/resistance, RSI, volume en geeft een kort advies.</p>`;
-}
-
-function syncChartControls() {
-  document.querySelectorAll('.coin-tab').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll('.period-tab').forEach(btn => btn.classList.remove('active'));
-  const coinBtn = currentChartCoin === 'devve' ? document.getElementById('coinTabDevve') : document.getElementById('coinTabFias');
-  if (coinBtn) coinBtn.classList.add('active');
-  document.querySelectorAll('.period-tab').forEach(btn => {
-    if (btn.textContent.trim() === currentTf) btn.classList.add('active');
-  });
-}
 
 // Timeframe → CoinGecko days mapping
 const TF_LABEL = { '15m': '15 minuten', '4H': '4 uur', '1D': '1 dag', '7D': '7 dagen', '30D': '30 dagen', '1J': '1 jaar' };
@@ -1818,8 +1604,7 @@ function showPage(name) {
       t.classList.add('active');
     }
   });
-  if (name === 'charts') setTimeout(() => loadCandleChart(currentChartCoin, currentTf), 80);
-  saveAppState();
+  if (name === 'charts') setTimeout(() => loadCandleChart('devve', currentTf), 80);
 }
 
 // ===== FORMAT HELPERS =====
@@ -1909,10 +1694,6 @@ function updateTicker() {
   ticker.innerHTML = html || '<div class="ticker-item" style="color:var(--muted)">Koersen laden...</div>';
 }
 
-const FIAS_CHAIN_ID = 'ethereum';
-const FIAS_PAIR_ADDRESS = '0x21e88f4482cd48deab1ca5eddabdfb14cb8ad76f';
-const FIAS_DEX_URL = `https://api.dexscreener.com/latest/dex/pairs/${FIAS_CHAIN_ID}/${FIAS_PAIR_ADDRESS}`;
-
 // ===== FETCH PRICES =====
 async function fetchPrices() {
   const btn = document.getElementById('refreshBtn');
@@ -1957,14 +1738,28 @@ async function fetchCoinGeckoPrices() {
 }
 
 async function fetchFiasDexScreener() {
+  // DexScreener: zoek naar FIAS token, kies de meest liquide pair
   try {
-    const res = await fetch(FIAS_DEX_URL);
+    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
     if (!res.ok) throw new Error(`DexScreener HTTP ${res.status}`);
     const data = await res.json();
-    const best = (data.pairs || [])[0];
-    if (!best) throw new Error('Geen FIAS pair gevonden');
+    const pairs = (data.pairs || []).filter(p =>
+      p.baseToken?.symbol?.toUpperCase() === 'FIAS' ||
+      p.quoteToken?.symbol?.toUpperCase() === 'FIAS'
+    );
+    if (!pairs.length) throw new Error('Geen FIAS pair gevonden');
 
-    const priceUsd = parseFloat(best.priceUsd || 0);
+    // Sorteer op liquiditeit (hoogste eerst) en pak de beste
+    pairs.sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
+    const best = pairs[0];
+
+    // Zorg dat we de prijs van FIAS hebben (niet de quote)
+    let priceUsd = parseFloat(best.priceUsd || 0);
+    if (best.quoteToken?.symbol?.toUpperCase() === 'FIAS') {
+      // prijs is in termen van quote, invert
+      priceUsd = priceUsd > 0 ? 1 / priceUsd : 0;
+    }
+
     const change24h = parseFloat(best.priceChange?.h24 || 0);
     const vol24h = parseFloat(best.volume?.h24 || 0);
     const liq = parseFloat(best.liquidity?.usd || 0);
@@ -1980,8 +1775,11 @@ async function fetchFiasDexScreener() {
       pairName: best.baseToken?.symbol + '/' + best.quoteToken?.symbol,
     };
 
+    // Vul ook de extra velden direct in
     document.getElementById('fias-mcap').textContent = mcap > 0 ? fmt(mcap) : (liq > 0 ? 'Liq: ' + fmt(liq) : '—');
     document.getElementById('fias-vol').textContent = vol24h > 0 ? fmt(vol24h) : '—';
+
+    // Dex bron tonen bij rank
     document.getElementById('fias-rank').textContent = best.dexId || 'DEX';
     document.getElementById('fias-rank').title = `Pair: ${best.baseToken?.symbol}/${best.quoteToken?.symbol} op ${best.chainId}`;
 
@@ -1989,7 +1787,8 @@ async function fetchFiasDexScreener() {
     const errEl = document.getElementById('api-error');
     if (errEl) {
       errEl.style.display = 'block';
-      errEl.textContent = (errEl.textContent ? errEl.textContent + ' | ' : '') + `⚠️ DexScreener FIAS fout: ${e.message}`;
+      errEl.textContent = (errEl.textContent ? errEl.textContent + ' | ' : '') +
+        `⚠️ DexScreener FIAS fout: ${e.message}`;
     }
   }
 }
@@ -2028,27 +1827,39 @@ async function fetchCoinDetails() {
 
 async function fetchFiasSparkline() {
   try {
-    const res = await fetch(FIAS_DEX_URL);
+    // DexScreener doesn't expose candles in free API, so we get pair and build visual
+    // Use the ohlcv endpoint if available, otherwise generate from price history approximation
+    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
     if (!res.ok) return;
     const data = await res.json();
-    const pair = (data.pairs || [])[0];
-    if (!pair) return;
+    const pairs = (data.pairs || []).filter(p =>
+      p.baseToken?.symbol?.toUpperCase() === 'FIAS'
+    ).sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
+    if (!pairs.length) return;
 
+    const pair = pairs[0];
+    // Build sparkline from available price change data points
     const price = parseFloat(pair.priceUsd || 0);
     const h24 = parseFloat(pair.priceChange?.h24 || 0) / 100;
     const h6  = parseFloat(pair.priceChange?.h6  || 0) / 100;
     const h1  = parseFloat(pair.priceChange?.h1  || 0) / 100;
 
-    const p24h = price / (1 + h24 || 1);
-    const p6h  = price / (1 + h6 || 1);
-    const p1h  = price / (1 + h1 || 1);
+    // Reconstruct approximate price at different times
+    const p24h = price / (1 + h24);
+    const p6h  = price / (1 + h6);
+    const p1h  = price / (1 + h1);
     const spark = [p24h, p24h*1.001, p24h*0.999, p6h*0.998, p6h*1.002, p6h, p1h*0.999, p1h, price*0.999, price];
     drawMiniChart('fiasMiniChart', spark, '#ff6b35');
 
+    // ATH not available via DexScreener
     document.getElementById('fias-ath').textContent = '— (DEX)';
+
+    // 7d change
+    const h168 = parseFloat(pair.priceChange?.h24 || 0); // approximate
     setChange('fias-change-7d', parseFloat(pair.priceChange?.h24 || 0));
     setCmpChange('cmp-fias-7d', parseFloat(pair.priceChange?.h24 || 0));
     setCmpChange('cmp-fias-30d', null);
+
   } catch {}
 }
 
@@ -2132,7 +1943,6 @@ function initLwChart() {
   const elM = document.getElementById('macdChart');
   const elR = document.getElementById('rsiChart');
   if (!elC) return;
-  [elC, elV, elM, elR].forEach(el => { if (el) el.innerHTML = ''; });
 
   // Main candle chart
   lwChart = LightweightCharts.createChart(elC, CHART_OPTS(elC, 260));
@@ -2238,250 +2048,129 @@ function aggregateCandles(priceArr, intervalMs) {
   return Object.entries(buckets).sort((a,b) => +a[0] - +b[0]).map(([ts, c]) => ({ time: Math.floor(+ts/1000), ...c }));
 }
 
-async function fetchDevveCandlesFromCoinGecko(tf) {
-  const current = prices.devve?.usd ? parseFloat(prices.devve.usd) : 0;
-  const ch24 = prices.devve?.usd_24h_change ? parseFloat(prices.devve.usd_24h_change) / 100 : 0;
-  const cfg = { '15m':[15*60,96], '4H':[4*3600,42], '1D':[86400,30], '7D':[86400,7], '30D':[86400,30], '1J':[86400,90] };
-  const [intervalSec, nCandles] = cfg[tf] || [86400,30];
-
-  let p30 = current > 0 ? current * 0.70 : 0.04;
-  let p7 = current > 0 ? current * 0.88 : 0.04;
-  let p24 = current > 0 ? current / (1 + ch24) : 0.04;
-
-  try {
-    const res = await fetch('https://api.coingecko.com/api/v3/coins/devve?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false');
-    if (res.ok) {
-      const d = await res.json();
-      const m = d.market_data || {};
-      const c7 = parseFloat(m.price_change_percentage_7d || 0) / 100;
-      const c30 = parseFloat(m.price_change_percentage_30d || 0) / 100;
-      if (current > 0) {
-        p7 = c7 !== -1 ? current / (1 + c7) : p7;
-        p30 = c30 !== -1 ? current / (1 + c30) : p30;
-      }
-    }
-  } catch {}
-
-  const now = Math.floor(Date.now() / 1000);
-  const totalSec = intervalSec * nCandles;
-  const candles = [];
-
-  for (let i = 0; i < nCandles; i++) {
-    const t = now - totalSec + i * intervalSec;
-    const secAgo = now - t;
-    let base;
-
-    if (secAgo > 7 * 86400) {
-      const span = 23 * 86400;
-      const prog = Math.max(0, Math.min(1, (secAgo - 7 * 86400) / span));
-      base = p30 + (p7 - p30) * (1 - prog);
-    } else if (secAgo > 86400) {
-      const prog = Math.max(0, Math.min(1, (secAgo - 86400) / (6 * 86400)));
-      base = p7 + (p24 - p7) * (1 - prog);
-    } else {
-      const prog = Math.max(0, Math.min(1, secAgo / 86400));
-      base = p24 + (current - p24) * (1 - prog);
-    }
-
-    base = Math.max(base || 0, current * 0.2 || 0.001);
-    const noise = tf === '15m' ? 0.008 : tf === '4H' ? 0.012 : 0.015;
-    const o = base * (1 + (Math.random() - 0.5) * noise);
-    const c = base * (1 + (Math.random() - 0.5) * noise);
-    candles.push({
-      time: t,
-      open: o,
-      high: Math.max(o, c) * (1 + Math.random() * noise * 0.6),
-      low: Math.min(o, c) * (1 - Math.random() * noise * 0.6),
-      close: c,
-      volume: Math.abs(c - o) * 1000000,
-    });
-  }
-
-  if (candles.length) {
-    const last = candles[candles.length - 1];
-    last.close = current || last.close;
-    last.high = Math.max(last.high, last.open, last.close);
-    last.low = Math.min(last.low, last.open, last.close);
-  }
-
-  return candles;
-}
-
 async function fetchDevveCandles(tf, days) {
-  // Eerst MEXC proberen, daarna fallback naar CoinGecko-benadering voor analyse
+  // MEXC publieke klines API via CORS proxy
   const intervalMap = { '15m':'15m', '4H':'4h', '1D':'1d', '7D':'1d', '30D':'1d', '1J':'1d' };
   const limitMap    = { '15m': 96,  '4H': 42,  '1D': 30,  '7D': 7,   '30D': 30,  '1J': 90  };
   const interval = intervalMap[tf] || '1d';
-  const limit    = limitMap[tf] || 30;
+  const limit    = limitMap[tf]    || 30;
+
   const mexcUrl = `https://api.mexc.com/api/v3/klines?symbol=DEVVEUSDT&interval=${interval}&limit=${limit}`;
-
-  let raw = null;
-  let lastErr = '';
-
+  // Try direct first, fallback to CORS proxy
+  let raw;
   try {
-    const res = await fetch(mexcUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
+    const res = await fetch(mexcUrl);
     if (!res.ok) throw new Error('direct ' + res.status);
     raw = await res.json();
-  } catch (e) {
-    lastErr = String(e && e.message ? e.message : e);
+  } catch(e) {
+    const proxy = `https://corsproxy.io/?${encodeURIComponent(mexcUrl)}`;
+    const res2 = await fetch(proxy);
+    if (!res2.ok) throw new Error('MEXC ' + res2.status);
+    raw = await res2.json();
   }
 
-  if (!raw) {
-    try {
-      const proxy = `https://corsproxy.io/?url=${encodeURIComponent(mexcUrl)}`;
-      const res2 = await fetch(proxy, { method: 'GET', headers: { 'Accept': 'application/json' } });
-      if (!res2.ok) throw new Error('proxy ' + res2.status);
-      raw = await res2.json();
-    } catch (e) {
-      lastErr = String(e && e.message ? e.message : e);
-    }
-  }
-
-  if (Array.isArray(raw) && raw.length) {
-    return raw.map(k => ({
-      time: Math.floor(k[0] / 1000),
-      open: parseFloat(k[1]),
-      high: parseFloat(k[2]),
-      low: parseFloat(k[3]),
-      close: parseFloat(k[4]),
-      volume: parseFloat(k[5]),
-    }));
-  }
-
-  console.warn('DevvE analyse fallback naar CoinGecko, MEXC fout:', lastErr);
-  return await fetchDevveCandlesFromCoinGecko(tf);
+  if (!Array.isArray(raw) || !raw.length) throw new Error('Geen MEXC data');
+  return raw.map(k => ({
+    time:   Math.floor(k[0] / 1000),
+    open:   parseFloat(k[1]),
+    high:   parseFloat(k[2]),
+    low:    parseFloat(k[3]),
+    close:  parseFloat(k[4]),
+    volume: parseFloat(k[5]),
+  }));
 }
 
 async function fetchFiasCandles(tf, days) {
-  const res = await fetch(FIAS_PAIR_URL, { cache: 'no-store' });
+  const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
   if (!res.ok) throw new Error('DexScreener ' + res.status);
   const data = await res.json();
-  const pair = Array.isArray(data.pair) ? data.pair[0] : data.pair;
-  if (!pair) throw new Error('Geen FIAS pair gevonden');
-
+  const pairs = (data.pairs || []).filter(p => p.baseToken?.symbol?.toUpperCase() === 'FIAS').sort((a,b) => (b.liquidity?.usd||0)-(a.liquidity?.usd||0));
+  if (!pairs.length) throw new Error('Geen FIAS pair gevonden');
+  const pair = pairs[0];
   const price = parseFloat(pair.priceUsd || 0);
-  const h1 = parseFloat(pair.priceChange?.h1 || 0) / 100;
-  const h6 = parseFloat(pair.priceChange?.h6 || 0) / 100;
-  const h24 = parseFloat(pair.priceChange?.h24 || 0) / 100;
-  const p24 = h24 !== -1 ? price / (1 + h24) : price;
-  const p6 = h6 !== -1 ? price / (1 + h6) : price;
-  const p1 = h1 !== -1 ? price / (1 + h1) : price;
-
-  const now = Math.floor(Date.now() / 1000);
+  const h1 = parseFloat(pair.priceChange?.h1 || 0)/100;
+  const h6 = parseFloat(pair.priceChange?.h6 || 0)/100;
+  const h24= parseFloat(pair.priceChange?.h24|| 0)/100;
+  const p24 = price/(1+h24), p6 = price/(1+h6), p1 = price/(1+h1);
+  const now = Math.floor(Date.now()/1000);
   const configs = { '15m':[15*60,96], '4H':[4*3600,42], '1D':[86400,30], '7D':[86400,7], '30D':[86400,30], '1J':[86400,90] };
   const [intervalSec, nCandles] = configs[tf] || [86400,30];
   const totalSec = intervalSec * nCandles;
   const candles = [];
-
   for (let i = 0; i < nCandles; i++) {
     const t = now - totalSec + i * intervalSec;
     const secAgo = now - t;
-    let base = secAgo > 6*3600
-      ? p24 + (p6 - p24) * Math.max(0, Math.min(1, (secAgo - 6*3600) / (18*3600)))
-      : secAgo > 3600
-      ? p6 + (p1 - p6) * (1 - (secAgo - 3600) / (5*3600))
-      : p1 + (price - p1) * (1 - secAgo / 3600);
-
-    base = Math.max(base, price * 0.3);
+    let base = secAgo > 6*3600 ? p24 + (p6-p24)*Math.max(0,Math.min(1,(secAgo-6*3600)/(18*3600))) : secAgo > 3600 ? p6+(p1-p6)*(1-(secAgo-3600)/(5*3600)) : p1+(price-p1)*(1-secAgo/3600);
+    base = Math.max(base, price*0.3);
     const n = 0.006;
-    const o = base * (1 + (Math.random() - 0.5) * n);
-    const c = base * (1 + (Math.random() - 0.5) * n);
-    candles.push({
-      time: t,
-      open: o,
-      high: Math.max(o, c) * (1 + Math.random() * n * 0.5),
-      low: Math.min(o, c) * (1 - Math.random() * n * 0.5),
-      close: c,
-      volume: Number(pair.volume?.h24 || 0) / Math.max(nCandles, 1)
-    });
+    const o = base*(1+(Math.random()-.5)*n), c = base*(1+(Math.random()-.5)*n);
+    candles.push({ time: t, open: o, high: Math.max(o,c)*(1+Math.random()*n*.5), low: Math.min(o,c)*(1-Math.random()*n*.5), close: c });
   }
   return candles;
 }
 
+let tradingViewScriptPromise = null;
+
+function getTradingViewSymbol(coin) {
+  return coin === 'devve' ? 'MEXC:DEVVEUSDT' : 'UNISWAP3ETH:FIASWETH_21E88F.USD';
+}
+
+function getTradingViewInterval(tf) {
+  const map = {
+    '15m': '15',
+    '4H': '240',
+    '1D': 'D',
+    '7D': 'W',
+    '30D': 'D',
+    '1J': 'W'
+  };
+  return map[tf] || 'D';
+}
+
+function loadTradingViewScript() {
+  if (window.TradingView && typeof window.TradingView.widget === 'function') {
+    return Promise.resolve();
+  }
+  if (tradingViewScriptPromise) return tradingViewScriptPromise;
+  tradingViewScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/tv.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('TradingView script kon niet laden'));
+    document.head.appendChild(script);
+  });
+  return tradingViewScriptPromise;
+}
+
 async function loadCandleChart(coin, tf) {
+  currentChartCoin = 'devve';
   const errEl = document.getElementById('chartError');
   const loadEl = document.getElementById('chartLoading');
-  if (errEl) errEl.style.display = 'none';
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
   if (loadEl) loadEl.style.display = 'block';
-  const label = coin === 'devve' ? 'DevvE' : 'FIAS';
-  document.getElementById('chartTitle').textContent = `${label} — ${tf} Candlestick`;
-  document.getElementById('chartTitle').className = 'section-title ' + (coin==='devve'?'devve':'fias');
-  const sourceBadge = document.getElementById('chartSourceBadge');
-  const sourceNote = document.getElementById('chartSourceNote');
-  if (sourceBadge && sourceNote) {
-    if (coin === 'devve') {
-      sourceBadge.textContent = 'Bron: MEXC + CoinGecko fallback';
-      sourceNote.textContent = 'DevvE chart gebruikt MEXC. Als MEXC blokkeert, blijft analyse werken via CoinGecko fallback.';
-    } else {
-      sourceBadge.textContent = 'Bron: DexScreener + TradingView';
-      sourceNote.textContent = 'FIAS chart en analyse gebruiken DexScreener data en TradingView logica zonder MEXC.';
-    }
-  }
-  initLwChart();
+
   try {
-    const days = TF_DAYS[tf] || 30;
-    let candles = coin === 'devve' ? await fetchDevveCandles(tf, days) : await fetchFiasCandles(tf, days);
-    if (coin === 'devve') lastOhlcDevve = candles; else lastOhlcFias = candles;
-    if (!candles.length) throw new Error('Geen candledata');
-
-    // Candles
-    lwSeries.setData(candles);
-    lwChart.timeScale().fitContent();
-
-    // Volume
-    const volData = calcVolumeArr(candles);
-    lwVolSeries.setData(volData);
-    lwVolChart.timeScale().fitContent();
-
-    // MACD
-    const macdData = calcMACDarr(candles);
-    lwMacdHist.setData(macdData.map(d => ({ time: d.time, value: d.hist, color: d.hist >= 0 ? 'rgba(26,158,90,0.7)' : 'rgba(217,48,48,0.7)' })));
-    lwMacdSeries.setData(macdData.map(d => ({ time: d.time, value: d.macd })));
-    lwMacdSignal.setData(macdData.map(d => ({ time: d.time, value: d.signal })));
-    lwMacdChart.timeScale().fitContent();
-    const lastMacd = macdData[macdData.length - 1];
-    const macdEl = document.getElementById('macdLabel');
-    if (macdEl) {
-      const col = lastMacd.hist >= 0 ? '#1a9e5a' : '#d93030';
-      macdEl.innerHTML = `<span style="color:#0088cc">MACD:${lastMacd.macd.toExponential(2)}</span> <span style="color:#e05a20">Signal:${lastMacd.signal.toExponential(2)}</span> <span style="color:${col}">Hist:${lastMacd.hist.toExponential(2)}</span>`;
-    }
-
-    // RSI
-    const rsiData = calcRSIarr(candles);
-    lwRsiSeries.setData(rsiData);
-    lwRsiChart.timeScale().fitContent();
-    const lastRsi = rsiData[rsiData.length - 1]?.value;
-    const rsiEl = document.getElementById('rsiLabel');
-    if (rsiEl && lastRsi) {
-      const col = lastRsi >= 70 ? '#d93030' : lastRsi <= 30 ? '#1a9e5a' : '#c47f00';
-      rsiEl.innerHTML = `<span style="color:${col};font-weight:700">${lastRsi.toFixed(1)}</span> ${lastRsi >= 70 ? '🔴 Overbought' : lastRsi <= 30 ? '🟢 Oversold' : ''}`;
-    }
-
-    // Price display
-    const last = candles[candles.length-1], first = candles[0];
-    const priceEl = document.getElementById('chartCurrentPrice');
-    const changeEl = document.getElementById('chartCurrentChange');
-    if (priceEl) priceEl.textContent = '$' + last.close.toFixed(last.close < 0.01 ? 6 : 4);
-    if (changeEl) { const { text, cls } = fmtChange(((last.close-first.open)/first.open)*100); changeEl.textContent = text; changeEl.className = 'change-badge ' + cls; }
-
-    if (loadEl) loadEl.style.display = 'none';
+    await loadDevveTradingView(tf);
   } catch(e) {
+    if (errEl) {
+      errEl.style.display = 'block';
+      errEl.textContent = '⚠️ Grafiek fout: ' + (e && e.message ? e.message : e);
+    }
+  } finally {
     if (loadEl) loadEl.style.display = 'none';
-    if (errEl) { errEl.style.display = 'block'; errEl.textContent = '⚠️ Grafiek fout: ' + e.message; }
   }
 }
 
 function selectChartCoin(coin, btn) {
-  currentChartCoin = coin;
-  saveAppState();
+  currentChartCoin = 'devve';
   document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  loadCandleChart(coin, currentTf);
+  const devBtn = document.getElementById('coinTabDevve');
+  if (devBtn) devBtn.classList.add('active');
+  loadCandleChart('devve', currentTf);
 }
 
 function selectTf(tf, btn) {
   currentTf = tf;
-  saveAppState();
   document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   loadCandleChart(currentChartCoin, tf);
@@ -2491,8 +2180,67 @@ function selectTf(tf, btn) {
 
 
 
+
+function renderDevveTradingViewAnalysis() {
+  const taEl = document.getElementById('taResult');
+  if (!taEl) return;
+  taEl.innerHTML = `
+    <div class="ta-output">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;color:var(--devve);">DevvE — TradingView Analyse</span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);background:var(--bg2);padding:2px 8px;border-radius:4px;border:1px solid var(--border);">MEXC:DEVVEUSDT</span>
+      </div>
+      <div id="devveTaWidget" style="min-height:520px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="https://www.tradingview.com/symbols/DEVVEUSDT/technicals/?exchange=MEXC" target="_blank" class="ext-link devve">📊 Open TradingView</a>
+      </div>
+    </div>`;
+
+  const widgetHost = document.getElementById('devveTaWidget');
+  if (!widgetHost) return;
+  widgetHost.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'tradingview-widget-container';
+  wrap.style.height = '520px';
+  wrap.style.width = '100%';
+
+  const inner = document.createElement('div');
+  inner.className = 'tradingview-widget-container__widget';
+  inner.style.height = 'calc(100% - 32px)';
+  inner.style.width = '100%';
+  wrap.appendChild(inner);
+
+  const copy = document.createElement('div');
+  copy.className = 'tradingview-widget-copyright';
+  copy.innerHTML = '<a href="https://www.tradingview.com/symbols/DEVVEUSDT/technicals/?exchange=MEXC" rel="noopener" target="_blank"><span class="blue-text">Technische analyse van DevvE op TradingView</span></a>';
+  wrap.appendChild(copy);
+
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+  script.async = true;
+  script.text = JSON.stringify({
+    interval: '1m',
+    width: '100%',
+    isTransparent: true,
+    height: 500,
+    symbol: 'MEXC:DEVVEUSDT',
+    showIntervalTabs: true,
+    displayMode: 'single',
+    locale: 'nl',
+    colorTheme: 'light'
+  });
+  wrap.appendChild(script);
+  widgetHost.appendChild(wrap);
+}
+
 function runTA(coin) {
-  saveAppState();
+  if (coin === 'devve') {
+    document.querySelectorAll('.ta-btn').forEach(b => b.disabled = false);
+    renderDevveTradingViewAnalysis();
+    return;
+  }
   const label  = coin === 'devve' ? 'DevvE' : 'FIAS';
   const color  = coin === 'devve' ? 'var(--devve)' : 'var(--fias)';
   const accentHex = coin === 'devve' ? '#0088cc' : '#e05a20';
@@ -2838,7 +2586,6 @@ function showPage_direct(name) {
 
 // ===== PORTFOLIO =====
 function calcPortfolio() {
-  saveAppState();
   const devveAmt = parseFloat(document.getElementById('devveAmount').value) || 0;
   const devveBuy = parseFloat(document.getElementById('devveBuy').value) || 0;
   const fiasAmt = parseFloat(document.getElementById('fiasAmount').value) || 0;
@@ -2885,8 +2632,6 @@ function calcPortfolio() {
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
-  loadAppState();
-  syncChartControls();
   fetchPrices();
   setInterval(fetchPrices, 120000);
   setTimeout(calcPortfolio, 4000);
