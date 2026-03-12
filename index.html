@@ -2079,33 +2079,44 @@ function aggregateCandles(priceArr, intervalMs) {
 }
 
 async function fetchDevveCandles(tf, days) {
-  // MEXC publieke klines API via CORS proxy
   const intervalMap = { '15m':'15m', '4H':'4h', '1D':'1d', '7D':'1d', '30D':'1d', '1J':'1d' };
   const limitMap    = { '15m': 96,  '4H': 42,  '1D': 30,  '7D': 7,   '30D': 30,  '1J': 90  };
   const interval = intervalMap[tf] || '1d';
-  const limit    = limitMap[tf]    || 30;
-
+  const limit    = limitMap[tf] || 30;
   const mexcUrl = `https://api.mexc.com/api/v3/klines?symbol=DEVVEUSDT&interval=${interval}&limit=${limit}`;
-  // Try direct first, fallback to CORS proxy
-  let raw;
+
+  let raw = null;
+  let lastErr = '';
+
   try {
-    const res = await fetch(mexcUrl);
+    const res = await fetch(mexcUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
     if (!res.ok) throw new Error('direct ' + res.status);
     raw = await res.json();
-  } catch(e) {
-    const proxy = `https://corsproxy.io/?${encodeURIComponent(mexcUrl)}`;
-    const res2 = await fetch(proxy);
-    if (!res2.ok) throw new Error('MEXC ' + res2.status);
-    raw = await res2.json();
+  } catch (e) {
+    lastErr = String(e && e.message ? e.message : e);
   }
 
-  if (!Array.isArray(raw) || !raw.length) throw new Error('Geen MEXC data');
+  if (!raw) {
+    try {
+      const proxy = `https://corsproxy.io/?url=${encodeURIComponent(mexcUrl)}`;
+      const res2 = await fetch(proxy, { method: 'GET', headers: { 'Accept': 'application/json' } });
+      if (!res2.ok) throw new Error('proxy ' + res2.status);
+      raw = await res2.json();
+    } catch (e) {
+      lastErr = String(e && e.message ? e.message : e);
+    }
+  }
+
+  if (!Array.isArray(raw) || !raw.length) {
+    throw new Error('MEXC tijdelijk geblokkeerd, ' + lastErr);
+  }
+
   return raw.map(k => ({
-    time:   Math.floor(k[0] / 1000),
-    open:   parseFloat(k[1]),
-    high:   parseFloat(k[2]),
-    low:    parseFloat(k[3]),
-    close:  parseFloat(k[4]),
+    time: Math.floor(k[0] / 1000),
+    open: parseFloat(k[1]),
+    high: parseFloat(k[2]),
+    low: parseFloat(k[3]),
+    close: parseFloat(k[4]),
     volume: parseFloat(k[5]),
   }));
 }
