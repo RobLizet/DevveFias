@@ -1190,6 +1190,7 @@
 
   <div class="page" id="page-charts">
 
+```
 <div class="chart-card">
   <div class="chart-controls" style="margin-bottom:12px;">
     <div class="chart-coin-tabs">
@@ -1206,14 +1207,32 @@
     </div>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-    <div id="chartTitle" class="section-title devve" style="font-size:14px;margin:0;">DevvE — TradingView chart</div>
-    <div id="chartTvNote" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);">Bron: TradingView</div>
+    <div id="chartTitle" class="section-title devve" style="font-size:14px;margin:0;">DevvE — 1D Candlestick</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="chartCurrentPrice" style="font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--devve);"></span>
+      <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
+    </div>
   </div>
-  <div id="tradingviewChartWrap" style="background:#f2f4f6;border:1px solid var(--border);border-radius:10px;overflow:hidden;min-height:560px;">
-    <div id="tradingviewChart" style="height:560px;"></div>
+  <!-- Indicator labels -->
+  <div id="chartIndicators" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;min-height:14px;"></div>
+  <!-- Candles -->
+  <div id="candleChart" style="height:260px;border-radius:6px 6px 0 0;overflow:hidden;background:#f2f4f6;"></div>
+  <!-- Volume -->
+  <div id="volumeChart" style="height:60px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
+  <!-- MACD -->
+  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">MACD(12,26,9)</span>
+    <span id="macdLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
   </div>
+  <div id="macdChart" style="height:70px;overflow:hidden;background:#f2f4f6;"></div>
+  <!-- RSI -->
+  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">RSI(14)</span>
+    <span id="rsiLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
+  </div>
+  <div id="rsiChart" style="height:70px;border-radius:0 0 6px 6px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
   <div id="chartError" class="error-msg" style="display:none;margin-top:10px;"></div>
-  <div id="chartLoading" style="display:none;text-align:center;padding:18px 20px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;">⏳ TradingView grafiek laden...</div>
+  <div id="chartLoading" style="display:none;text-align:center;padding:60px 20px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;">⏳ Grafiek laden...</div>
 </div>
 
 <!-- AI Technische Analyse -->
@@ -1227,8 +1246,8 @@
   </div>
   <div id="taResult" style="min-height:60px;">
     <p style="font-size:12px; color:var(--muted); line-height:1.7;">
-      Klik op een analyseknop voor een dagelijkse technische analyse op basis van de 4H en 15m charts.
-      De AI kijkt naar trend, support/resistance, RSI, volume en geeft een kort advies.
+      Klik op een analyseknop voor TradingView technische analyse van DevvE of FIAS.
+      Je ziet direct het TradingView overzicht met indicatoren, averages en samenvatting.
     </p>
   </div>
 </div>
@@ -2059,124 +2078,87 @@ function aggregateCandles(priceArr, intervalMs) {
   return Object.entries(buckets).sort((a,b) => +a[0] - +b[0]).map(([ts, c]) => ({ time: Math.floor(+ts/1000), ...c }));
 }
 
-async function fetchDevveCandles(tf, days) {
-  // MEXC publieke klines API via CORS proxy
-  const intervalMap = { '15m':'15m', '4H':'4h', '1D':'1d', '7D':'1d', '30D':'1d', '1J':'1d' };
-  const limitMap    = { '15m': 96,  '4H': 42,  '1D': 30,  '7D': 7,   '30D': 30,  '1J': 90  };
-  const interval = intervalMap[tf] || '1d';
-  const limit    = limitMap[tf]    || 30;
-
-  const mexcUrl = `https://api.mexc.com/api/v3/klines?symbol=DEVVEUSDT&interval=${interval}&limit=${limit}`;
-  // Try direct first, fallback to CORS proxy
-  let raw;
-  try {
-    const res = await fetch(mexcUrl);
-    if (!res.ok) throw new Error('direct ' + res.status);
-    raw = await res.json();
-  } catch(e) {
-    const proxy = `https://corsproxy.io/?${encodeURIComponent(mexcUrl)}`;
-    const res2 = await fetch(proxy);
-    if (!res2.ok) throw new Error('MEXC ' + res2.status);
-    raw = await res2.json();
-  }
-
-  if (!Array.isArray(raw) || !raw.length) throw new Error('Geen MEXC data');
-  return raw.map(k => ({
-    time:   Math.floor(k[0] / 1000),
-    open:   parseFloat(k[1]),
-    high:   parseFloat(k[2]),
-    low:    parseFloat(k[3]),
-    close:  parseFloat(k[4]),
-    volume: parseFloat(k[5]),
-  }));
-}
-
-async function fetchFiasCandles(tf, days) {
-  const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
-  if (!res.ok) throw new Error('DexScreener ' + res.status);
-  const data = await res.json();
-  const pairs = (data.pairs || []).filter(p => p.baseToken?.symbol?.toUpperCase() === 'FIAS').sort((a,b) => (b.liquidity?.usd||0)-(a.liquidity?.usd||0));
-  if (!pairs.length) throw new Error('Geen FIAS pair gevonden');
-  const pair = pairs[0];
-  const price = parseFloat(pair.priceUsd || 0);
-  const h1 = parseFloat(pair.priceChange?.h1 || 0)/100;
-  const h6 = parseFloat(pair.priceChange?.h6 || 0)/100;
-  const h24= parseFloat(pair.priceChange?.h24|| 0)/100;
-  const p24 = price/(1+h24), p6 = price/(1+h6), p1 = price/(1+h1);
-  const now = Math.floor(Date.now()/1000);
-  const configs = { '15m':[15*60,96], '4H':[4*3600,42], '1D':[86400,30], '7D':[86400,7], '30D':[86400,30], '1J':[86400,90] };
-  const [intervalSec, nCandles] = configs[tf] || [86400,30];
-  const totalSec = intervalSec * nCandles;
-  const candles = [];
-  for (let i = 0; i < nCandles; i++) {
-    const t = now - totalSec + i * intervalSec;
-    const secAgo = now - t;
-    let base = secAgo > 6*3600 ? p24 + (p6-p24)*Math.max(0,Math.min(1,(secAgo-6*3600)/(18*3600))) : secAgo > 3600 ? p6+(p1-p6)*(1-(secAgo-3600)/(5*3600)) : p1+(price-p1)*(1-secAgo/3600);
-    base = Math.max(base, price*0.3);
-    const n = 0.006;
-    const o = base*(1+(Math.random()-.5)*n), c = base*(1+(Math.random()-.5)*n);
-    candles.push({ time: t, open: o, high: Math.max(o,c)*(1+Math.random()*n*.5), low: Math.min(o,c)*(1-Math.random()*n*.5), close: c });
-  }
-  return candles;
-}
-
-let tradingViewScriptPromise = null;
 
 function getTradingViewSymbol(coin) {
   return coin === 'devve' ? 'MEXC:DEVVEUSDT' : 'UNISWAP3ETH:FIASWETH_21E88F.USD';
 }
 
 function getTradingViewInterval(tf) {
-  const map = {
-    '15m': '15',
-    '4H': '240',
-    '1D': 'D',
-    '7D': 'W',
-    '30D': 'D',
-    '1J': 'W'
-  };
+  const map = { '15m': '15', '4H': '240', '1D': 'D', '7D': 'D', '30D': 'D', '1J': 'W' };
   return map[tf] || 'D';
 }
 
-function loadTradingViewScript() {
-  if (window.TradingView && typeof window.TradingView.widget === 'function') {
-    return Promise.resolve();
+function renderTradingViewWidget(containerId, scriptName, config) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'tradingview-widget-container';
+  wrap.style.height = '100%';
+  wrap.style.width = '100%';
+
+  const widgetHost = document.createElement('div');
+  widgetHost.className = 'tradingview-widget-container__widget';
+  widgetHost.style.height = '100%';
+  widgetHost.style.width = '100%';
+  wrap.appendChild(widgetHost);
+
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = `https://s3.tradingview.com/external-embedding/${scriptName}`;
+  script.async = true;
+  script.innerHTML = JSON.stringify(config);
+  wrap.appendChild(script);
+
+  container.appendChild(wrap);
+}
+
+function setTradingViewPanelsVisible(showWidgetOnly = true) {
+  const chartIndicators = document.getElementById('chartIndicators');
+  const candleChart = document.getElementById('candleChart');
+  const volumeChart = document.getElementById('volumeChart');
+  const macdChart = document.getElementById('macdChart');
+  const rsiChart = document.getElementById('rsiChart');
+  if (chartIndicators) chartIndicators.style.display = showWidgetOnly ? 'none' : 'flex';
+  if (candleChart) {
+    candleChart.style.height = showWidgetOnly ? '520px' : '260px';
+    candleChart.style.borderRadius = showWidgetOnly ? '8px' : '6px 6px 0 0';
   }
-  if (tradingViewScriptPromise) return tradingViewScriptPromise;
-  tradingViewScriptPromise = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://s3.tradingview.com/tv.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('TradingView script kon niet laden'));
-    document.head.appendChild(script);
-  });
-  return tradingViewScriptPromise;
+  if (volumeChart) volumeChart.style.display = showWidgetOnly ? 'none' : 'block';
+  if (macdChart) macdChart.style.display = showWidgetOnly ? 'none' : 'block';
+  if (rsiChart) rsiChart.style.display = showWidgetOnly ? 'none' : 'block';
+  if (volumeChart && volumeChart.previousElementSibling) volumeChart.previousElementSibling.style.display = showWidgetOnly ? 'none' : 'flex';
+  if (macdChart && macdChart.previousElementSibling) macdChart.previousElementSibling.style.display = showWidgetOnly ? 'none' : 'flex';
+  if (rsiChart && rsiChart.previousElementSibling) rsiChart.previousElementSibling.style.display = showWidgetOnly ? 'none' : 'flex';
 }
 
 async function loadCandleChart(coin, tf) {
   const errEl = document.getElementById('chartError');
   const loadEl = document.getElementById('chartLoading');
-  const chartEl = document.getElementById('tradingviewChart');
-  const label = coin === 'devve' ? 'DevvE' : 'FIAS';
-
   if (errEl) {
     errEl.style.display = 'none';
     errEl.textContent = '';
   }
   if (loadEl) loadEl.style.display = 'block';
-  if (chartEl) chartEl.innerHTML = '';
 
-  const titleEl = document.getElementById('chartTitle');
-  if (titleEl) {
-    titleEl.textContent = `${label} — TradingView ${tf}`;
-    titleEl.className = 'section-title ' + (coin === 'devve' ? 'devve' : 'fias');
+  const label = coin === 'devve' ? 'DevvE' : 'FIAS';
+  document.getElementById('chartTitle').textContent = `${label} — ${tf} TradingView Chart`;
+  document.getElementById('chartTitle').className = 'section-title ' + (coin === 'devve' ? 'devve' : 'fias');
+
+  setTradingViewPanelsVisible(true);
+
+  const priceEl = document.getElementById('chartCurrentPrice');
+  const changeEl = document.getElementById('chartCurrentChange');
+  const priceData = prices[coin];
+  if (priceEl) priceEl.textContent = priceData?.usd ? fmt(priceData.usd, 4) : '—';
+  if (changeEl) {
+    const { text, cls } = fmtChange(priceData?.usd_24h_change);
+    changeEl.textContent = text;
+    changeEl.className = 'change-badge ' + cls;
   }
 
   try {
-    await loadTradingViewScript();
-    if (!chartEl) throw new Error('Chart container niet gevonden');
-
-    new TradingView.widget({
+    renderTradingViewWidget('candleChart', 'embed-widget-advanced-chart.js', {
       autosize: true,
       symbol: getTradingViewSymbol(coin),
       interval: getTradingViewInterval(tf),
@@ -2185,78 +2167,58 @@ async function loadCandleChart(coin, tf) {
       style: '1',
       locale: 'nl_NL',
       enable_publishing: false,
+      allow_symbol_change: false,
+      save_image: false,
       hide_top_toolbar: false,
       hide_legend: false,
-      save_image: false,
-      calendar: false,
-      studies: ['MACD@tv-basicstudies', 'RSI@tv-basicstudies', 'Volume@tv-basicstudies'],
       withdateranges: true,
-      support_host: 'https://www.tradingview.com',
-      container_id: 'tradingviewChart'
+      details: false,
+      hotlist: false,
+      calendar: false,
+      studies: ['RSI@tv-basicstudies','MACD@tv-basicstudies','Volume@tv-basicstudies'],
+      support_host: 'https://www.tradingview.com'
     });
+    if (loadEl) loadEl.style.display = 'none';
   } catch (e) {
+    if (loadEl) loadEl.style.display = 'none';
     if (errEl) {
       errEl.style.display = 'block';
-      errEl.textContent = '⚠️ TradingView grafiek kon niet laden';
+      errEl.textContent = '⚠️ TradingView grafiek fout: ' + (e && e.message ? e.message : e);
     }
-  } finally {
-    if (loadEl) loadEl.style.display = 'none';
   }
 }
 
 function selectChartCoin(coin, btn) {
   currentChartCoin = coin;
   document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   loadCandleChart(coin, currentTf);
 }
 
 function selectTf(tf, btn) {
   currentTf = tf;
   document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   loadCandleChart(currentChartCoin, tf);
 }
 
-
-
-
-
 function runTA(coin) {
-  const label  = coin === 'devve' ? 'DevvE' : 'FIAS';
-  const color  = coin === 'devve' ? 'var(--devve)' : 'var(--fias)';
-  const accentHex = coin === 'devve' ? '#0088cc' : '#e05a20';
-  const taEl   = document.getElementById('taResult');
-  const btns   = document.querySelectorAll('.ta-btn');
-  btns.forEach(b => b.disabled = true);
-
-  taEl.innerHTML = `<div class="ta-loading">
-    <div class="ta-spinner ${coin === 'fias' ? 'fias' : ''}"></div>
-    Technische indicatoren berekenen voor ${label}...
-  </div>`;
-
-  setTimeout(async () => {
-    try {
-      const [candles4H, candles15m] = await Promise.all([
-        coin === 'devve' ? fetchDevveCandles('4H', 7) : fetchFiasCandles('4H', 7),
-        coin === 'devve' ? fetchDevveCandles('15m', 1) : fetchFiasCandles('15m', 1),
-      ]);
-
-      const analysis = buildTA(candles4H, candles15m, label, color, accentHex);
-      taEl.innerHTML = analysis;
-
-    } catch(e) {
-      taEl.innerHTML = `<div class="error-msg" style="padding:14px;">
-        ⚠️ Data ophalen mislukt: ${e.message}<br>
-        <button onclick="runTA('${coin}')" style="margin-top:10px;padding:6px 14px;border-radius:6px;cursor:pointer;
-          font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
-          background:rgba(0,136,204,0.1);border:1px solid rgba(0,136,204,0.3);color:var(--devve);">
-          🔄 Opnieuw
-        </button>
-      </div>`;
-    }
-    btns.forEach(b => b.disabled = false);
-  }, 100);
+  const label = coin === 'devve' ? 'DevvE' : 'FIAS';
+  const taEl = document.getElementById('taResult');
+  const btns = document.querySelectorAll('.ta-btn');
+  btns.forEach(b => b.disabled = false);
+  taEl.innerHTML = '<div id="tvTechnicalWidget" style="height:460px"></div>';
+  renderTradingViewWidget('tvTechnicalWidget', 'embed-widget-technical-analysis.js', {
+    interval: getTradingViewInterval(currentTf),
+    width: '100%',
+    isTransparent: true,
+    height: 450,
+    symbol: getTradingViewSymbol(coin),
+    showIntervalTabs: true,
+    displayMode: 'single',
+    locale: 'nl_NL',
+    colorTheme: 'light'
+  });
 }
 
 // ── TA ENGINE ────────────────────────────────────────────────────────────────
