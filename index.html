@@ -1190,7 +1190,6 @@
 
   <div class="page" id="page-charts">
 
-```
 <div class="chart-card">
   <div class="chart-controls" style="margin-bottom:12px;">
     <div class="chart-coin-tabs">
@@ -1207,32 +1206,14 @@
     </div>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-    <div id="chartTitle" class="section-title devve" style="font-size:14px;margin:0;">DevvE — 1D Candlestick</div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <span id="chartCurrentPrice" style="font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--devve);"></span>
-      <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
-    </div>
+    <div id="chartTitle" class="section-title devve" style="font-size:14px;margin:0;">DevvE — TradingView chart</div>
+    <div id="chartTvNote" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);">Bron: TradingView</div>
   </div>
-  <!-- Indicator labels -->
-  <div id="chartIndicators" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;min-height:14px;"></div>
-  <!-- Candles -->
-  <div id="candleChart" style="height:260px;border-radius:6px 6px 0 0;overflow:hidden;background:#f2f4f6;"></div>
-  <!-- Volume -->
-  <div id="volumeChart" style="height:60px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
-  <!-- MACD -->
-  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
-    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">MACD(12,26,9)</span>
-    <span id="macdLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
+  <div id="tradingviewChartWrap" style="background:#f2f4f6;border:1px solid var(--border);border-radius:10px;overflow:hidden;min-height:560px;">
+    <div id="tradingviewChart" style="height:560px;"></div>
   </div>
-  <div id="macdChart" style="height:70px;overflow:hidden;background:#f2f4f6;"></div>
-  <!-- RSI -->
-  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
-    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">RSI(14)</span>
-    <span id="rsiLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
-  </div>
-  <div id="rsiChart" style="height:70px;border-radius:0 0 6px 6px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
   <div id="chartError" class="error-msg" style="display:none;margin-top:10px;"></div>
-  <div id="chartLoading" style="display:none;text-align:center;padding:60px 20px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;">⏳ Grafiek laden...</div>
+  <div id="chartLoading" style="display:none;text-align:center;padding:18px 20px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;">⏳ TradingView grafiek laden...</div>
 </div>
 
 <!-- AI Technische Analyse -->
@@ -2079,44 +2060,33 @@ function aggregateCandles(priceArr, intervalMs) {
 }
 
 async function fetchDevveCandles(tf, days) {
+  // MEXC publieke klines API via CORS proxy
   const intervalMap = { '15m':'15m', '4H':'4h', '1D':'1d', '7D':'1d', '30D':'1d', '1J':'1d' };
   const limitMap    = { '15m': 96,  '4H': 42,  '1D': 30,  '7D': 7,   '30D': 30,  '1J': 90  };
   const interval = intervalMap[tf] || '1d';
-  const limit    = limitMap[tf] || 30;
+  const limit    = limitMap[tf]    || 30;
+
   const mexcUrl = `https://api.mexc.com/api/v3/klines?symbol=DEVVEUSDT&interval=${interval}&limit=${limit}`;
-
-  let raw = null;
-  let lastErr = '';
-
+  // Try direct first, fallback to CORS proxy
+  let raw;
   try {
-    const res = await fetch(mexcUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
+    const res = await fetch(mexcUrl);
     if (!res.ok) throw new Error('direct ' + res.status);
     raw = await res.json();
-  } catch (e) {
-    lastErr = String(e && e.message ? e.message : e);
+  } catch(e) {
+    const proxy = `https://corsproxy.io/?${encodeURIComponent(mexcUrl)}`;
+    const res2 = await fetch(proxy);
+    if (!res2.ok) throw new Error('MEXC ' + res2.status);
+    raw = await res2.json();
   }
 
-  if (!raw) {
-    try {
-      const proxy = `https://corsproxy.io/?url=${encodeURIComponent(mexcUrl)}`;
-      const res2 = await fetch(proxy, { method: 'GET', headers: { 'Accept': 'application/json' } });
-      if (!res2.ok) throw new Error('proxy ' + res2.status);
-      raw = await res2.json();
-    } catch (e) {
-      lastErr = String(e && e.message ? e.message : e);
-    }
-  }
-
-  if (!Array.isArray(raw) || !raw.length) {
-    throw new Error('MEXC tijdelijk geblokkeerd, ' + lastErr);
-  }
-
+  if (!Array.isArray(raw) || !raw.length) throw new Error('Geen MEXC data');
   return raw.map(k => ({
-    time: Math.floor(k[0] / 1000),
-    open: parseFloat(k[1]),
-    high: parseFloat(k[2]),
-    low: parseFloat(k[3]),
-    close: parseFloat(k[4]),
+    time:   Math.floor(k[0] / 1000),
+    open:   parseFloat(k[1]),
+    high:   parseFloat(k[2]),
+    low:    parseFloat(k[3]),
+    close:  parseFloat(k[4]),
     volume: parseFloat(k[5]),
   }));
 }
@@ -2150,65 +2120,87 @@ async function fetchFiasCandles(tf, days) {
   return candles;
 }
 
+let tradingViewScriptPromise = null;
+
+function getTradingViewSymbol(coin) {
+  return coin === 'devve' ? 'MEXC:DEVVEUSDT' : 'UNISWAP3ETH:FIASWETH_21E88F.USD';
+}
+
+function getTradingViewInterval(tf) {
+  const map = {
+    '15m': '15',
+    '4H': '240',
+    '1D': 'D',
+    '7D': 'W',
+    '30D': 'D',
+    '1J': 'W'
+  };
+  return map[tf] || 'D';
+}
+
+function loadTradingViewScript() {
+  if (window.TradingView && typeof window.TradingView.widget === 'function') {
+    return Promise.resolve();
+  }
+  if (tradingViewScriptPromise) return tradingViewScriptPromise;
+  tradingViewScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/tv.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('TradingView script kon niet laden'));
+    document.head.appendChild(script);
+  });
+  return tradingViewScriptPromise;
+}
+
 async function loadCandleChart(coin, tf) {
   const errEl = document.getElementById('chartError');
   const loadEl = document.getElementById('chartLoading');
-  if (errEl) errEl.style.display = 'none';
-  if (loadEl) loadEl.style.display = 'block';
+  const chartEl = document.getElementById('tradingviewChart');
   const label = coin === 'devve' ? 'DevvE' : 'FIAS';
-  document.getElementById('chartTitle').textContent = `${label} — ${tf} Candlestick`;
-  document.getElementById('chartTitle').className = 'section-title ' + (coin==='devve'?'devve':'fias');
-  initLwChart();
+
+  if (errEl) {
+    errEl.style.display = 'none';
+    errEl.textContent = '';
+  }
+  if (loadEl) loadEl.style.display = 'block';
+  if (chartEl) chartEl.innerHTML = '';
+
+  const titleEl = document.getElementById('chartTitle');
+  if (titleEl) {
+    titleEl.textContent = `${label} — TradingView ${tf}`;
+    titleEl.className = 'section-title ' + (coin === 'devve' ? 'devve' : 'fias');
+  }
+
   try {
-    const days = TF_DAYS[tf] || 30;
-    let candles = coin === 'devve' ? await fetchDevveCandles(tf, days) : await fetchFiasCandles(tf, days);
-    if (coin === 'devve') lastOhlcDevve = candles; else lastOhlcFias = candles;
-    if (!candles.length) throw new Error('Geen candledata');
+    await loadTradingViewScript();
+    if (!chartEl) throw new Error('Chart container niet gevonden');
 
-    // Candles
-    lwSeries.setData(candles);
-    lwChart.timeScale().fitContent();
-
-    // Volume
-    const volData = calcVolumeArr(candles);
-    lwVolSeries.setData(volData);
-    lwVolChart.timeScale().fitContent();
-
-    // MACD
-    const macdData = calcMACDarr(candles);
-    lwMacdHist.setData(macdData.map(d => ({ time: d.time, value: d.hist, color: d.hist >= 0 ? 'rgba(26,158,90,0.7)' : 'rgba(217,48,48,0.7)' })));
-    lwMacdSeries.setData(macdData.map(d => ({ time: d.time, value: d.macd })));
-    lwMacdSignal.setData(macdData.map(d => ({ time: d.time, value: d.signal })));
-    lwMacdChart.timeScale().fitContent();
-    const lastMacd = macdData[macdData.length - 1];
-    const macdEl = document.getElementById('macdLabel');
-    if (macdEl) {
-      const col = lastMacd.hist >= 0 ? '#1a9e5a' : '#d93030';
-      macdEl.innerHTML = `<span style="color:#0088cc">MACD:${lastMacd.macd.toExponential(2)}</span> <span style="color:#e05a20">Signal:${lastMacd.signal.toExponential(2)}</span> <span style="color:${col}">Hist:${lastMacd.hist.toExponential(2)}</span>`;
+    new TradingView.widget({
+      autosize: true,
+      symbol: getTradingViewSymbol(coin),
+      interval: getTradingViewInterval(tf),
+      timezone: 'Europe/Amsterdam',
+      theme: 'light',
+      style: '1',
+      locale: 'nl_NL',
+      enable_publishing: false,
+      hide_top_toolbar: false,
+      hide_legend: false,
+      save_image: false,
+      calendar: false,
+      studies: ['MACD@tv-basicstudies', 'RSI@tv-basicstudies', 'Volume@tv-basicstudies'],
+      withdateranges: true,
+      support_host: 'https://www.tradingview.com',
+      container_id: 'tradingviewChart'
+    });
+  } catch (e) {
+    if (errEl) {
+      errEl.style.display = 'block';
+      errEl.textContent = '⚠️ TradingView grafiek kon niet laden';
     }
-
-    // RSI
-    const rsiData = calcRSIarr(candles);
-    lwRsiSeries.setData(rsiData);
-    lwRsiChart.timeScale().fitContent();
-    const lastRsi = rsiData[rsiData.length - 1]?.value;
-    const rsiEl = document.getElementById('rsiLabel');
-    if (rsiEl && lastRsi) {
-      const col = lastRsi >= 70 ? '#d93030' : lastRsi <= 30 ? '#1a9e5a' : '#c47f00';
-      rsiEl.innerHTML = `<span style="color:${col};font-weight:700">${lastRsi.toFixed(1)}</span> ${lastRsi >= 70 ? '🔴 Overbought' : lastRsi <= 30 ? '🟢 Oversold' : ''}`;
-    }
-
-    // Price display
-    const last = candles[candles.length-1], first = candles[0];
-    const priceEl = document.getElementById('chartCurrentPrice');
-    const changeEl = document.getElementById('chartCurrentChange');
-    if (priceEl) priceEl.textContent = '$' + last.close.toFixed(last.close < 0.01 ? 6 : 4);
-    if (changeEl) { const { text, cls } = fmtChange(((last.close-first.open)/first.open)*100); changeEl.textContent = text; changeEl.className = 'change-badge ' + cls; }
-
+  } finally {
     if (loadEl) loadEl.style.display = 'none';
-  } catch(e) {
-    if (loadEl) loadEl.style.display = 'none';
-    if (errEl) { errEl.style.display = 'block'; errEl.textContent = '⚠️ Grafiek fout: ' + e.message; }
   }
 }
 
