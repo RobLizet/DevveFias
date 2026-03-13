@@ -2727,11 +2727,22 @@ function calcPortfolio() {
 }
 
 // ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
+// PWA-proof initialisatie: meerdere triggers
+function initApp() {
+  if (initApp._done) return;
+  initApp._done = true;
+  dbg('initApp gestart');
   fetchPrices();
   setInterval(fetchPrices, 120000);
-  setTimeout(calcPortfolio, 4000);
-});
+  setTimeout(calcPortfolio, 5000);
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+window.addEventListener('load', initApp);
+// Direct aanroepen als document al geladen is
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  setTimeout(initApp, 50);
+}
 </script>
 
 <footer style="
