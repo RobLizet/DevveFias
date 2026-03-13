@@ -1744,33 +1744,23 @@ async function fetchCoinGeckoPrices() {
   }
 }
 
+// FIAS pair adres vast ingesteld (Uniswap V3 op Ethereum)
+const FIAS_PAIR_ADDR = '0x21e88f4482cd48deab1ca5eddabdfb14cb8ad76f';
+
 async function fetchFiasDexScreener() {
-  // DexScreener: zoek naar FIAS token, kies de meest liquide pair
   try {
-    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
+    // Direct pair ophalen via bekend adres — altijd de juiste koers
+    const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/ethereum/${FIAS_PAIR_ADDR}`);
     if (!res.ok) throw new Error(`DexScreener HTTP ${res.status}`);
     const data = await res.json();
-    const pairs = (data.pairs || []).filter(p =>
-      p.baseToken?.symbol?.toUpperCase() === 'FIAS' ||
-      p.quoteToken?.symbol?.toUpperCase() === 'FIAS'
-    );
-    if (!pairs.length) throw new Error('Geen FIAS pair gevonden');
+    const pair = data.pair || (Array.isArray(data.pairs) ? data.pairs[0] : null);
+    if (!pair) throw new Error('Geen FIAS pair gevonden');
 
-    // Sorteer op liquiditeit (hoogste eerst) en pak de beste
-    pairs.sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
-    const best = pairs[0];
-
-    // Zorg dat we de prijs van FIAS hebben (niet de quote)
-    let priceUsd = parseFloat(best.priceUsd || 0);
-    if (best.quoteToken?.symbol?.toUpperCase() === 'FIAS') {
-      // prijs is in termen van quote, invert
-      priceUsd = priceUsd > 0 ? 1 / priceUsd : 0;
-    }
-
-    const change24h = parseFloat(best.priceChange?.h24 || 0);
-    const vol24h = parseFloat(best.volume?.h24 || 0);
-    const liq = parseFloat(best.liquidity?.usd || 0);
-    const mcap = parseFloat(best.marketCap || best.fdv || 0);
+    const priceUsd  = parseFloat(pair.priceUsd || 0);
+    const change24h = parseFloat(pair.priceChange?.h24 || 0);
+    const vol24h    = parseFloat(pair.volume?.h24 || 0);
+    const liq       = parseFloat(pair.liquidity?.usd || 0);
+    const mcap      = parseFloat(pair.marketCap || pair.fdv || 0);
 
     prices.fias = {
       usd: priceUsd,
@@ -1778,17 +1768,15 @@ async function fetchFiasDexScreener() {
       usd_24h_vol: vol24h,
       usd_market_cap: mcap,
       liquidity: liq,
-      dexSource: `${best.dexId} (${best.chainId})`,
-      pairName: best.baseToken?.symbol + '/' + best.quoteToken?.symbol,
+      dexSource: `${pair.dexId} (${pair.chainId})`,
+      pairName: pair.baseToken?.symbol + '/' + pair.quoteToken?.symbol,
+      h1: parseFloat(pair.priceChange?.h1 || 0),
+      h6: parseFloat(pair.priceChange?.h6 || 0),
     };
 
-    // Vul ook de extra velden direct in
     document.getElementById('fias-mcap').textContent = mcap > 0 ? fmt(mcap) : (liq > 0 ? 'Liq: ' + fmt(liq) : '—');
     document.getElementById('fias-vol').textContent = vol24h > 0 ? fmt(vol24h) : '—';
-
-    // Dex bron tonen bij rank
-    document.getElementById('fias-rank').textContent = best.dexId || 'DEX';
-    document.getElementById('fias-rank').title = `Pair: ${best.baseToken?.symbol}/${best.quoteToken?.symbol} op ${best.chainId}`;
+    document.getElementById('fias-rank').textContent = pair.dexId || 'DEX';
 
   } catch (e) {
     const errEl = document.getElementById('api-error');
@@ -2055,61 +2043,36 @@ function aggregateCandles(priceArr, intervalMs) {
   return Object.entries(buckets).sort((a,b) => +a[0] - +b[0]).map(([ts, c]) => ({ time: Math.floor(+ts/1000), ...c }));
 }
 
+// ── DevvE candles voor ANALYSE via CoinGecko (gratis OHLC) ──
 async function fetchDevveCandles(tf, days) {
-  const intervalMap = { '15m':'15m', '4H':'4h', '1D':'1d', '7D':'1d', '30D':'1d', '1J':'1d' };
-  const limitMap    = { '15m': 96,  '4H': 42,  '1D': 30,  '7D': 7,   '30D': 30,  '1J': 90  };
-  const interval = intervalMap[tf] || '1d';
-  const limit    = limitMap[tf]    || 30;
-  const mexcUrl = `https://api.mexc.com/api/v3/klines?symbol=DEVVEUSDT&interval=${interval}&limit=${limit}`;
-
-  const urls = [
-    mexcUrl,
-    `https://corsproxy.io/?${encodeURIComponent(mexcUrl)}`,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(mexcUrl)}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(mexcUrl)}`,
-  ];
-
-  let raw;
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      if (!res.ok) continue;
-      const json = await res.json();
-      if (Array.isArray(json) && json.length) { raw = json; break; }
-    } catch(e) { continue; }
-  }
-  if (!raw) throw new Error('MEXC niet bereikbaar');
+  // Gebruik CoinGecko OHLC — gratis, geen CORS probleem
+  // days=1→hourly, days=7→4H-achtig, days=max→daily
+  const cgDays = tf === '15m' ? 1 : tf === '4H' ? 7 : tf === '1D' ? 30 : tf === '7D' ? 7 : tf === '30D' ? 30 : 90;
+  const url = `https://api.coingecko.com/api/v3/coins/devve/ohlc?vs_currency=usd&days=${cgDays}`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error('CoinGecko OHLC ' + res.status);
+  const raw = await res.json();
+  if (!Array.isArray(raw) || !raw.length) throw new Error('Geen CoinGecko OHLC data');
+  // CoinGecko: [timestamp_ms, open, high, low, close]
   return raw.map(k => ({
     time:   Math.floor(k[0] / 1000),
-    open:   parseFloat(k[1]),
-    high:   parseFloat(k[2]),
-    low:    parseFloat(k[3]),
-    close:  parseFloat(k[4]),
-    volume: parseFloat(k[5]),
+    open:   k[1], high: k[2], low: k[3], close: k[4],
+    volume: 0,
   }));
 }
 
+// ── DevvE chart = TradingView widget ──
+// ── FIAS candles via GeckoTerminal (echte DEX OHLCV) ──
 async function fetchFiasCandles(tf, days) {
-  // Stap 1: Haal FIAS pool info op via DexScreener
-  const dxRes = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
-  if (!dxRes.ok) throw new Error('DexScreener ' + dxRes.status);
-  const dxData = await dxRes.json();
-  const pairs = (dxData.pairs || [])
-    .filter(p => p.baseToken?.symbol?.toUpperCase() === 'FIAS')
-    .sort((a,b) => (b.liquidity?.usd||0)-(a.liquidity?.usd||0));
-  if (!pairs.length) throw new Error('Geen FIAS pair');
-  const pair = pairs[0];
-  const chainId = pair.chainId;       // bijv. 'bsc', 'ethereum'
-  const poolAddr = pair.pairAddress;
-
-  // Stap 2: Echte OHLCV via GeckoTerminal (gratis DEX data!)
+  const chainId  = 'ethereum';
+  const poolAddr = FIAS_PAIR_ADDR;
   const tfMap = {
-    '15m': { res: 'minute', agg: 15, limit: 96 },
-    '4H':  { res: 'hour',   agg: 4,  limit: 42 },
-    '1D':  { res: 'day',    agg: 1,  limit: 30 },
-    '7D':  { res: 'day',    agg: 1,  limit: 7  },
-    '30D': { res: 'day',    agg: 1,  limit: 30 },
-    '1J':  { res: 'day',    agg: 1,  limit: 90 },
+    '15m': { res:'minute', agg:15, limit:96 },
+    '4H':  { res:'hour',   agg:4,  limit:42 },
+    '1D':  { res:'day',    agg:1,  limit:30 },
+    '7D':  { res:'day',    agg:1,  limit:7  },
+    '30D': { res:'day',    agg:1,  limit:30 },
+    '1J':  { res:'day',    agg:1,  limit:90 },
   };
   const { res: tfRes, agg, limit } = tfMap[tf] || tfMap['1D'];
   const gtUrl = `https://api.geckoterminal.com/api/v2/networks/${chainId}/pools/${poolAddr}/ohlcv/${tfRes}?aggregate=${agg}&limit=${limit}&currency=usd`;
@@ -2120,56 +2083,166 @@ async function fetchFiasCandles(tf, days) {
     const gtData = await gtRes.json();
     const ohlcv = gtData?.data?.attributes?.ohlcv_list;
     if (ohlcv && ohlcv.length) {
-      // GeckoTerminal: [timestamp_sec, open, high, low, close, volume] — nieuwste eerst
+      // GeckoTerminal: nieuwste eerst → omdraaien
       return ohlcv.slice().reverse().map(k => ({
-        time:   k[0],
-        open:   parseFloat(k[1]),
-        high:   parseFloat(k[2]),
-        low:    parseFloat(k[3]),
-        close:  parseFloat(k[4]),
-        volume: parseFloat(k[5]),
+        time: k[0], open: parseFloat(k[1]), high: parseFloat(k[2]),
+        low: parseFloat(k[3]), close: parseFloat(k[4]), volume: parseFloat(k[5]),
       }));
     }
-  } catch(e) { /* fallback hieronder */ }
+  } catch(e) { /* gebruik fallback */ }
 
-  // Fallback: gesimuleerde candles op basis van DexScreener prijs
-  const price = parseFloat(pair.priceUsd || 0);
-  const h1  = parseFloat(pair.priceChange?.h1  || 0)/100;
-  const h24 = parseFloat(pair.priceChange?.h24 || 0)/100;
-  const p24 = price/(1+h24), p1 = price/(1+h1);
+  // Fallback: simulatie op basis van huidige FIAS prijs
+  const price = prices.fias?.usd || 0.013;
+  const h24 = (prices.fias?.usd_24h_change || 0) / 100;
+  const p24 = h24 !== -1 ? price/(1+h24) : price;
   const now = Math.floor(Date.now()/1000);
-  const configs = { '15m':[15*60,96], '4H':[4*3600,42], '1D':[86400,30], '7D':[86400,7], '30D':[86400,30], '1J':[86400,90] };
-  const [intervalSec, nCandles] = configs[tf] || [86400,30];
+  const cfg = { '15m':[900,96], '4H':[14400,42], '1D':[86400,30], '7D':[86400,7], '30D':[86400,30], '1J':[86400,90] };
+  const [iSec, nC] = cfg[tf] || [86400,30];
   const candles = [];
-  for (let i = 0; i < nCandles; i++) {
-    const t = now - intervalSec*(nCandles-i);
-    const pct = i/nCandles;
-    const base = p24 + (price - p24) * pct;
-    const n = 0.006;
-    const o = base*(1+(Math.random()-.5)*n), c = base*(1+(Math.random()-.5)*n);
-    candles.push({ time: t, open: o, high: Math.max(o,c)*(1+Math.random()*n*.5), low: Math.min(o,c)*(1-Math.random()*n*.5), close: c, volume: 0 });
+  for (let i=0; i<nC; i++) {
+    const t = now - iSec*(nC-i);
+    const base = p24 + (price-p24)*(i/nC);
+    const n=0.006, o=base*(1+(Math.random()-.5)*n), c=base*(1+(Math.random()-.5)*n);
+    candles.push({ time:t, open:o, high:Math.max(o,c)*(1+Math.random()*n*.5), low:Math.min(o,c)*(1-Math.random()*n*.5), close:c, volume:0 });
   }
   return candles;
 }
 
+let tvScriptLoaded = false;
+async function loadDevveTradingView(tf) {
+  const elC = document.getElementById('candleChart');
+  const elV = document.getElementById('volumeChart');
+  const elM = document.getElementById('macdChart');
+  const elR = document.getElementById('rsiChart');
+  const macdRow = elM?.previousElementSibling;
+  const rsiRow  = elR?.previousElementSibling;
+  const indEl   = document.getElementById('chartIndicators');
+
+  // Verberg LW panels, vergroot candle div
+  [elV, elM, elR].forEach(e => { if(e) e.style.display='none'; });
+  if (macdRow) macdRow.style.display='none';
+  if (rsiRow)  rsiRow.style.display='none';
+  if (indEl)   indEl.style.display='none';
+  if (elC) elC.style.height = '460px';
+  destroyCharts();
+  if (elC) elC.innerHTML = '';
+
+  const tfMap = { '15m':'15','4H':'240','1D':'D','7D':'W','30D':'M','1J':'12M' };
+  const titleEl = document.getElementById('chartTitle');
+  if (titleEl) { titleEl.textContent = `DevvE — ${tf} (TradingView)`; titleEl.className='section-title devve'; }
+
+  const p = prices.devve?.usd;
+  const priceEl = document.getElementById('chartCurrentPrice');
+  if (priceEl) { priceEl.textContent = p ? '$'+Number(p).toFixed(Number(p)<0.01?6:4) : ''; priceEl.style.color='var(--devve)'; }
+  const changeEl = document.getElementById('chartCurrentChange');
+  if (changeEl && prices.devve?.usd_24h_change != null) {
+    const s = fmtChange(Number(prices.devve.usd_24h_change));
+    changeEl.textContent = s.text; changeEl.className='change-badge '+s.cls;
+  }
+
+  // Laad TradingView script indien nodig
+  if (!tvScriptLoaded) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://s3.tradingview.com/tv.js';
+      s.onload = () => { tvScriptLoaded=true; res(); };
+      s.onerror = () => rej(new Error('TradingView script niet geladen'));
+      document.head.appendChild(s);
+    });
+  }
+  new TradingView.widget({
+    autosize: true,
+    symbol: 'MEXC:DEVVEUSDT',
+    interval: tfMap[tf] || 'D',
+    timezone: 'Europe/Amsterdam',
+    theme: 'light', style: '1', locale: 'nl',
+    enable_publishing: false,
+    hide_top_toolbar: false, hide_legend: false,
+    save_image: false, withdateranges: true,
+    allow_symbol_change: false, calendar: false,
+    support_host: 'https://www.tradingview.com',
+    container_id: 'candleChart',
+  });
+}
+
 async function loadCandleChart(coin, tf) {
-  const errEl = document.getElementById('chartError');
+  const errEl  = document.getElementById('chartError');
   const loadEl = document.getElementById('chartLoading');
-  if (errEl) errEl.style.display = 'none';
-  if (loadEl) loadEl.style.display = 'block';
-  const label = coin === 'devve' ? 'DevvE' : 'FIAS';
-  document.getElementById('chartTitle').textContent = `${label} — ${tf} Candlestick`;
-  document.getElementById('chartTitle').className = 'section-title ' + (coin==='devve'?'devve':'fias');
-  initLwChart();
+  if (errEl)  { errEl.style.display='none'; errEl.textContent=''; }
+  if (loadEl) loadEl.style.display='block';
+
   try {
-    const days = TF_DAYS[tf] || 30;
-    let candles = coin === 'devve' ? await fetchDevveCandles(tf, days) : await fetchFiasCandles(tf, days);
-    if (coin === 'devve') lastOhlcDevve = candles; else lastOhlcFias = candles;
+    if (coin === 'devve') {
+      await loadDevveTradingView(tf);
+      return;
+    }
+
+    // ── FIAS met LightweightCharts ──
+    const elC = document.getElementById('candleChart');
+    const elV = document.getElementById('volumeChart');
+    const elM = document.getElementById('macdChart');
+    const elR = document.getElementById('rsiChart');
+    const macdRow = elM?.previousElementSibling;
+    const rsiRow  = elR?.previousElementSibling;
+    const indEl   = document.getElementById('chartIndicators');
+    // Herstel panels
+    [elV, elM, elR].forEach(e => { if(e) e.style.display='block'; });
+    if (macdRow) macdRow.style.display='flex';
+    if (rsiRow)  rsiRow.style.display='flex';
+    if (indEl)   indEl.style.display='flex';
+    if (elC) elC.style.height='260px';
+
+    const titleEl = document.getElementById('chartTitle');
+    if (titleEl) { titleEl.textContent=`FIAS — ${tf} Candlestick`; titleEl.className='section-title fias'; }
+    initLwChart();
+    const candles = await fetchFiasCandles(tf, TF_DAYS[tf]||30);
+    lastOhlcFias = candles;
     if (!candles.length) throw new Error('Geen candledata');
 
-    // Candles
     lwSeries.setData(candles);
     lwChart.timeScale().fitContent();
+
+    const volData = calcVolumeArr(candles);
+    lwVolSeries.setData(volData);
+    lwVolChart.timeScale().fitContent();
+
+    const macdData = calcMACDarr(candles);
+    lwMacdHist.setData(macdData.map(d=>({time:d.time,value:d.hist,color:d.hist>=0?'rgba(26,158,90,0.7)':'rgba(217,48,48,0.7)'})));
+    lwMacdSeries.setData(macdData.map(d=>({time:d.time,value:d.macd})));
+    lwMacdSignal.setData(macdData.map(d=>({time:d.time,value:d.signal})));
+    lwMacdChart.timeScale().fitContent();
+
+    const lastMacd = macdData[macdData.length-1];
+    const macdEl = document.getElementById('macdLabel');
+    if (macdEl && lastMacd) {
+      const col = lastMacd.hist>=0?'#1a9e5a':'#d93030';
+      macdEl.innerHTML=`<span style="color:#0088cc">MACD:${lastMacd.macd.toExponential(2)}</span> <span style="color:#e05a20">Signal:${lastMacd.signal.toExponential(2)}</span> <span style="color:${col}">Hist:${lastMacd.hist.toExponential(2)}</span>`;
+    }
+
+    const rsiData = calcRSIarr(candles);
+    lwRsiSeries.setData(rsiData);
+    lwRsiChart.timeScale().fitContent();
+    const lastRsi = rsiData[rsiData.length-1]?.value;
+    const rsiEl = document.getElementById('rsiLabel');
+    if (rsiEl && lastRsi!=null) {
+      const col = lastRsi>=70?'#d93030':lastRsi<=30?'#1a9e5a':'#c47f00';
+      rsiEl.innerHTML=`<span style="color:${col};font-weight:700">${lastRsi.toFixed(1)}</span> ${lastRsi>=70?'🔴 Overbought':lastRsi<=30?'🟢 Oversold':''}`;
+    }
+
+    const last=candles[candles.length-1], first=candles[0];
+    const priceEl=document.getElementById('chartCurrentPrice');
+    const changeEl=document.getElementById('chartCurrentChange');
+    if (priceEl) { priceEl.textContent='$'+last.close.toFixed(last.close<0.01?6:4); priceEl.style.color='var(--fias)'; }
+    if (changeEl) {
+      const {text,cls}=fmtChange(((last.close-first.open)/first.open)*100);
+      changeEl.textContent=text; changeEl.className='change-badge '+cls;
+    }
+  } catch(e) {
+    if (errEl) { errEl.style.display='block'; errEl.textContent='⚠️ Grafiek fout: '+(e?.message||e); }
+  } finally {
+    if (loadEl) loadEl.style.display='none';
+  }
+}
 
     // Volume
     const volData = calcVolumeArr(candles);
@@ -2188,31 +2261,6 @@ async function loadCandleChart(coin, tf) {
       const col = lastMacd.hist >= 0 ? '#1a9e5a' : '#d93030';
       macdEl.innerHTML = `<span style="color:#0088cc">MACD:${lastMacd.macd.toExponential(2)}</span> <span style="color:#e05a20">Signal:${lastMacd.signal.toExponential(2)}</span> <span style="color:${col}">Hist:${lastMacd.hist.toExponential(2)}</span>`;
     }
-
-    // RSI
-    const rsiData = calcRSIarr(candles);
-    lwRsiSeries.setData(rsiData);
-    lwRsiChart.timeScale().fitContent();
-    const lastRsi = rsiData[rsiData.length - 1]?.value;
-    const rsiEl = document.getElementById('rsiLabel');
-    if (rsiEl && lastRsi) {
-      const col = lastRsi >= 70 ? '#d93030' : lastRsi <= 30 ? '#1a9e5a' : '#c47f00';
-      rsiEl.innerHTML = `<span style="color:${col};font-weight:700">${lastRsi.toFixed(1)}</span> ${lastRsi >= 70 ? '🔴 Overbought' : lastRsi <= 30 ? '🟢 Oversold' : ''}`;
-    }
-
-    // Price display
-    const last = candles[candles.length-1], first = candles[0];
-    const priceEl = document.getElementById('chartCurrentPrice');
-    const changeEl = document.getElementById('chartCurrentChange');
-    if (priceEl) priceEl.textContent = '$' + last.close.toFixed(last.close < 0.01 ? 6 : 4);
-    if (changeEl) { const { text, cls } = fmtChange(((last.close-first.open)/first.open)*100); changeEl.textContent = text; changeEl.className = 'change-badge ' + cls; }
-
-    if (loadEl) loadEl.style.display = 'none';
-  } catch(e) {
-    if (loadEl) loadEl.style.display = 'none';
-    if (errEl) { errEl.style.display = 'block'; errEl.textContent = '⚠️ Grafiek fout: ' + e.message; }
-  }
-}
 
 function selectChartCoin(coin, btn) {
   currentChartCoin = coin;
