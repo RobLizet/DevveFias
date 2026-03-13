@@ -1725,65 +1725,60 @@ async function fetchPrices() {
   fetchFearGreed();
 }
 
+// Timeout-safe fetch (iOS compatible)
+function fetchWithTimeout(url, ms) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('timeout')), ms);
+    fetch(url).then(r => { clearTimeout(timer); resolve(r); }).catch(e => { clearTimeout(timer); reject(e); });
+  });
+}
+
 async function fetchCoinGeckoPrices() {
-  // Probeer meerdere bronnen parallel, pak eerste succesvolle
   const cgUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=devve,bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true';
 
-  // CoinGecko (direct)
-  const tryCG = async () => {
-    const r = await fetch(cgUrl, { signal: AbortSignal.timeout(7000) });
-    if (!r.ok) throw new Error(r.status);
-    const d = await r.json();
-    if (!d.devve?.usd) throw new Error('geen data');
-    return d;
-  };
-
-  // CoinGecko via proxy
-  const tryCGProxy = async () => {
-    const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(cgUrl)}`, { signal: AbortSignal.timeout(7000) });
-    if (!r.ok) throw new Error(r.status);
-    const d = await r.json();
-    if (!d.devve?.usd) throw new Error('geen data');
-    return d;
-  };
-
-  let cgData = null;
-  try { cgData = await Promise.any([tryCG(), tryCGProxy()]); } catch(e) {}
-
-  if (cgData) {
-    if (cgData.devve) prices.devve = cgData.devve;
-    if (cgData.bitcoin) prices.btc = cgData.bitcoin;
-    if (cgData.ethereum) prices.eth = cgData.ethereum;
-    document.getElementById('api-error').style.display = 'none';
-    return;
-  }
-
-  // Fallback DevvE: DexScreener MEXC pair
+  // Probeer CoinGecko direct
   try {
-    const r = await fetch('https://api.dexscreener.com/latest/dex/search?q=DEVVEUSDT', { signal: AbortSignal.timeout(7000) });
+    const r = await fetchWithTimeout(cgUrl, 6000);
     if (r.ok) {
       const d = await r.json();
-      const pair = (d.pairs||[]).filter(p => p.baseToken?.symbol?.toUpperCase()==='DEVVE' && p.quoteToken?.symbol?.toUpperCase()==='USDT')
+      if (d.devve?.usd) {
+        if (d.devve) prices.devve = d.devve;
+        if (d.bitcoin) prices.btc = d.bitcoin;
+        if (d.ethereum) prices.eth = d.ethereum;
+        document.getElementById('api-error').style.display = 'none';
+        return;
+      }
+    }
+  } catch(e) {}
+
+  // Fallback: alles via DexScreener
+  try {
+    // DevvE/USDT op MEXC (DexScreener)
+    const r1 = await fetchWithTimeout('https://api.dexscreener.com/latest/dex/search?q=DEVVEUSDT', 6000);
+    if (r1.ok) {
+      const d1 = await r1.json();
+      const devvePair = (d1.pairs||[])
+        .filter(p => p.baseToken?.symbol?.toUpperCase()==='DEVVE')
         .sort((a,b)=>(b.volume?.h24||0)-(a.volume?.h24||0))[0];
-      if (pair) {
+      if (devvePair) {
         prices.devve = {
-          usd: parseFloat(pair.priceUsd||0),
-          usd_24h_change: parseFloat(pair.priceChange?.h24||0),
-          usd_market_cap: parseFloat(pair.marketCap||pair.fdv||0),
-          total_volume: parseFloat(pair.volume?.h24||0),
+          usd: parseFloat(devvePair.priceUsd||0),
+          usd_24h_change: parseFloat(devvePair.priceChange?.h24||0),
+          usd_market_cap: parseFloat(devvePair.marketCap||devvePair.fdv||0),
+          usd_24h_vol: parseFloat(devvePair.volume?.h24||0),
         };
       }
     }
   } catch(e) {}
 
-  // Fallback BTC/ETH: CoinCap
+  // BTC + ETH via CoinCap (geen CORS probleem)
   try {
-    const [rb, re] = await Promise.all([
-      fetch('https://api.coincap.io/v2/assets/bitcoin', { signal: AbortSignal.timeout(6000) }),
-      fetch('https://api.coincap.io/v2/assets/ethereum', { signal: AbortSignal.timeout(6000) }),
-    ]);
-    if (rb.ok) { const d=await rb.json(); prices.btc = { usd: parseFloat(d.data?.priceUsd), usd_24h_change: parseFloat(d.data?.changePercent24Hr), usd_market_cap: parseFloat(d.data?.marketCapUsd) }; }
-    if (re.ok) { const d=await re.json(); prices.eth = { usd: parseFloat(d.data?.priceUsd), usd_24h_change: parseFloat(d.data?.changePercent24Hr), usd_market_cap: parseFloat(d.data?.marketCapUsd) }; }
+    const r2 = await fetchWithTimeout('https://api.coincap.io/v2/assets/bitcoin', 6000);
+    if (r2.ok) { const d=await r2.json(); prices.btc = { usd: parseFloat(d.data?.priceUsd||0), usd_24h_change: parseFloat(d.data?.changePercent24Hr||0), usd_market_cap: parseFloat(d.data?.marketCapUsd||0) }; }
+  } catch(e) {}
+  try {
+    const r3 = await fetchWithTimeout('https://api.coincap.io/v2/assets/ethereum', 6000);
+    if (r3.ok) { const d=await r3.json(); prices.eth = { usd: parseFloat(d.data?.priceUsd||0), usd_24h_change: parseFloat(d.data?.changePercent24Hr||0), usd_market_cap: parseFloat(d.data?.marketCapUsd||0) }; }
   } catch(e) {}
 }
 
@@ -1793,7 +1788,7 @@ const FIAS_PAIR_ADDR = '0x21e88f4482cd48deab1ca5eddabdfb14cb8ad76f';
 async function fetchFiasDexScreener() {
   try {
     // Direct pair ophalen via bekend adres — altijd de juiste koers
-    const res = await fetch(`https://api.dexscreener.com/latest/dex/pairs/ethereum/${FIAS_PAIR_ADDR}`);
+    const res = await fetchWithTimeout(`https://api.dexscreener.com/latest/dex/pairs/ethereum/${FIAS_PAIR_ADDR}`, 6000);
     if (!res.ok) throw new Error(`DexScreener HTTP ${res.status}`);
     const data = await res.json();
     const pair = data.pair || (Array.isArray(data.pairs) ? data.pairs[0] : null);
@@ -1867,7 +1862,7 @@ async function fetchFiasSparkline() {
   try {
     // DexScreener doesn't expose candles in free API, so we get pair and build visual
     // Use the ohlcv endpoint if available, otherwise generate from price history approximation
-    const res = await fetch('https://api.dexscreener.com/latest/dex/search?q=FIAS');
+    const res = await fetchWithTimeout('https://api.dexscreener.com/latest/dex/search?q=FIAS', 6000);
     if (!res.ok) return;
     const data = await res.json();
     const pairs = (data.pairs || []).filter(p =>
@@ -2092,7 +2087,7 @@ async function fetchDevveCandles(tf, days) {
   // days=1→hourly, days=7→4H-achtig, days=max→daily
   const cgDays = tf === '15m' ? 1 : tf === '4H' ? 7 : tf === '1D' ? 30 : tf === '7D' ? 7 : tf === '30D' ? 30 : 90;
   const url = `https://api.coingecko.com/api/v3/coins/devve/ohlc?vs_currency=usd&days=${cgDays}`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+  const res = await fetch(url);
   if (!res.ok) throw new Error('CoinGecko OHLC ' + res.status);
   const raw = await res.json();
   if (!Array.isArray(raw) || !raw.length) throw new Error('Geen CoinGecko OHLC data');
@@ -2121,7 +2116,7 @@ async function fetchFiasCandles(tf, days) {
   const gtUrl = `https://api.geckoterminal.com/api/v2/networks/${chainId}/pools/${poolAddr}/ohlcv/${tfRes}?aggregate=${agg}&limit=${limit}&currency=usd`;
 
   try {
-    const gtRes = await fetch(gtUrl, { signal: AbortSignal.timeout(8000) });
+    const gtRes = await fetch(gtUrl);
     if (!gtRes.ok) throw new Error('GT ' + gtRes.status);
     const gtData = await gtRes.json();
     const ohlcv = gtData?.data?.attributes?.ohlcv_list;
