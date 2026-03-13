@@ -1726,22 +1726,48 @@ async function fetchPrices() {
 }
 
 async function fetchCoinGeckoPrices() {
+  // DevvE via CoinGecko
   try {
     const url = `https://api.coingecko.com/api/v3/simple/price?ids=devve,bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`;
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
     if (!res.ok) throw new Error(`CoinGecko HTTP ${res.status}`);
     const data = await res.json();
-    prices.devve = data.devve || null;
-    prices.btc = data.bitcoin || null;
-    prices.eth = data.ethereum || null;
+    if (data.devve) prices.devve = data.devve;
+    if (data.bitcoin) prices.btc = data.bitcoin;
+    if (data.ethereum) prices.eth = data.ethereum;
     document.getElementById('api-error').style.display = 'none';
-  } catch (e) {
-    const errEl = document.getElementById('api-error');
-    if (errEl) {
-      errEl.style.display = 'block';
-      errEl.textContent = `⚠️ CoinGecko fout: ${e.message}. Probeer over 60 sec opnieuw.`;
+    return;
+  } catch(e) { /* probeer fallback */ }
+
+  // Fallback: DevvE prijs via DexScreener MEXC pair
+  try {
+    const r = await fetch('https://api.dexscreener.com/latest/dex/search?q=DEVVE+USDT', { signal: AbortSignal.timeout(8000) });
+    if (!r.ok) throw new Error('DS DevvE ' + r.status);
+    const d = await r.json();
+    const pair = (d.pairs||[]).filter(p => p.baseToken?.symbol?.toUpperCase()==='DEVVE' && p.quoteToken?.symbol?.toUpperCase()==='USDT')
+      .sort((a,b)=>(b.liquidity?.usd||0)-(a.liquidity?.usd||0))[0];
+    if (pair) {
+      prices.devve = {
+        usd: parseFloat(pair.priceUsd||0),
+        usd_24h_change: parseFloat(pair.priceChange?.h24||0),
+        usd_market_cap: parseFloat(pair.marketCap||pair.fdv||0),
+        total_volume: parseFloat(pair.volume?.h24||0),
+      };
     }
+  } catch(e2) {
+    const errEl = document.getElementById('api-error');
+    if (errEl) { errEl.style.display='block'; errEl.textContent=`⚠️ Koersen laden mislukt: ${e2.message}`; }
   }
+
+  // BTC/ETH via CoinCap als CoinGecko faalt
+  try {
+    const [rb, re] = await Promise.all([
+      fetch('https://api.coincap.io/v2/assets/bitcoin', { signal: AbortSignal.timeout(6000) }),
+      fetch('https://api.coincap.io/v2/assets/ethereum', { signal: AbortSignal.timeout(6000) }),
+    ]);
+    if (rb.ok) { const d=await rb.json(); prices.btc = { usd: parseFloat(d.data?.priceUsd), usd_24h_change: parseFloat(d.data?.changePercent24Hr), usd_market_cap: parseFloat(d.data?.marketCapUsd) }; }
+    if (re.ok) { const d=await re.json(); prices.eth = { usd: parseFloat(d.data?.priceUsd), usd_24h_change: parseFloat(d.data?.changePercent24Hr), usd_market_cap: parseFloat(d.data?.marketCapUsd) }; }
+  } catch(e3) { /* BTC/ETH optioneel */ }
 }
 
 // FIAS pair adres vast ingesteld (Uniswap V3 op Ethereum)
@@ -2190,7 +2216,7 @@ async function loadCandleChart(coin, tf) {
     if (macdRow) macdRow.style.display='flex';
     if (rsiRow)  rsiRow.style.display='flex';
     if (indEl)   indEl.style.display='flex';
-    if (elC) elC.style.height='260px';
+    if (elC) { elC.style.height='260px'; elC.innerHTML=''; }
 
     const titleEl = document.getElementById('chartTitle');
     if (titleEl) { titleEl.textContent=`FIAS — ${tf} Candlestick`; titleEl.className='section-title fias'; }
