@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
@@ -1011,7 +1012,9 @@
     .nav-tab { padding: 7px 6px; font-size: 16px; }
   }
 </style>
+
 <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+
 </head>
 <body>
 
@@ -1019,6 +1022,7 @@
 <div class="orb orb2"></div>
 
 <!-- TICKER BAR -->
+
 <div class="ticker-bar">
   <div class="ticker-inner" id="tickerInner">
     <!-- populated by JS -->
@@ -1026,6 +1030,7 @@
 </div>
 
 <!-- HEADER -->
+
 <header>
   <div class="header-inner">
     <!-- Rij 1: Logo + Tijd -->
@@ -1055,226 +1060,244 @@
 <main>
 
   <!-- ============ PAGE: OVERVIEW ============ -->
+
   <div class="page active" id="page-overview">
 
-    <div id="lastUpdated" class="last-updated">Laden...</div>
+```
+<div id="lastUpdated" class="last-updated">Laden...</div>
+```
 
-    <!-- Price Cards -->
-    <div class="price-grid">
-      <!-- DevvE Card -->
-      <div class="price-card devve">
-        <div class="coin-header">
-          <div class="coin-identity">
-            <div class="coin-avatar devve">DEVVE</div>
-            <div class="coin-name-wrap">
-              <div class="coin-name" style="color:var(--devve)">$DevvE</div>
-              <div class="coin-fullname">Devvio | DevvE Token</div>
-            </div>
-          </div>
-          <div class="coin-rank" id="devve-rank">#—</div>
-        </div>
+<!-- DEBUG PANEEL (tijdelijk) -->
 
-        <div class="price-main devve" id="devve-price">
-          <span class="loading-shimmer"></span>
-        </div>
+<div id="debugPanel" style="
+  font-family: monospace; font-size: 11px; color: #fff;
+  background: #1a1a2e; border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 12px; line-height: 1.8; word-break: break-all;
+">Wachten op data...</div>
 
-        <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
-          <span class="change-badge flat" id="devve-change-24h">—</span>
-          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
-          <span class="change-badge flat" id="devve-change-7d">—</span>
-          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
-        </div>
-
-        <div class="price-meta">
-          <div class="price-meta-item">
-            <span class="meta-label">Marktcap</span>
-            <span class="meta-value" id="devve-mcap">—</span>
-          </div>
-          <div class="price-meta-item">
-            <span class="meta-label">Volume 24u</span>
-            <span class="meta-value" id="devve-vol">—</span>
-          </div>
-          <div class="price-meta-item">
-            <span class="meta-label">ATH</span>
-            <span class="meta-value" id="devve-ath">—</span>
-          </div>
-        </div>
-
-        <div class="mini-chart-wrap">
-          <div id="devveMiniChart" style="height:50px;width:100%;"></div>
+```
+<!-- Price Cards -->
+<div class="price-grid">
+  <!-- DevvE Card -->
+  <div class="price-card devve">
+    <div class="coin-header">
+      <div class="coin-identity">
+        <div class="coin-avatar devve">DEVVE</div>
+        <div class="coin-name-wrap">
+          <div class="coin-name" style="color:var(--devve)">$DevvE</div>
+          <div class="coin-fullname">Devvio | DevvE Token</div>
         </div>
       </div>
+      <div class="coin-rank" id="devve-rank">#—</div>
+    </div>
 
-      <!-- FIAS Card -->
-      <div class="price-card fias">
-        <div class="coin-header">
-          <div class="coin-identity">
-            <div class="coin-avatar fias">FIAS</div>
-            <div class="coin-name-wrap">
-              <div class="coin-name" style="color:var(--fias)">$FIAS</div>
-              <div class="coin-fullname">FIAS Token <span style="font-size:9px;color:var(--fias);border:1px solid var(--fias);border-radius:3px;padding:1px 5px;margin-left:4px;">DexScreener</span></div>
-            </div>
-          </div>
-          <div class="coin-rank" id="fias-rank">#—</div>
-        </div>
+    <div class="price-main devve" id="devve-price">
+      <span class="loading-shimmer"></span>
+    </div>
 
-        <div class="price-main fias" id="fias-price">
-          <span class="loading-shimmer"></span>
-        </div>
+    <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
+      <span class="change-badge flat" id="devve-change-24h">—</span>
+      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
+      <span class="change-badge flat" id="devve-change-7d">—</span>
+      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
+    </div>
 
-        <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
-          <span class="change-badge flat" id="fias-change-24h">—</span>
-          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
-          <span class="change-badge flat" id="fias-change-7d">—</span>
-          <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
-        </div>
-
-        <div class="price-meta">
-          <div class="price-meta-item">
-            <span class="meta-label">Marktcap</span>
-            <span class="meta-value" id="fias-mcap">—</span>
-          </div>
-          <div class="price-meta-item">
-            <span class="meta-label">Volume 24u</span>
-            <span class="meta-value" id="fias-vol">—</span>
-          </div>
-          <div class="price-meta-item">
-            <span class="meta-label">ATH</span>
-            <span class="meta-value" id="fias-ath">—</span>
-          </div>
-        </div>
-
-        <div class="mini-chart-wrap">
-          <div id="fiasMiniChart" style="height:50px;width:100%;"></div>
-        </div>
+    <div class="price-meta">
+      <div class="price-meta-item">
+        <span class="meta-label">Marktcap</span>
+        <span class="meta-value" id="devve-mcap">—</span>
+      </div>
+      <div class="price-meta-item">
+        <span class="meta-label">Volume 24u</span>
+        <span class="meta-value" id="devve-vol">—</span>
+      </div>
+      <div class="price-meta-item">
+        <span class="meta-label">ATH</span>
+        <span class="meta-value" id="devve-ath">—</span>
       </div>
     </div>
 
-    <!-- BTC/ETH reference -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Bitcoin (BTC)</div>
-        <div class="stat-value" id="btc-price">—</div>
-        <div class="stat-sub" id="btc-change">—</div>
+    <div class="mini-chart-wrap">
+      <div id="devveMiniChart" style="height:50px;width:100%;"></div>
+    </div>
+  </div>
+
+  <!-- FIAS Card -->
+  <div class="price-card fias">
+    <div class="coin-header">
+      <div class="coin-identity">
+        <div class="coin-avatar fias">FIAS</div>
+        <div class="coin-name-wrap">
+          <div class="coin-name" style="color:var(--fias)">$FIAS</div>
+          <div class="coin-fullname">FIAS Token <span style="font-size:9px;color:var(--fias);border:1px solid var(--fias);border-radius:3px;padding:1px 5px;margin-left:4px;">DexScreener</span></div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Ethereum (ETH)</div>
-        <div class="stat-value" id="eth-price">—</div>
-        <div class="stat-sub" id="eth-change">—</div>
+      <div class="coin-rank" id="fias-rank">#—</div>
+    </div>
+
+    <div class="price-main fias" id="fias-price">
+      <span class="loading-shimmer"></span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:10px; margin:8px 0;">
+      <span class="change-badge flat" id="fias-change-24h">—</span>
+      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">24u</span>
+      <span class="change-badge flat" id="fias-change-7d">—</span>
+      <span style="font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace">7d</span>
+    </div>
+
+    <div class="price-meta">
+      <div class="price-meta-item">
+        <span class="meta-label">Marktcap</span>
+        <span class="meta-value" id="fias-mcap">—</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Crypto Markt</div>
-        <div class="stat-value" id="total-mcap">—</div>
-        <div class="stat-sub">Total Market Cap</div>
+      <div class="price-meta-item">
+        <span class="meta-label">Volume 24u</span>
+        <span class="meta-value" id="fias-vol">—</span>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Markt Stemming</div>
-        <div class="stat-value" id="fear-greed">—</div>
-        <div class="stat-sub" id="fear-greed-label">Fear & Greed</div>
+      <div class="price-meta-item">
+        <span class="meta-label">ATH</span>
+        <span class="meta-value" id="fias-ath">—</span>
       </div>
     </div>
 
-    <div id="api-error" class="error-msg" style="display:none"></div>
+    <div class="mini-chart-wrap">
+      <div id="fiasMiniChart" style="height:50px;width:100%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BTC/ETH reference -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Bitcoin (BTC)</div>
+    <div class="stat-value" id="btc-price">—</div>
+    <div class="stat-sub" id="btc-change">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Ethereum (ETH)</div>
+    <div class="stat-value" id="eth-price">—</div>
+    <div class="stat-sub" id="eth-change">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Crypto Markt</div>
+    <div class="stat-value" id="total-mcap">—</div>
+    <div class="stat-sub">Total Market Cap</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Markt Stemming</div>
+    <div class="stat-value" id="fear-greed">—</div>
+    <div class="stat-sub" id="fear-greed-label">Fear & Greed</div>
+  </div>
+</div>
+
+<div id="api-error" class="error-msg" style="display:none"></div>
+```
 
   </div>
 
   <!-- ============ PAGE: CHARTS ============ -->
+
   <div class="page" id="page-charts">
 
-    <div class="chart-card">
-      <div class="chart-controls" style="margin-bottom:12px;">
-        <div class="chart-coin-tabs">
-          <button class="coin-tab devve active" id="coinTabDevve" onclick="selectChartCoin('devve', this)">DevvE</button>
-          <button class="coin-tab fias" id="coinTabFias" onclick="selectChartCoin('fias', this)">FIAS</button>
-        </div>
-        <div class="period-tabs">
-          <button class="period-tab" onclick="selectTf('15m', this)">15m</button>
-          <button class="period-tab" onclick="selectTf('4H', this)">4H</button>
-          <button class="period-tab active" onclick="selectTf('1D', this)">1D</button>
-          <button class="period-tab" onclick="selectTf('7D', this)">7D</button>
-          <button class="period-tab" onclick="selectTf('30D', this)">30D</button>
-          <button class="period-tab" onclick="selectTf('1J', this)">1J</button>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-        <div id="chartTitle" class="section-title devve" style="font-size:14px;margin:0;">DevvE — 1D Candlestick</div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span id="chartCurrentPrice" style="font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--devve);"></span>
-          <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
-        </div>
-      </div>
-      <!-- Indicator labels -->
-      <div id="chartIndicators" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;min-height:14px;"></div>
-      <!-- Candles -->
-      <div id="candleChart" style="height:260px;border-radius:6px 6px 0 0;overflow:hidden;background:#f2f4f6;"></div>
-      <!-- Volume -->
-      <div id="volumeChart" style="height:60px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
-      <!-- MACD -->
-      <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
-        <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">MACD(12,26,9)</span>
-        <span id="macdLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
-      </div>
-      <div id="macdChart" style="height:70px;overflow:hidden;background:#f2f4f6;"></div>
-      <!-- RSI -->
-      <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
-        <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">RSI(14)</span>
-        <span id="rsiLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
-      </div>
-      <div id="rsiChart" style="height:70px;border-radius:0 0 6px 6px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
-      <div id="chartError" class="error-msg" style="display:none;margin-top:10px;"></div>
-      <div id="chartLoading" style="display:none;text-align:center;padding:60px 20px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;">⏳ Grafiek laden...</div>
+```
+<div class="chart-card">
+  <div class="chart-controls" style="margin-bottom:12px;">
+    <div class="chart-coin-tabs">
+      <button class="coin-tab devve active" id="coinTabDevve" onclick="selectChartCoin('devve', this)">DevvE</button>
+      <button class="coin-tab fias" id="coinTabFias" onclick="selectChartCoin('fias', this)">FIAS</button>
     </div>
+    <div class="period-tabs">
+      <button class="period-tab" onclick="selectTf('15m', this)">15m</button>
+      <button class="period-tab" onclick="selectTf('4H', this)">4H</button>
+      <button class="period-tab active" onclick="selectTf('1D', this)">1D</button>
+      <button class="period-tab" onclick="selectTf('7D', this)">7D</button>
+      <button class="period-tab" onclick="selectTf('30D', this)">30D</button>
+      <button class="period-tab" onclick="selectTf('1J', this)">1J</button>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+    <div id="chartTitle" class="section-title devve" style="font-size:14px;margin:0;">DevvE — 1D Candlestick</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="chartCurrentPrice" style="font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--devve);"></span>
+      <span id="chartCurrentChange" class="change-badge flat" style="font-size:11px;"></span>
+    </div>
+  </div>
+  <!-- Indicator labels -->
+  <div id="chartIndicators" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;min-height:14px;"></div>
+  <!-- Candles -->
+  <div id="candleChart" style="height:260px;border-radius:6px 6px 0 0;overflow:hidden;background:#f2f4f6;"></div>
+  <!-- Volume -->
+  <div id="volumeChart" style="height:60px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
+  <!-- MACD -->
+  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">MACD(12,26,9)</span>
+    <span id="macdLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
+  </div>
+  <div id="macdChart" style="height:70px;overflow:hidden;background:#f2f4f6;"></div>
+  <!-- RSI -->
+  <div style="display:flex;align-items:center;gap:6px;padding:2px 4px;background:#f2f4f6;border-top:1px solid var(--border);">
+    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);">RSI(14)</span>
+    <span id="rsiLabel" style="font-family:'Share Tech Mono',monospace;font-size:9px;"></span>
+  </div>
+  <div id="rsiChart" style="height:70px;border-radius:0 0 6px 6px;overflow:hidden;background:#f2f4f6;border-top:1px solid var(--border);"></div>
+  <div id="chartError" class="error-msg" style="display:none;margin-top:10px;"></div>
+  <div id="chartLoading" style="display:none;text-align:center;padding:60px 20px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:12px;">⏳ Grafiek laden...</div>
+</div>
 
-    <!-- AI Technische Analyse -->
-    <div class="chart-card" id="taCard">
-      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-        <div class="section-title mixed" style="margin:0;">🤖 AI Technische Analyse</div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="ta-btn" onclick="runTA('devve')">📊 Analyseer DevvE</button>
-          <button class="ta-btn fias-ta" onclick="runTA('fias')">📊 Analyseer FIAS</button>
-        </div>
-      </div>
-      <div id="taResult" style="min-height:60px;">
-        <p style="font-size:12px; color:var(--muted); line-height:1.7;">
-          Klik op een analyseknop voor een dagelijkse technische analyse op basis van de 4H en 15m charts.
-          De AI kijkt naar trend, support/resistance, RSI, volume en geeft een kort advies.
-        </p>
-      </div>
+<!-- AI Technische Analyse -->
+<div class="chart-card" id="taCard">
+  <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+    <div class="section-title mixed" style="margin:0;">🤖 AI Technische Analyse</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="ta-btn" onclick="runTA('devve')">📊 Analyseer DevvE</button>
+      <button class="ta-btn fias-ta" onclick="runTA('fias')">📊 Analyseer FIAS</button>
     </div>
+  </div>
+  <div id="taResult" style="min-height:60px;">
+    <p style="font-size:12px; color:var(--muted); line-height:1.7;">
+      Klik op een analyseknop voor een dagelijkse technische analyse op basis van de 4H en 15m charts.
+      De AI kijkt naar trend, support/resistance, RSI, volume en geeft een kort advies.
+    </p>
+  </div>
+</div>
 
-    <!-- Prestaties vergelijking -->
-    <div class="chart-card">
-      <div class="section-title mixed">⚡ Prestaties Vergelijking</div>
-      <div class="stats-grid" style="margin-bottom:0;">
-        <div class="stat-card">
-          <div class="stat-label">DevvE 1D</div>
-          <div class="stat-value" id="cmp-devve-1d">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">DevvE 7D</div>
-          <div class="stat-value" id="cmp-devve-7d">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">DevvE 30D</div>
-          <div class="stat-value" id="cmp-devve-30d">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">FIAS 1D</div>
-          <div class="stat-value" id="cmp-fias-1d">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">FIAS 7D</div>
-          <div class="stat-value" id="cmp-fias-7d">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">FIAS 30D</div>
-          <div class="stat-value" id="cmp-fias-30d">—</div>
-        </div>
-      </div>
+<!-- Prestaties vergelijking -->
+<div class="chart-card">
+  <div class="section-title mixed">⚡ Prestaties Vergelijking</div>
+  <div class="stats-grid" style="margin-bottom:0;">
+    <div class="stat-card">
+      <div class="stat-label">DevvE 1D</div>
+      <div class="stat-value" id="cmp-devve-1d">—</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-label">DevvE 7D</div>
+      <div class="stat-value" id="cmp-devve-7d">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">DevvE 30D</div>
+      <div class="stat-value" id="cmp-devve-30d">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">FIAS 1D</div>
+      <div class="stat-value" id="cmp-fias-1d">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">FIAS 7D</div>
+      <div class="stat-value" id="cmp-fias-7d">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">FIAS 30D</div>
+      <div class="stat-value" id="cmp-fias-30d">—</div>
+    </div>
+  </div>
+</div>
+```
+
   </div>
 
   <!-- ============ PAGE: INFO ============ -->
+
   <div class="page" id="page-info">
     <div class="info-grid">
       <!-- DevvE Info -->
@@ -1309,215 +1332,222 @@
         </div>
       </div>
 
-      <!-- FIAS Info -->
-      <div class="info-card">
-        <h3 style="color:var(--fias)">
-          <div class="coin-avatar fias" style="width:30px;height:30px;font-size:10px;">FIAS</div>
-          Over FIAS
-        </h3>
-        <p>
-          <strong style="color:var(--text)">FIAS</strong> is een blockchain-project gericht op
-          <strong style="color:var(--fias)">financiële innovatie en asset-security</strong>. Het
-          token faciliteert transacties, biedt gebruikers toegang tot het ecosysteem en maakt
-          deelname aan governance mogelijk.
-        </p>
-        <p style="margin-top:10px;">
-          Met een focus op veiligheid en decentralisatie streeft FIAS ernaar traditionele
-          financiële systemen te verbeteren via blockchain-technologie. Het project heeft een
-          groeiende community die actief is op Telegram en sociale media.
-        </p>
-        <div style="margin-top:12px;">
-          <span class="info-tag fias">DeFi</span>
-          <span class="info-tag fias">Asset Security</span>
-          <span class="info-tag fias">Community</span>
-          <span class="info-tag fias">Blockchain</span>
-        </div>
-        <div class="link-row">
-          <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">📊 DexScreener</a>
-          <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="ext-link fias">📈 CMC</a>
-          <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">🔍 DexScreener</a>
-        </div>
-      </div>
+```
+  <!-- FIAS Info -->
+  <div class="info-card">
+    <h3 style="color:var(--fias)">
+      <div class="coin-avatar fias" style="width:30px;height:30px;font-size:10px;">FIAS</div>
+      Over FIAS
+    </h3>
+    <p>
+      <strong style="color:var(--text)">FIAS</strong> is een blockchain-project gericht op
+      <strong style="color:var(--fias)">financiële innovatie en asset-security</strong>. Het
+      token faciliteert transacties, biedt gebruikers toegang tot het ecosysteem en maakt
+      deelname aan governance mogelijk.
+    </p>
+    <p style="margin-top:10px;">
+      Met een focus op veiligheid en decentralisatie streeft FIAS ernaar traditionele
+      financiële systemen te verbeteren via blockchain-technologie. Het project heeft een
+      groeiende community die actief is op Telegram en sociale media.
+    </p>
+    <div style="margin-top:12px;">
+      <span class="info-tag fias">DeFi</span>
+      <span class="info-tag fias">Asset Security</span>
+      <span class="info-tag fias">Community</span>
+      <span class="info-tag fias">Blockchain</span>
     </div>
+    <div class="link-row">
+      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">📊 DexScreener</a>
+      <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="ext-link fias">📈 CMC</a>
+      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="ext-link fias">🔍 DexScreener</a>
+    </div>
+  </div>
+</div>
 
-    <!-- Nieuws widget -->
-    <div class="chart-card">
-      <div class="section-title mixed">📰 Crypto Nieuws</div>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Volg het laatste crypto nieuws via deze bronnen:</p>
-      <div style="display:flex; flex-wrap:wrap; gap:8px;">
-        <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="ext-link devve">CoinTelegraph DevvE</a>
-        <a href="https://cryptonews.com" target="_blank" class="ext-link">CryptoNews</a>
-        <a href="https://coindesk.com" target="_blank" class="ext-link">CoinDesk</a>
-        <a href="https://www.newsbtc.com" target="_blank" class="ext-link">NewsBTC</a>
-        <a href="https://decrypt.co" target="_blank" class="ext-link">Decrypt</a>
+<!-- Nieuws widget -->
+<div class="chart-card">
+  <div class="section-title mixed">📰 Crypto Nieuws</div>
+  <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Volg het laatste crypto nieuws via deze bronnen:</p>
+  <div style="display:flex; flex-wrap:wrap; gap:8px;">
+    <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="ext-link devve">CoinTelegraph DevvE</a>
+    <a href="https://cryptonews.com" target="_blank" class="ext-link">CryptoNews</a>
+    <a href="https://coindesk.com" target="_blank" class="ext-link">CoinDesk</a>
+    <a href="https://www.newsbtc.com" target="_blank" class="ext-link">NewsBTC</a>
+    <a href="https://decrypt.co" target="_blank" class="ext-link">Decrypt</a>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- ============ PAGE: SOCIAAL ============ -->
+
+  <div class="page" id="page-sociaal">
+
+```
+<!-- TELEGRAM KANALEN -->
+<div class="section-title mixed" style="margin-bottom:14px;">✈️ Telegram Kanalen</div>
+
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:22px;">
+
+  <!-- DevveOfficial -->
+  <div class="tg-channel-card devve-card">
+    <div class="tg-ch-header">
+      <div class="tg-ch-icon devve-icon">📢</div>
+      <div>
+        <div class="tg-ch-name">DevvE Official</div>
+        <div class="tg-ch-handle">@DevveOfficial</div>
+      </div>
+      <a href="https://t.me/DevveOfficial" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
+    </div>
+    <div class="tg-ch-desc">Officieel DevvE kanaal — aankondigingen, updates en nieuws rechtstreeks van het team.</div>
+    <div class="tg-embed-wrap">
+      <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="DevveOfficial/1" data-width="100%"></script>
+      <div class="tg-fallback">
+        <a href="https://t.me/DevveOfficial" target="_blank" class="tg-big-btn devve-btn">📲 Open @DevveOfficial in Telegram</a>
+        <a href="https://t.me/s/DevveOfficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
       </div>
     </div>
   </div>
 
-  <!-- ============ PAGE: SOCIAAL ============ -->
-  <div class="page" id="page-sociaal">
-
-    <!-- TELEGRAM KANALEN -->
-    <div class="section-title mixed" style="margin-bottom:14px;">✈️ Telegram Kanalen</div>
-
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:22px;">
-
-      <!-- DevveOfficial -->
-      <div class="tg-channel-card devve-card">
-        <div class="tg-ch-header">
-          <div class="tg-ch-icon devve-icon">📢</div>
-          <div>
-            <div class="tg-ch-name">DevvE Official</div>
-            <div class="tg-ch-handle">@DevveOfficial</div>
-          </div>
-          <a href="https://t.me/DevveOfficial" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
-        </div>
-        <div class="tg-ch-desc">Officieel DevvE kanaal — aankondigingen, updates en nieuws rechtstreeks van het team.</div>
-        <div class="tg-embed-wrap">
-          <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="DevveOfficial/1" data-width="100%"></script>
-          <div class="tg-fallback">
-            <a href="https://t.me/DevveOfficial" target="_blank" class="tg-big-btn devve-btn">📲 Open @DevveOfficial in Telegram</a>
-            <a href="https://t.me/s/DevveOfficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
-          </div>
-        </div>
+  <!-- D_Rangers -->
+  <div class="tg-channel-card devve-card">
+    <div class="tg-ch-header">
+      <div class="tg-ch-icon devve-icon">🛡️</div>
+      <div>
+        <div class="tg-ch-name">D Rangers</div>
+        <div class="tg-ch-handle">@D_Rangers</div>
       </div>
-
-      <!-- D_Rangers -->
-      <div class="tg-channel-card devve-card">
-        <div class="tg-ch-header">
-          <div class="tg-ch-icon devve-icon">🛡️</div>
-          <div>
-            <div class="tg-ch-name">D Rangers</div>
-            <div class="tg-ch-handle">@D_Rangers</div>
-          </div>
-          <a href="https://t.me/D_Rangers" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
-        </div>
-        <div class="tg-ch-desc">DevvE community rangers — discussie, signalen en community updates.</div>
-        <div class="tg-embed-wrap">
-          <div class="tg-fallback">
-            <a href="https://t.me/D_Rangers" target="_blank" class="tg-big-btn devve-btn">📲 Open @D_Rangers in Telegram</a>
-            <a href="https://t.me/s/D_Rangers" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- FiasAI -->
-      <div class="tg-channel-card fias-card">
-        <div class="tg-ch-header">
-          <div class="tg-ch-icon fias-icon">🤖</div>
-          <div>
-            <div class="tg-ch-name" style="color:var(--fias)">FIAS AI</div>
-            <div class="tg-ch-handle">@FiasAI</div>
-          </div>
-          <a href="https://t.me/FiasAI" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
-        </div>
-        <div class="tg-ch-desc">Officieel FIAS kanaal — projectupdates, AI nieuws en token informatie.</div>
-        <div class="tg-embed-wrap">
-          <div class="tg-fallback">
-            <a href="https://t.me/FiasAI" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI in Telegram</a>
-            <a href="https://t.me/s/FiasAI" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- FiasAI_unofficial -->
-      <div class="tg-channel-card fias-card">
-        <div class="tg-ch-header">
-          <div class="tg-ch-icon fias-icon">💬</div>
-          <div>
-            <div class="tg-ch-name" style="color:var(--fias)">FIAS Community</div>
-            <div class="tg-ch-handle">@FiasAI_unofficial</div>
-          </div>
-          <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
-        </div>
-        <div class="tg-ch-desc">Unofficiële FIAS community — discussie, vragen en community-gedreven content.</div>
-        <div class="tg-embed-wrap">
-          <div class="tg-fallback">
-            <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI_unofficial in Telegram</a>
-            <a href="https://t.me/s/FiasAI_unofficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
-          </div>
-        </div>
-      </div>
-
+      <a href="https://t.me/D_Rangers" target="_blank" class="tg-open-pill devve-pill">Openen ↗</a>
     </div>
-
-    <!-- SOCIALE MEDIA -->
-    <div class="section-title devve" style="margin-bottom:14px;">🌐 Sociale Media</div>
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:22px;">
-
-      <a href="https://twitter.com/devvio_inc" target="_blank" class="social-card">
-        <div class="social-icon" style="background:rgba(29,161,242,0.15);border-color:rgba(29,161,242,0.3);color:#1da1f2;">𝕏</div>
-        <div class="social-info">
-          <div class="social-name">DevvE op X/Twitter</div>
-          <div class="social-handle">@devvio_inc</div>
-        </div>
-      </a>
-
-      <a href="https://twitter.com/FiasAI_" target="_blank" class="social-card">
-        <div class="social-icon" style="background:rgba(255,107,53,0.15);border-color:rgba(255,107,53,0.3);color:var(--fias);">𝕏</div>
-        <div class="social-info">
-          <div class="social-name">FIAS op X/Twitter</div>
-          <div class="social-handle">@FiasAI_</div>
-        </div>
-      </a>
-
-      <a href="https://www.reddit.com/r/devvio" target="_blank" class="social-card">
-        <div class="social-icon" style="background:rgba(255,69,0,0.15);border-color:rgba(255,69,0,0.3);color:#ff4500;">r/</div>
-        <div class="social-info">
-          <div class="social-name">DevvE Reddit</div>
-          <div class="social-handle">r/devvio</div>
-        </div>
-      </a>
-
-      <a href="https://devvio.com" target="_blank" class="social-card">
-        <div class="social-icon" style="background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.3);color:var(--devve);">🌐</div>
-        <div class="social-info">
-          <div class="social-name">Devvio Website</div>
-          <div class="social-handle">devvio.com</div>
-        </div>
-      </a>
-
+    <div class="tg-ch-desc">DevvE community rangers — discussie, signalen en community updates.</div>
+    <div class="tg-embed-wrap">
+      <div class="tg-fallback">
+        <a href="https://t.me/D_Rangers" target="_blank" class="tg-big-btn devve-btn">📲 Open @D_Rangers in Telegram</a>
+        <a href="https://t.me/s/D_Rangers" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+      </div>
     </div>
+  </div>
 
-    <!-- NIEUWS -->
-    <div class="section-title mixed" style="margin-bottom:14px;">📰 Crypto Nieuws</div>
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:20px;">
-
-      <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="news-card devve-news">
-        <div class="news-source">CoinTelegraph</div>
-        <div class="news-desc">DevvE & Devvio nieuws en artikelen</div>
-      </a>
-
-      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="news-card fias-news">
-        <div class="news-source">DexScreener</div>
-        <div class="news-desc">Live FIAS DEX data & swaps</div>
-      </a>
-
-      <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="news-card fias-news">
-        <div class="news-source">CoinMarketCap</div>
-        <div class="news-desc">FIAS token marktdata</div>
-      </a>
-
-      <a href="https://www.coingecko.com/en/coins/devve" target="_blank" class="news-card devve-news">
-        <div class="news-source">CoinGecko</div>
-        <div class="news-desc">DevvE marktinformatie</div>
-      </a>
-
-      <a href="https://cryptonews.com" target="_blank" class="news-card">
-        <div class="news-source">CryptoNews</div>
-        <div class="news-desc">Algemeen crypto nieuws</div>
-      </a>
-
-      <a href="https://coindesk.com" target="_blank" class="news-card">
-        <div class="news-source">CoinDesk</div>
-        <div class="news-desc">Blockchain & crypto media</div>
-      </a>
-
+  <!-- FiasAI -->
+  <div class="tg-channel-card fias-card">
+    <div class="tg-ch-header">
+      <div class="tg-ch-icon fias-icon">🤖</div>
+      <div>
+        <div class="tg-ch-name" style="color:var(--fias)">FIAS AI</div>
+        <div class="tg-ch-handle">@FiasAI</div>
+      </div>
+      <a href="https://t.me/FiasAI" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
     </div>
+    <div class="tg-ch-desc">Officieel FIAS kanaal — projectupdates, AI nieuws en token informatie.</div>
+    <div class="tg-embed-wrap">
+      <div class="tg-fallback">
+        <a href="https://t.me/FiasAI" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI in Telegram</a>
+        <a href="https://t.me/s/FiasAI" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FiasAI_unofficial -->
+  <div class="tg-channel-card fias-card">
+    <div class="tg-ch-header">
+      <div class="tg-ch-icon fias-icon">💬</div>
+      <div>
+        <div class="tg-ch-name" style="color:var(--fias)">FIAS Community</div>
+        <div class="tg-ch-handle">@FiasAI_unofficial</div>
+      </div>
+      <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-open-pill fias-pill">Openen ↗</a>
+    </div>
+    <div class="tg-ch-desc">Unofficiële FIAS community — discussie, vragen en community-gedreven content.</div>
+    <div class="tg-embed-wrap">
+      <div class="tg-fallback">
+        <a href="https://t.me/FiasAI_unofficial" target="_blank" class="tg-big-btn fias-btn">📲 Open @FiasAI_unofficial in Telegram</a>
+        <a href="https://t.me/s/FiasAI_unofficial" target="_blank" class="tg-big-btn outline-btn" style="margin-top:8px;">🌐 Webversie bekijken</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SOCIALE MEDIA -->
+<div class="section-title devve" style="margin-bottom:14px;">🌐 Sociale Media</div>
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:22px;">
+
+  <a href="https://twitter.com/devvio_inc" target="_blank" class="social-card">
+    <div class="social-icon" style="background:rgba(29,161,242,0.15);border-color:rgba(29,161,242,0.3);color:#1da1f2;">𝕏</div>
+    <div class="social-info">
+      <div class="social-name">DevvE op X/Twitter</div>
+      <div class="social-handle">@devvio_inc</div>
+    </div>
+  </a>
+
+  <a href="https://twitter.com/FiasAI_" target="_blank" class="social-card">
+    <div class="social-icon" style="background:rgba(255,107,53,0.15);border-color:rgba(255,107,53,0.3);color:var(--fias);">𝕏</div>
+    <div class="social-info">
+      <div class="social-name">FIAS op X/Twitter</div>
+      <div class="social-handle">@FiasAI_</div>
+    </div>
+  </a>
+
+  <a href="https://www.reddit.com/r/devvio" target="_blank" class="social-card">
+    <div class="social-icon" style="background:rgba(255,69,0,0.15);border-color:rgba(255,69,0,0.3);color:#ff4500;">r/</div>
+    <div class="social-info">
+      <div class="social-name">DevvE Reddit</div>
+      <div class="social-handle">r/devvio</div>
+    </div>
+  </a>
+
+  <a href="https://devvio.com" target="_blank" class="social-card">
+    <div class="social-icon" style="background:rgba(0,212,255,0.15);border-color:rgba(0,212,255,0.3);color:var(--devve);">🌐</div>
+    <div class="social-info">
+      <div class="social-name">Devvio Website</div>
+      <div class="social-handle">devvio.com</div>
+    </div>
+  </a>
+
+</div>
+
+<!-- NIEUWS -->
+<div class="section-title mixed" style="margin-bottom:14px;">📰 Crypto Nieuws</div>
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-bottom:20px;">
+
+  <a href="https://cointelegraph.com/tags/devvio" target="_blank" class="news-card devve-news">
+    <div class="news-source">CoinTelegraph</div>
+    <div class="news-desc">DevvE & Devvio nieuws en artikelen</div>
+  </a>
+
+  <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="news-card fias-news">
+    <div class="news-source">DexScreener</div>
+    <div class="news-desc">Live FIAS DEX data & swaps</div>
+  </a>
+
+  <a href="https://coinmarketcap.com/currencies/fias/" target="_blank" class="news-card fias-news">
+    <div class="news-source">CoinMarketCap</div>
+    <div class="news-desc">FIAS token marktdata</div>
+  </a>
+
+  <a href="https://www.coingecko.com/en/coins/devve" target="_blank" class="news-card devve-news">
+    <div class="news-source">CoinGecko</div>
+    <div class="news-desc">DevvE marktinformatie</div>
+  </a>
+
+  <a href="https://cryptonews.com" target="_blank" class="news-card">
+    <div class="news-source">CryptoNews</div>
+    <div class="news-desc">Algemeen crypto nieuws</div>
+  </a>
+
+  <a href="https://coindesk.com" target="_blank" class="news-card">
+    <div class="news-source">CoinDesk</div>
+    <div class="news-desc">Blockchain & crypto media</div>
+  </a>
+
+</div>
+```
 
   </div>
 
   <!-- ============ PAGE: PORTFOLIO ============ -->
+
   <div class="page" id="page-portfolio">
     <div class="portfolio-form">
       <div class="section-title mixed" style="margin-bottom:16px;">💼 Portfolio Berekening</div>
@@ -1542,47 +1572,50 @@
       <button class="calc-btn" onclick="calcPortfolio()">📊 Bereken Portfolio</button>
     </div>
 
-    <div class="portfolio-result" id="portfolioResult">
-      <div class="section-title mixed" style="margin-bottom:14px;">Resultaat</div>
-      <div class="result-grid">
-        <div class="result-item">
-          <div class="result-label">DevvE Waarde</div>
-          <div class="result-value devve" id="res-devve-val">$0</div>
-        </div>
-        <div class="result-item">
-          <div class="result-label">DevvE Investering</div>
-          <div class="result-value" id="res-devve-inv" style="color:var(--text)">$0</div>
-        </div>
-        <div class="result-item">
-          <div class="result-label">DevvE P&L</div>
-          <div class="result-value" id="res-devve-pl">$0</div>
-        </div>
-        <div class="result-item">
-          <div class="result-label">FIAS Waarde</div>
-          <div class="result-value fias" id="res-fias-val">$0</div>
-        </div>
-        <div class="result-item">
-          <div class="result-label">FIAS Investering</div>
-          <div class="result-value" id="res-fias-inv" style="color:var(--text)">$0</div>
-        </div>
-        <div class="result-item">
-          <div class="result-label">FIAS P&L</div>
-          <div class="result-value" id="res-fias-pl">$0</div>
-        </div>
-        <div class="result-item" style="grid-column: 1/-1; background: rgba(255,213,79,0.05); border-color: rgba(255,213,79,0.2);">
-          <div class="result-label">Totale Portfolio Waarde</div>
-          <div class="result-value total" id="res-total" style="font-size:24px;">$0</div>
-        </div>
-        <div class="result-item">
-          <div class="result-label">Totale P&L</div>
-          <div class="result-value" id="res-total-pl" style="font-size:20px;">$0</div>
-        </div>
-        <div class="result-item">
-          <div class="result-label">Rendement</div>
-          <div class="result-value" id="res-pct" style="font-size:20px;">0%</div>
-        </div>
-      </div>
+```
+<div class="portfolio-result" id="portfolioResult">
+  <div class="section-title mixed" style="margin-bottom:14px;">Resultaat</div>
+  <div class="result-grid">
+    <div class="result-item">
+      <div class="result-label">DevvE Waarde</div>
+      <div class="result-value devve" id="res-devve-val">$0</div>
     </div>
+    <div class="result-item">
+      <div class="result-label">DevvE Investering</div>
+      <div class="result-value" id="res-devve-inv" style="color:var(--text)">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">DevvE P&L</div>
+      <div class="result-value" id="res-devve-pl">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">FIAS Waarde</div>
+      <div class="result-value fias" id="res-fias-val">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">FIAS Investering</div>
+      <div class="result-value" id="res-fias-inv" style="color:var(--text)">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">FIAS P&L</div>
+      <div class="result-value" id="res-fias-pl">$0</div>
+    </div>
+    <div class="result-item" style="grid-column: 1/-1; background: rgba(255,213,79,0.05); border-color: rgba(255,213,79,0.2);">
+      <div class="result-label">Totale Portfolio Waarde</div>
+      <div class="result-value total" id="res-total" style="font-size:24px;">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">Totale P&L</div>
+      <div class="result-value" id="res-total-pl" style="font-size:20px;">$0</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">Rendement</div>
+      <div class="result-value" id="res-pct" style="font-size:20px;">0%</div>
+    </div>
+  </div>
+</div>
+```
+
   </div>
 
 </main>
@@ -1703,11 +1736,14 @@ function updateTicker() {
 
 // ===== FETCH PRICES =====
 async function fetchPrices() {
+  dbg('fetchPrices gestart');
   const btn = document.getElementById('refreshBtn');
   if (btn) btn.classList.add('spinning');
 
   // Fetch DevvE + BTC/ETH via CoinGecko, FIAS via DexScreener (parallel)
   await Promise.all([fetchCoinGeckoPrices(), fetchFiasDexScreener()]);
+
+  dbg('Fetches klaar. DevvE=' + (prices.devve ? '$'+prices.devve.usd : 'null') + ' FIAS=' + (prices.fias ? '$'+prices.fias.usd : 'null'));
 
   updatePriceCards();
   updateTicker();
@@ -1723,6 +1759,15 @@ async function fetchPrices() {
 
   fetchCoinDetails();
   fetchFearGreed();
+}
+
+// ===== DEBUG LOGGER =====
+var debugLog = [];
+function dbg(msg) {
+  var t = new Date().toLocaleTimeString('nl-NL');
+  debugLog.push('[' + t + '] ' + msg);
+  var el = document.getElementById('debugPanel');
+  if (el) el.innerHTML = debugLog.slice(-8).join('<br>');
 }
 
 // Timeout-safe fetch (iOS compatible)
@@ -1760,24 +1805,30 @@ async function fetchCoinGeckoPrices() {
 }
 
 async function fetchDevveDexScreener() {
+  dbg('DevvE fetch start...');
   try {
     const r = await fetchWithTimeout('https://api.dexscreener.com/latest/dex/search?q=DEVVEUSDT', 6000);
+    dbg('DevvE response: ' + r.status);
     if (!r.ok) throw new Error('DS ' + r.status);
     const d = await r.json();
     const pairs = (d.pairs || []).filter(function(p) {
       return p.baseToken && p.baseToken.symbol && p.baseToken.symbol.toUpperCase() === 'DEVVE';
     }).sort(function(a,b) { return (b.volume && b.volume.h24 || 0) - (a.volume && a.volume.h24 || 0); });
+    dbg('DevvE pairs: ' + pairs.length);
     if (!pairs.length) throw new Error('geen pair');
     const pair = pairs[0];
+    const prijs = parseFloat(pair.priceUsd || 0);
+    dbg('DevvE prijs: $' + prijs);
     prices.devve = {
-      usd: parseFloat(pair.priceUsd || 0),
+      usd: prijs,
       usd_24h_change: parseFloat((pair.priceChange && pair.priceChange.h24) || 0),
       usd_market_cap: parseFloat(pair.marketCap || pair.fdv || 0),
       usd_24h_vol: parseFloat((pair.volume && pair.volume.h24) || 0),
     };
   } catch(e) {
+    dbg('DevvE FOUT: ' + e.message);
     var errEl = document.getElementById('api-error');
-    if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'DevvE koers fout: ' + e.message; }
+    if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'DevvE: ' + e.message; }
   }
 }
 
@@ -1785,18 +1836,20 @@ async function fetchDevveDexScreener() {
 const FIAS_PAIR_ADDR = '0x21e88f4482cd48deab1ca5eddabdfb14cb8ad76f';
 
 async function fetchFiasDexScreener() {
+  dbg('FIAS fetch start...');
   try {
-    // Direct pair ophalen via bekend adres — altijd de juiste koers
     const res = await fetchWithTimeout(`https://api.dexscreener.com/latest/dex/pairs/ethereum/${FIAS_PAIR_ADDR}`, 6000);
+    dbg('FIAS response: ' + res.status);
     if (!res.ok) throw new Error(`DexScreener HTTP ${res.status}`);
     const data = await res.json();
     const pair = data.pair || (Array.isArray(data.pairs) ? data.pairs[0] : null);
     if (!pair) throw new Error('Geen FIAS pair gevonden');
 
     const priceUsd  = parseFloat(pair.priceUsd || 0);
-    const change24h = parseFloat(pair.priceChange?.h24 || 0);
-    const vol24h    = parseFloat(pair.volume?.h24 || 0);
-    const liq       = parseFloat(pair.liquidity?.usd || 0);
+    dbg('FIAS prijs: $' + priceUsd);
+    const change24h = parseFloat((pair.priceChange && pair.priceChange.h24) || 0);
+    const vol24h    = parseFloat((pair.volume && pair.volume.h24) || 0);
+    const liq       = parseFloat((pair.liquidity && pair.liquidity.usd) || 0);
     const mcap      = parseFloat(pair.marketCap || pair.fdv || 0);
 
     prices.fias = {
@@ -2681,7 +2734,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-
 <footer style="
   position: relative; z-index: 1;
   border-top: 1px solid var(--border);
@@ -2691,40 +2743,42 @@ document.addEventListener('DOMContentLoaded', () => {
 ">
   <div style="max-width:1200px; margin:0 auto;">
 
-    <!-- Links rij 1: DevvE -->
-    <div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--devve); text-transform:uppercase; margin-bottom:8px;">DevvE</div>
-    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-      <a href="https://devve.com/" target="_blank" class="footer-link devve-link">🌐 devve.com</a>
-      <a href="https://www.devvelaunchpad.io/stake" target="_blank" class="footer-link devve-link">🚀 LaunchPad Staking</a>
-      <a href="https://devvx.glassblock.io/login" target="_blank" class="footer-link devve-link">🔷 DevvX Glassblock</a>
-    </div>
+```
+<!-- Links rij 1: DevvE -->
+<div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--devve); text-transform:uppercase; margin-bottom:8px;">DevvE</div>
+<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+  <a href="https://devve.com/" target="_blank" class="footer-link devve-link">🌐 devve.com</a>
+  <a href="https://www.devvelaunchpad.io/stake" target="_blank" class="footer-link devve-link">🚀 LaunchPad Staking</a>
+  <a href="https://devvx.glassblock.io/login" target="_blank" class="footer-link devve-link">🔷 DevvX Glassblock</a>
+</div>
 
-    <!-- Links rij 2: FIAS -->
-    <div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--fias); text-transform:uppercase; margin-bottom:8px;">FIAS</div>
-    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
-      <a href="https://www.fias.io/" target="_blank" class="footer-link fias-link">🌐 fias.io</a>
-      <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="footer-link fias-link">📊 DexScreener</a>
-    </div>
+<!-- Links rij 2: FIAS -->
+<div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--fias); text-transform:uppercase; margin-bottom:8px;">FIAS</div>
+<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+  <a href="https://www.fias.io/" target="_blank" class="footer-link fias-link">🌐 fias.io</a>
+  <a href="https://dexscreener.com/search?q=FIAS" target="_blank" class="footer-link fias-link">📊 DexScreener</a>
+</div>
 
-    <!-- Links rij 3: YouTube -->
-    <div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:#ff0000; text-transform:uppercase; margin-bottom:8px;">YouTube</div>
-    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
-      <a href="https://youtube.com/@devve_ecosystem?si=5DOrUlIuqmKKQX1K" target="_blank" class="footer-link yt-link">▶ DevvE Ecosystem</a>
-      <a href="https://youtube.com/@tomlucient?si=R9pQgsQENhloqaH2" target="_blank" class="footer-link yt-link">▶ Tom Lucient</a>
-    </div>
+<!-- Links rij 3: YouTube -->
+<div style="font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; color:#ff0000; text-transform:uppercase; margin-bottom:8px;">YouTube</div>
+<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
+  <a href="https://youtube.com/@devve_ecosystem?si=5DOrUlIuqmKKQX1K" target="_blank" class="footer-link yt-link">▶ DevvE Ecosystem</a>
+  <a href="https://youtube.com/@tomlucient?si=R9pQgsQENhloqaH2" target="_blank" class="footer-link yt-link">▶ Tom Lucient</a>
+</div>
 
-    <!-- Divider + credit -->
-    <div style="border-top:1px solid var(--border); padding-top:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-      <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <a href="https://t.me/DevveOfficial" target="_blank" class="footer-link muted-link">✈️ @DevveOfficial</a>
-        <a href="https://t.me/D_Rangers" target="_blank" class="footer-link muted-link">✈️ @D_Rangers</a>
-        <a href="https://t.me/FiasAI" target="_blank" class="footer-link muted-link">✈️ @FiasAI</a>
-        <a href="https://t.me/FiasAI_unofficial" target="_blank" class="footer-link muted-link">✈️ @FiasAI_unofficial</a>
-      </div>
-      <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.5px; white-space:nowrap;">
-        Made by <span style="color:var(--devve);">Rob Borghouts</span> &mdash; 2026
-      </div>
-    </div>
+<!-- Divider + credit -->
+<div style="border-top:1px solid var(--border); padding-top:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <a href="https://t.me/DevveOfficial" target="_blank" class="footer-link muted-link">✈️ @DevveOfficial</a>
+    <a href="https://t.me/D_Rangers" target="_blank" class="footer-link muted-link">✈️ @D_Rangers</a>
+    <a href="https://t.me/FiasAI" target="_blank" class="footer-link muted-link">✈️ @FiasAI</a>
+    <a href="https://t.me/FiasAI_unofficial" target="_blank" class="footer-link muted-link">✈️ @FiasAI_unofficial</a>
+  </div>
+  <div style="font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.5px; white-space:nowrap;">
+    Made by <span style="color:var(--devve);">Rob Borghouts</span> &mdash; 2026
+  </div>
+</div>
+```
 
   </div>
 </footer>
