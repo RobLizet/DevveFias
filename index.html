@@ -1065,17 +1065,9 @@
 
 ```
 <div id="lastUpdated" class="last-updated">Laden...</div>
-```
 
-<!-- DEBUG PANEEL (tijdelijk) -->
 
-<div id="debugPanel" style="
-  font-family: monospace; font-size: 11px; color: #fff;
-  background: #1a1a2e; border-radius: 8px; padding: 10px 12px;
-  margin-bottom: 12px; line-height: 1.8; word-break: break-all;
-">Wachten op data...</div>
 
-```
 <!-- Price Cards -->
 <div class="price-grid">
   <!-- DevvE Card -->
@@ -1736,14 +1728,12 @@ function updateTicker() {
 
 // ===== FETCH PRICES =====
 async function fetchPrices() {
-  dbg('fetchPrices gestart');
+  
   const btn = document.getElementById('refreshBtn');
   if (btn) btn.classList.add('spinning');
 
   // Fetch DevvE + BTC/ETH via CoinGecko, FIAS via DexScreener (parallel)
   await Promise.all([fetchCoinGeckoPrices(), fetchFiasDexScreener()]);
-
-  dbg('Fetches klaar. DevvE=' + (prices.devve ? '$'+prices.devve.usd : 'null') + ' FIAS=' + (prices.fias ? '$'+prices.fias.usd : 'null'));
 
   updatePriceCards();
   updateTicker();
@@ -1759,15 +1749,6 @@ async function fetchPrices() {
 
   fetchCoinDetails();
   fetchFearGreed();
-}
-
-// ===== DEBUG LOGGER =====
-var debugLog = [];
-function dbg(msg) {
-  var t = new Date().toLocaleTimeString('nl-NL');
-  debugLog.push('[' + t + '] ' + msg);
-  var el = document.getElementById('debugPanel');
-  if (el) el.innerHTML = debugLog.slice(-8).join('<br>');
 }
 
 // Timeout-safe fetch (iOS compatible)
@@ -1805,20 +1786,20 @@ async function fetchCoinGeckoPrices() {
 }
 
 async function fetchDevveDexScreener() {
-  dbg('DevvE fetch start...');
+  
   try {
     const r = await fetchWithTimeout('https://api.dexscreener.com/latest/dex/search?q=DEVVEUSDT', 6000);
-    dbg('DevvE response: ' + r.status);
+    
     if (!r.ok) throw new Error('DS ' + r.status);
     const d = await r.json();
     const pairs = (d.pairs || []).filter(function(p) {
       return p.baseToken && p.baseToken.symbol && p.baseToken.symbol.toUpperCase() === 'DEVVE';
     }).sort(function(a,b) { return (b.volume && b.volume.h24 || 0) - (a.volume && a.volume.h24 || 0); });
-    dbg('DevvE pairs: ' + pairs.length);
+    
     if (!pairs.length) throw new Error('geen pair');
     const pair = pairs[0];
     const prijs = parseFloat(pair.priceUsd || 0);
-    dbg('DevvE prijs: $' + prijs);
+    
     prices.devve = {
       usd: prijs,
       usd_24h_change: parseFloat((pair.priceChange && pair.priceChange.h24) || 0),
@@ -1826,7 +1807,7 @@ async function fetchDevveDexScreener() {
       usd_24h_vol: parseFloat((pair.volume && pair.volume.h24) || 0),
     };
   } catch(e) {
-    dbg('DevvE FOUT: ' + e.message);
+    
     var errEl = document.getElementById('api-error');
     if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'DevvE: ' + e.message; }
   }
@@ -1836,17 +1817,17 @@ async function fetchDevveDexScreener() {
 const FIAS_PAIR_ADDR = '0x21e88f4482cd48deab1ca5eddabdfb14cb8ad76f';
 
 async function fetchFiasDexScreener() {
-  dbg('FIAS fetch start...');
+  
   try {
     const res = await fetchWithTimeout(`https://api.dexscreener.com/latest/dex/pairs/ethereum/${FIAS_PAIR_ADDR}`, 6000);
-    dbg('FIAS response: ' + res.status);
+    
     if (!res.ok) throw new Error(`DexScreener HTTP ${res.status}`);
     const data = await res.json();
     const pair = data.pair || (Array.isArray(data.pairs) ? data.pairs[0] : null);
     if (!pair) throw new Error('Geen FIAS pair gevonden');
 
     const priceUsd  = parseFloat(pair.priceUsd || 0);
-    dbg('FIAS prijs: $' + priceUsd);
+    
     const change24h = parseFloat((pair.priceChange && pair.priceChange.h24) || 0);
     const vol24h    = parseFloat((pair.volume && pair.volume.h24) || 0);
     const liq       = parseFloat((pair.liquidity && pair.liquidity.usd) || 0);
@@ -2713,7 +2694,7 @@ function calcPortfolio() {
 function initApp() {
   if (initApp._done) return;
   initApp._done = true;
-  dbg('initApp gestart');
+  
   fetchPrices();
   setInterval(fetchPrices, 120000);
   setTimeout(calcPortfolio, 5000);
