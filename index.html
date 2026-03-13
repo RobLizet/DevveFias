@@ -1727,59 +1727,58 @@ async function fetchPrices() {
 
 // Timeout-safe fetch (iOS compatible)
 function fetchWithTimeout(url, ms) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('timeout')), ms);
-    fetch(url).then(r => { clearTimeout(timer); resolve(r); }).catch(e => { clearTimeout(timer); reject(e); });
+  return new Promise(function(resolve, reject) {
+    var timer = setTimeout(function() { reject(new Error('timeout')); }, ms);
+    fetch(url).then(function(r) { clearTimeout(timer); resolve(r); }).catch(function(e) { clearTimeout(timer); reject(e); });
   });
 }
 
 async function fetchCoinGeckoPrices() {
-  const cgUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=devve,bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true';
+  // Stap 1: DevvE + FIAS via DexScreener (meest betrouwbaar, geen rate limit)
+  await Promise.all([fetchDevveDexScreener(), fetchFiasDexScreener()]);
 
-  // Probeer CoinGecko direct
+  // Stap 2: BTC + ETH via CoinCap (gratis, geen CORS)
   try {
-    const r = await fetchWithTimeout(cgUrl, 6000);
+    const rb = await fetchWithTimeout('https://api.coincap.io/v2/assets/bitcoin', 6000);
+    if (rb.ok) { const d = await rb.json(); prices.btc = { usd: parseFloat(d.data.priceUsd||0), usd_24h_change: parseFloat(d.data.changePercent24Hr||0), usd_market_cap: parseFloat(d.data.marketCapUsd||0) }; }
+  } catch(e) {}
+  try {
+    const re = await fetchWithTimeout('https://api.coincap.io/v2/assets/ethereum', 6000);
+    if (re.ok) { const d = await re.json(); prices.eth = { usd: parseFloat(d.data.priceUsd||0), usd_24h_change: parseFloat(d.data.changePercent24Hr||0), usd_market_cap: parseFloat(d.data.marketCapUsd||0) }; }
+  } catch(e) {}
+
+  // Stap 3: Probeer ook CoinGecko voor extra DevvE info (niet kritisch)
+  try {
+    const r = await fetchWithTimeout('https://api.coingecko.com/api/v3/simple/price?ids=devve,bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true', 5000);
     if (r.ok) {
       const d = await r.json();
-      if (d.devve?.usd) {
-        if (d.devve) prices.devve = d.devve;
-        if (d.bitcoin) prices.btc = d.bitcoin;
-        if (d.ethereum) prices.eth = d.ethereum;
-        document.getElementById('api-error').style.display = 'none';
-        return;
-      }
+      if (d.devve && d.devve.usd > 0) prices.devve = d.devve;
+      if (d.bitcoin && d.bitcoin.usd > 0) prices.btc = d.bitcoin;
+      if (d.ethereum && d.ethereum.usd > 0) prices.eth = d.ethereum;
     }
   } catch(e) {}
+}
 
-  // Fallback: alles via DexScreener
+async function fetchDevveDexScreener() {
   try {
-    // DevvE/USDT op MEXC (DexScreener)
-    const r1 = await fetchWithTimeout('https://api.dexscreener.com/latest/dex/search?q=DEVVEUSDT', 6000);
-    if (r1.ok) {
-      const d1 = await r1.json();
-      const devvePair = (d1.pairs||[])
-        .filter(p => p.baseToken?.symbol?.toUpperCase()==='DEVVE')
-        .sort((a,b)=>(b.volume?.h24||0)-(a.volume?.h24||0))[0];
-      if (devvePair) {
-        prices.devve = {
-          usd: parseFloat(devvePair.priceUsd||0),
-          usd_24h_change: parseFloat(devvePair.priceChange?.h24||0),
-          usd_market_cap: parseFloat(devvePair.marketCap||devvePair.fdv||0),
-          usd_24h_vol: parseFloat(devvePair.volume?.h24||0),
-        };
-      }
-    }
-  } catch(e) {}
-
-  // BTC + ETH via CoinCap (geen CORS probleem)
-  try {
-    const r2 = await fetchWithTimeout('https://api.coincap.io/v2/assets/bitcoin', 6000);
-    if (r2.ok) { const d=await r2.json(); prices.btc = { usd: parseFloat(d.data?.priceUsd||0), usd_24h_change: parseFloat(d.data?.changePercent24Hr||0), usd_market_cap: parseFloat(d.data?.marketCapUsd||0) }; }
-  } catch(e) {}
-  try {
-    const r3 = await fetchWithTimeout('https://api.coincap.io/v2/assets/ethereum', 6000);
-    if (r3.ok) { const d=await r3.json(); prices.eth = { usd: parseFloat(d.data?.priceUsd||0), usd_24h_change: parseFloat(d.data?.changePercent24Hr||0), usd_market_cap: parseFloat(d.data?.marketCapUsd||0) }; }
-  } catch(e) {}
+    const r = await fetchWithTimeout('https://api.dexscreener.com/latest/dex/search?q=DEVVEUSDT', 6000);
+    if (!r.ok) throw new Error('DS ' + r.status);
+    const d = await r.json();
+    const pairs = (d.pairs || []).filter(function(p) {
+      return p.baseToken && p.baseToken.symbol && p.baseToken.symbol.toUpperCase() === 'DEVVE';
+    }).sort(function(a,b) { return (b.volume && b.volume.h24 || 0) - (a.volume && a.volume.h24 || 0); });
+    if (!pairs.length) throw new Error('geen pair');
+    const pair = pairs[0];
+    prices.devve = {
+      usd: parseFloat(pair.priceUsd || 0),
+      usd_24h_change: parseFloat((pair.priceChange && pair.priceChange.h24) || 0),
+      usd_market_cap: parseFloat(pair.marketCap || pair.fdv || 0),
+      usd_24h_vol: parseFloat((pair.volume && pair.volume.h24) || 0),
+    };
+  } catch(e) {
+    var errEl = document.getElementById('api-error');
+    if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'DevvE koers fout: ' + e.message; }
+  }
 }
 
 // FIAS pair adres vast ingesteld (Uniswap V3 op Ethereum)
@@ -1827,73 +1826,39 @@ async function fetchFiasDexScreener() {
 }
 
 async function fetchCoinDetails() {
+  // DevvE sparkline via CoinGecko (optioneel, niet kritisch)
   try {
-    // DevvE details
-    const r1 = await fetch('https://api.coingecko.com/api/v3/coins/devve?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true');
+    const r1 = await fetchWithTimeout('https://api.coingecko.com/api/v3/coins/devve?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=true', 5000);
     if (r1.ok) {
       const d = await r1.json();
-      document.getElementById('devve-rank').textContent = '#' + (d.market_cap_rank || '—');
-      document.getElementById('devve-mcap').textContent = d.market_data?.market_cap?.usd ? fmt(d.market_data.market_cap.usd) : '—';
-      document.getElementById('devve-vol').textContent = d.market_data?.total_volume?.usd ? fmt(d.market_data.total_volume.usd) : '—';
-      document.getElementById('devve-ath').textContent = d.market_data?.ath?.usd ? fmt(d.market_data.ath.usd) : '—';
-      setChange('devve-change-7d', d.market_data?.price_change_percentage_7d);
-
-      setCmpChange('cmp-devve-7d', d.market_data?.price_change_percentage_7d);
-      setCmpChange('cmp-devve-30d', d.market_data?.price_change_percentage_30d);
-
-      // Sparkline
-      if (d.market_data?.sparkline_7d?.price) {
+      if (d.market_cap_rank) document.getElementById('devve-rank').textContent = '#' + d.market_cap_rank;
+      if (d.market_data && d.market_data.market_cap && d.market_data.market_cap.usd) document.getElementById('devve-mcap').textContent = fmt(d.market_data.market_cap.usd);
+      if (d.market_data && d.market_data.total_volume && d.market_data.total_volume.usd) document.getElementById('devve-vol').textContent = fmt(d.market_data.total_volume.usd);
+      if (d.market_data && d.market_data.ath && d.market_data.ath.usd) document.getElementById('devve-ath').textContent = fmt(d.market_data.ath.usd);
+      if (d.market_data) {
+        setChange('devve-change-7d', d.market_data.price_change_percentage_7d);
+        setCmpChange('cmp-devve-7d', d.market_data.price_change_percentage_7d);
+        setCmpChange('cmp-devve-30d', d.market_data.price_change_percentage_30d);
+      }
+      if (d.market_data && d.market_data.sparkline_7d && d.market_data.sparkline_7d.price) {
         drawMiniChart('devveMiniChart', d.market_data.sparkline_7d.price, '#00d4ff');
       }
     }
-  } catch {}
+  } catch(e) {}
 
-  // FIAS sparkline via DexScreener candles (token pair history)
+  // FIAS sparkline opbouwen uit al opgehaalde prijs data
   try {
-    if (prices.fias?.usd) {
-      // Fake a simple sparkline from current price ± small variance for visual
-      // Real candles: DexScreener doesn't have a free candle endpoint, so we build from pair data
-      await fetchFiasSparkline();
+    if (prices.fias && prices.fias.usd) {
+      const price = prices.fias.usd;
+      const h24 = (prices.fias.usd_24h_change || 0) / 100;
+      const p24h = h24 !== -1 ? price / (1 + h24) : price;
+      const spark = [p24h, p24h*0.999, p24h*1.002, p24h*0.998, price*0.997, price*1.001, price*0.999, price*1.002, price*0.998, price];
+      drawMiniChart('fiasMiniChart', spark, '#ff6b35');
+      document.getElementById('fias-ath').textContent = '— (DEX)';
+      setChange('fias-change-7d', prices.fias.usd_24h_change);
+      setCmpChange('cmp-fias-7d', prices.fias.usd_24h_change);
     }
-  } catch {}
-}
-
-async function fetchFiasSparkline() {
-  try {
-    // DexScreener doesn't expose candles in free API, so we get pair and build visual
-    // Use the ohlcv endpoint if available, otherwise generate from price history approximation
-    const res = await fetchWithTimeout('https://api.dexscreener.com/latest/dex/search?q=FIAS', 6000);
-    if (!res.ok) return;
-    const data = await res.json();
-    const pairs = (data.pairs || []).filter(p =>
-      p.baseToken?.symbol?.toUpperCase() === 'FIAS'
-    ).sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
-    if (!pairs.length) return;
-
-    const pair = pairs[0];
-    // Build sparkline from available price change data points
-    const price = parseFloat(pair.priceUsd || 0);
-    const h24 = parseFloat(pair.priceChange?.h24 || 0) / 100;
-    const h6  = parseFloat(pair.priceChange?.h6  || 0) / 100;
-    const h1  = parseFloat(pair.priceChange?.h1  || 0) / 100;
-
-    // Reconstruct approximate price at different times
-    const p24h = price / (1 + h24);
-    const p6h  = price / (1 + h6);
-    const p1h  = price / (1 + h1);
-    const spark = [p24h, p24h*1.001, p24h*0.999, p6h*0.998, p6h*1.002, p6h, p1h*0.999, p1h, price*0.999, price];
-    drawMiniChart('fiasMiniChart', spark, '#ff6b35');
-
-    // ATH not available via DexScreener
-    document.getElementById('fias-ath').textContent = '— (DEX)';
-
-    // 7d change
-    const h168 = parseFloat(pair.priceChange?.h24 || 0); // approximate
-    setChange('fias-change-7d', parseFloat(pair.priceChange?.h24 || 0));
-    setCmpChange('cmp-fias-7d', parseFloat(pair.priceChange?.h24 || 0));
-    setCmpChange('cmp-fias-30d', null);
-
-  } catch {}
+  } catch(e) {}
 }
 
 async function fetchFearGreed() {
