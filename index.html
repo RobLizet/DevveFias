@@ -2300,24 +2300,6 @@ async function loadCandleChart(coin, tf) {
   }
 }
 
-    // Volume
-    const volData = calcVolumeArr(candles);
-    lwVolSeries.setData(volData);
-    lwVolChart.timeScale().fitContent();
-
-    // MACD
-    const macdData = calcMACDarr(candles);
-    lwMacdHist.setData(macdData.map(d => ({ time: d.time, value: d.hist, color: d.hist >= 0 ? 'rgba(26,158,90,0.7)' : 'rgba(217,48,48,0.7)' })));
-    lwMacdSeries.setData(macdData.map(d => ({ time: d.time, value: d.macd })));
-    lwMacdSignal.setData(macdData.map(d => ({ time: d.time, value: d.signal })));
-    lwMacdChart.timeScale().fitContent();
-    const lastMacd = macdData[macdData.length - 1];
-    const macdEl = document.getElementById('macdLabel');
-    if (macdEl) {
-      const col = lastMacd.hist >= 0 ? '#1a9e5a' : '#d93030';
-      macdEl.innerHTML = `<span style="color:#0088cc">MACD:${lastMacd.macd.toExponential(2)}</span> <span style="color:#e05a20">Signal:${lastMacd.signal.toExponential(2)}</span> <span style="color:${col}">Hist:${lastMacd.hist.toExponential(2)}</span>`;
-    }
-
 function selectChartCoin(coin, btn) {
   currentChartCoin = coin;
   document.querySelectorAll('.coin-tab').forEach(t => t.classList.remove('active'));
