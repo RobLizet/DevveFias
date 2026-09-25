@@ -1,4 +1,4 @@
-const CACHE_NAME = 'devve-fias-v2';
+const CACHE_NAME = 'devve-fias-v3';
 const ASSETS = [
   './',
   './index.html',

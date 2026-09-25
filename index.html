@@ -1913,6 +1913,8 @@ async function loadDevveTradingView(tf) {
   });
 }
 
+// FIAS — GeckoTerminal embed (zelfde chart als CoinGecko: Uniswap V3 FIAS/WETH pool)
+let fiasChartSource = 'gecko'; // 'gecko' of 'dex'
 async function loadFiasTradingView(tf) {
   const elC = document.getElementById('candleChart');
   const elV = document.getElementById('volumeChart');
@@ -1926,45 +1928,55 @@ async function loadFiasTradingView(tf) {
   if (macdRow) macdRow.style.display='none';
   if (rsiRow)  rsiRow.style.display='none';
   if (indEl)   indEl.style.display='none';
-  if (elC) elC.style.height = '460px';
   destroyCharts();
-  if (elC) elC.innerHTML = '';
+  if (!elC) return;
+  elC.style.height = '500px';
+  elC.style.background = '#ffffff';
+  elC.innerHTML = '';
 
-  const tfMap = { '15m':'15','4H':'240','1D':'D','7D':'W','30D':'M','1J':'12M' };
   const titleEl = document.getElementById('chartTitle');
-  if (titleEl) { titleEl.textContent = `FIAS — ${tf} (TradingView)`; titleEl.className='section-title fias'; }
+  if (titleEl) { titleEl.textContent = `FIAS/WETH — ${tf} (${fiasChartSource === 'gecko' ? 'GeckoTerminal' : 'DexScreener'})`; titleEl.className='section-title fias'; }
 
   const p = prices.fias?.usd;
   const priceEl = document.getElementById('chartCurrentPrice');
-  if (priceEl) { priceEl.textContent = p ? '$'+Number(p).toFixed(Number(p)<0.001?8:Number(p)<0.01?6:4) : ''; priceEl.style.color='var(--fias)'; }
+  if (priceEl) { priceEl.textContent = p ? '$'+Number(p).toFixed(Number(p)<0.001?8:Number(p)<0.01?6:5) : ''; priceEl.style.color='var(--fias)'; }
   const changeEl = document.getElementById('chartCurrentChange');
   if (changeEl && prices.fias?.usd_24h_change != null) {
     const s = fmtChange(Number(prices.fias.usd_24h_change));
     changeEl.textContent = s.text; changeEl.className='change-badge '+s.cls;
   }
 
-  if (!tvScriptLoaded) {
-    await new Promise((res, rej) => {
-      const s = document.createElement('script');
-      s.src = 'https://s3.tradingview.com/tv.js';
-      s.onload = () => { tvScriptLoaded=true; res(); };
-      s.onerror = () => rej(new Error('TradingView script niet geladen'));
-      document.head.appendChild(s);
-    });
-  }
-  new TradingView.widget({
-    autosize: true,
-    symbol: 'UNISWAP3ETH:FIASUSDC_21E88F.IL0.USD',
-    interval: tfMap[tf] || 'D',
-    timezone: 'Europe/Amsterdam',
-    theme: 'light', style: '1', locale: 'nl',
-    enable_publishing: false,
-    hide_top_toolbar: false, hide_legend: false,
-    save_image: false, withdateranges: true,
-    allow_symbol_change: false, calendar: false,
-    support_host: 'https://www.tradingview.com',
-    container_id: 'candleChart',
+  const gtRes = { '15m':'15m', '4H':'4h', '1D':'1d', '7D':'1d', '30D':'1d', '1J':'1d' }[tf] || '1d';
+  const src = fiasChartSource === 'gecko'
+    ? `https://www.geckoterminal.com/eth/pools/${FIAS_PAIR_ADDR}?embed=1&info=0&swaps=0&grayscale=0&light_chart=1&chart_type=price&resolution=${gtRes}`
+    : `https://dexscreener.com/ethereum/${FIAS_PAIR_ADDR}?embed=1&loadChartSettings=0&trades=0&tabs=0&info=0&chartLeftToolbar=0&chartTheme=light&theme=light&chartStyle=1&chartType=usd&interval=${ {'15m':'15','4H':'240','1D':'1D','7D':'1D','30D':'1D','1J':'1D'}[tf] || '1D' }`;
+
+  const bar = document.createElement('div');
+  bar.style.cssText = 'display:flex;gap:6px;padding:6px;background:#f2f4f6;border-bottom:1px solid #bcc1ca;';
+  [['gecko','GeckoTerminal'],['dex','DexScreener']].forEach(([key,label]) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    const act = fiasChartSource === key;
+    b.style.cssText = `flex:1;padding:6px 8px;border-radius:6px;font-size:11px;font-family:'Share Tech Mono',monospace;cursor:pointer;border:1px solid ${act?'#e05a20':'#bcc1ca'};background:${act?'rgba(224,90,32,0.12)':'#fff'};color:${act?'#e05a20':'#1a1e26'};`;
+    b.onclick = () => { fiasChartSource = key; loadFiasTradingView(currentTf || tf); };
+    bar.appendChild(b);
   });
+  elC.appendChild(bar);
+
+  const frame = document.createElement('iframe');
+  frame.src = src;
+  frame.title = 'FIAS/WETH chart';
+  frame.setAttribute('frameborder', '0');
+  frame.setAttribute('allow', 'clipboard-write');
+  frame.setAttribute('allowfullscreen', '');
+  frame.style.cssText = 'width:100%;height:calc(100% - 38px);border:0;display:block;';
+  elC.appendChild(frame);
+}
+
+// DevvE-weergave herstellen na FIAS (hoogte/achtergrond)
+function resetChartBox() {
+  const elC = document.getElementById('candleChart');
+  if (elC) { elC.style.background = '#f2f4f6'; }
 }
 
 async function loadCandleChart(coin, tf) {
@@ -1975,10 +1987,11 @@ async function loadCandleChart(coin, tf) {
 
   try {
     if (coin === 'devve') {
+      resetChartBox();
       await loadDevveTradingView(tf);
       return;
     }
-    // FIAS — TradingView widget (zelfde aanpak als DevvE)
+    // FIAS — GeckoTerminal / DexScreener embed
     await loadFiasTradingView(tf);
   } catch(e) {
     if (errEl) { errEl.style.display='block'; errEl.textContent='⚠️ Grafiek fout: '+(e?.message||e); }
